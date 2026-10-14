@@ -1,0 +1,15 @@
+@model SpyGame.Web.Models.ViewModels.JoinRoomForm
+@{
+    ViewData["Title"] = "Odaya katıl";
+}
+<h1>Odaya katıl</h1>
+@if (ViewData["Error"] is string error)
+{
+    <p role="alert" data-error="@error">@error</p>
+}
+<form method="post" action="/join">
+    @Html.AntiForgeryToken()
+    <label>Takma ad <input name="Nickname" value="@Model.Nickname" maxlength="20" autocomplete="nickname" required /></label>
+    <label>Oda kodu <input name="Code" value="@Model.Code" maxlength="8" autocomplete="off" required /></label>
+    <button type="submit">Katıl</button>
+</form>

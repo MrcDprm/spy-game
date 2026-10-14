@@ -1,0 +1,6 @@
+@model SpyGame.Web.Models.ViewModels.PlayViewModel
+@{
+    ViewData["Title"] = Model.Code;
+}
+<h1>Oda @Model.Code</h1>
+<div id="game" data-room="@Model.Code"></div>

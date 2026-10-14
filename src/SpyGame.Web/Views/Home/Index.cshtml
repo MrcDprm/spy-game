@@ -1,2 +1,45 @@
+@model SpyGame.Web.Models.ViewModels.HomeViewModel
+@using SpyGame.Web.Models.Game
+@{
+    ViewData["Title"] = "Casus";
+}
 <h1>Casus</h1>
-<p>Yapım aşamasında.</p>
+@if (Model.Error is not null)
+{
+    <p role="alert" data-error="@Model.Error">@Model.Error</p>
+}
+
+<section>
+    <h2>Oda kur</h2>
+    <form method="post" action="/rooms">
+        @Html.AntiForgeryToken()
+        <label>Takma ad <input name="Create.Nickname" value="@Model.Create.Nickname" maxlength="20" autocomplete="nickname" required /></label>
+        <fieldset>
+            <legend>Kategoriler</legend>
+            @foreach (var category in WordBank.Categories)
+            {
+                <label><input type="checkbox" name="Create.CategoryIds" value="@category.Id" checked="@Model.Create.CategoryIds.Contains(category.Id)" /> @category.NameTr</label>
+            }
+        </fieldset>
+        <label>Tur süresi (dakika) <input type="number" name="Create.RoundMinutes" value="@Model.Create.RoundMinutes" min="1" max="15" /></label>
+        <label>Casus sayısı
+            <select name="Create.SpyCount">
+                @for (var i = RoundRules.MinSpies; i <= RoundRules.MaxSpies; i++)
+                {
+                    <option value="@i" selected="@(Model.Create.SpyCount == i)">@i</option>
+                }
+            </select>
+        </label>
+        <button type="submit">Oda kur</button>
+    </form>
+</section>
+
+<section>
+    <h2>Odaya katıl</h2>
+    <form method="post" action="/join">
+        @Html.AntiForgeryToken()
+        <label>Takma ad <input name="Nickname" value="@Model.Join.Nickname" maxlength="20" autocomplete="nickname" required /></label>
+        <label>Oda kodu <input name="Code" value="@Model.Join.Code" maxlength="8" autocomplete="off" required /></label>
+        <button type="submit">Katıl</button>
+    </form>
+</section>

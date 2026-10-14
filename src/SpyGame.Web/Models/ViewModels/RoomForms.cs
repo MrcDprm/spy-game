@@ -1,0 +1,37 @@
+using SpyGame.Web.Models.Game;
+
+namespace SpyGame.Web.Models.ViewModels;
+
+/// <summary>The "new room" form. The person who creates the room chooses everything here.</summary>
+public sealed class CreateRoomForm
+{
+    public string? Nickname { get; set; }
+    public List<string> CategoryIds { get; set; } = [];
+    public int RoundMinutes { get; set; } = RoomSettings.DefaultRoundSeconds / 60;
+    public int SpyCount { get; set; } = 1;
+
+    public RoomSettings ToSettings() => new()
+    {
+        CategoryIds = CategoryIds,
+        RoundSeconds = RoundMinutes * 60,
+        SpyCount = SpyCount,
+    };
+}
+
+public sealed class JoinRoomForm
+{
+    public string? Nickname { get; set; }
+    public string? Code { get; set; }
+}
+
+public sealed class HomeViewModel
+{
+    public CreateRoomForm Create { get; set; } = new();
+    public JoinRoomForm Join { get; set; } = new();
+    public string? Error { get; set; }
+}
+
+public sealed class PlayViewModel
+{
+    public required string Code { get; init; }
+}
