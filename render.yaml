@@ -34,4 +34,4 @@ services:
       - key: PUBLIC_ORIGIN
         value: "https://spygame.miracdeprem.com"
       - key: AllowedHosts
-        value: "spygame.miracdeprem.com;spy-game.onrender.com"
+        value: "spygame.miracdeprem.com;spy-game-87jd.onrender.com" # Render added the -87jd suffix (spy-game was taken)
