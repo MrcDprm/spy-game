@@ -50,8 +50,10 @@ public class RoomCodeTests
     public void Codes_are_not_repeated_in_practice()
     {
         var random = new CryptoRandomSource();
+        // Birthday paradox: among 5,000 codes from 887 million, a single repeat happens about 1.4%
+        // of the time (creating a room then just draws again). A broken generator repeats far more.
         var codes = Enumerable.Range(0, 5000).Select(_ => RoomCode.Generate(random)).ToHashSet();
-        Assert.Equal(5000, codes.Count);
+        Assert.True(codes.Count >= 4997, $"{5000 - codes.Count} repeats");
     }
 
     [Theory]
