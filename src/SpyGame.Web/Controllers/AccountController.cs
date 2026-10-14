@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.WebUtilities;
 using SpyGame.Web.Data;
+using SpyGame.Web.Infrastructure;
 using SpyGame.Web.Localization;
 using SpyGame.Web.Models.Game;
 using SpyGame.Web.Models.ViewModels;
@@ -62,6 +63,7 @@ public class AccountController(
 
         if (await users.FindByEmailAsync(email) is { } existing)
         {
+            users.PasswordHasher.HashPassword(existing, form.Password!); // as slow as a real sign-up, so timing tells nothing
             // Same answer as a new sign-up; the owner of the address gets a note instead.
             await emails.AlreadyRegisteredAsync(email, await ResetLinkAsync(existing), English);
             return RedirectToAction(nameof(CheckEmail));
@@ -87,6 +89,7 @@ public class AccountController(
         var account = userId is null ? null : await users.FindByIdAsync(userId);
         if (account is null || code is null || !(await users.ConfirmEmailAsync(account, Decode(code))).Succeeded)
             return View("Message", "account.confirm.failed");
+        sessions.Forget(HttpContext); // a fresh game session, linked to the account on the next request
         await signIn.SignInAsync(account, isPersistent: true);
         TempData["Notice"] = "account.confirm.done";
         return Redirect("/");
@@ -119,6 +122,7 @@ public class AccountController(
         else
         {
             await users.ResetAccessFailedCountAsync(account);
+            sessions.Forget(HttpContext);
             await signIn.SignInAsync(account, isPersistent: true);
             return LocalRedirect(Url.IsLocalUrl(form.ReturnUrl) ? form.ReturnUrl : "/");
         }
@@ -214,10 +218,10 @@ public class AccountController(
     };
 
     private async Task<string> ConfirmLinkAsync(Account account) =>
-        Url.Action(nameof(Confirm), "Account", new { userId = account.Id, code = Encode(await users.GenerateEmailConfirmationTokenAsync(account)) }, Request.Scheme)!;
+        PublicOrigin.Of(HttpContext) + Url.Action(nameof(Confirm), "Account", new { userId = account.Id, code = Encode(await users.GenerateEmailConfirmationTokenAsync(account)) });
 
     private async Task<string> ResetLinkAsync(Account account) =>
-        Url.Action(nameof(Reset), "Account", new { userId = account.Id, code = Encode(await users.GeneratePasswordResetTokenAsync(account)) }, Request.Scheme)!;
+        PublicOrigin.Of(HttpContext) + Url.Action(nameof(Reset), "Account", new { userId = account.Id, code = Encode(await users.GeneratePasswordResetTokenAsync(account)) });
 
     private static string Encode(string token) => WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
 

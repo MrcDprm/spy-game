@@ -74,7 +74,7 @@ public partial class AccountTests(GameFactory factory) : IClassFixture<GameFacto
         await NewBrowser().GetAsync(factory.Emails.LastLink(email));
         var login = await LoginAsync(NewBrowser(), email);
         Assert.Equal(HttpStatusCode.Redirect, login.StatusCode);
-        Assert.Contains(login.Headers.GetValues("Set-Cookie"), c => c.StartsWith("sg_auth=") && c.Contains("httponly", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(login.Headers.GetValues("Set-Cookie"), c => c.StartsWith("__Host-sg_auth=") && c.Contains("httponly", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -154,6 +154,59 @@ public partial class AccountTests(GameFactory factory) : IClassFixture<GameFacto
         var home = await (await browser.GetAsync("/")).Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         Assert.DoesNotContain($">{name}</span>", home);
         Assert.Contains("/account/login", home);
+    }
+
+    [Fact]
+    public async Task A_browser_whose_sign_in_is_gone_no_longer_plays_as_the_account()
+    {
+        var name = NewName("kayip");
+        var browser = await ConfirmedAccountAsync(name, NewEmail());
+        await browser.CreateRoomAsync("ignored");      // the game session is now linked to the account
+        browser.Drop("sg_auth");                       // logged out elsewhere, password reset, cookie expired
+        var home = await (await browser.GetAsync("/")).Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        Assert.DoesNotContain($"value=\"{name}\"", home); // the name is no longer filled in
+        var create = await browser.SubmitAsync("/", "/rooms", new()
+        {
+            ["Create.Nickname"] = name, ["Create.CategoryIds[0]"] = "art", ["Create.RoundMinutes"] = "5", ["Create.SpyCount"] = "1",
+        });
+        Assert.Equal("nickname_registered", await ErrorOf(create));
+    }
+
+    [Fact]
+    public async Task Logging_in_starts_a_fresh_game_session()
+    {
+        var email = NewEmail();
+        await ConfirmedAccountAsync(NewName("taze"), email);
+        var browser = NewBrowser();
+        await browser.CreateRoomAsync(NewName("once")); // a game session from before logging in (or planted)
+        var login = await LoginAsync(browser, email);
+        Assert.Contains(login.Headers.GetValues("Set-Cookie"), c => c.StartsWith("__Host-sg_session=;") && c.Contains("secure", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public async Task Links_in_emails_use_the_sites_own_address_even_with_a_forged_host()
+    {
+        var email = NewEmail();
+        await ConfirmedAccountAsync(NewName("host"), email);
+        var attacker = NewBrowser();
+        attacker.Headers["X-Forwarded-Host"] = "evil.example";
+        await attacker.SubmitAsync("/account/forgot", "/account/forgot", new() { ["Email"] = email });
+        var html = factory.Emails.To(email)[^1].Html;
+        Assert.Contains($"href=\"{GameFactory.PublicOrigin}/account/reset?", html);
+        Assert.DoesNotContain("evil.example", html);
+    }
+
+    [Fact]
+    public async Task One_address_gets_at_most_three_emails_an_hour()
+    {
+        var email = NewEmail();
+        await RegisterAsync(NewBrowser(), NewName("sel"), email); // 1: the confirmation
+        for (var i = 0; i < 5; i++)
+        {
+            var again = await RegisterAsync(NewBrowser(), NewName("sel"), email);
+            Assert.Equal("/account/check-email", again.Headers.Location!.ToString()); // the page answers the same
+        }
+        Assert.Equal(3, factory.Emails.To(email).Count);
     }
 
     [Fact]

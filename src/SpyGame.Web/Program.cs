@@ -55,6 +55,7 @@ if (!string.IsNullOrWhiteSpace(redisUrl))
     builder.Services.AddSingleton<ISessionStore>(sp => sp.GetRequiredService<RedisGameStore>());
     builder.Services.AddSingleton<INicknameRegistry>(sp => sp.GetRequiredService<RedisGameStore>());
     builder.Services.AddSingleton<ILeaderboardCache>(sp => sp.GetRequiredService<RedisGameStore>());
+    builder.Services.AddSingleton<IRateCounter>(sp => sp.GetRequiredService<RedisGameStore>());
 }
 else if (builder.Environment.IsProduction())
 {
@@ -67,6 +68,7 @@ else
     builder.Services.AddSingleton<ISessionStore>(sp => sp.GetRequiredService<InMemoryGameStore>());
     builder.Services.AddSingleton<INicknameRegistry>(sp => sp.GetRequiredService<InMemoryGameStore>());
     builder.Services.AddSingleton<ILeaderboardCache>(sp => sp.GetRequiredService<InMemoryGameStore>());
+    builder.Services.AddSingleton<IRateCounter>(sp => sp.GetRequiredService<InMemoryGameStore>());
 }
 
 // Lasting data (accounts, scores, data-protection keys): Neon Postgres. Tests plug in SQLite instead.
@@ -75,6 +77,8 @@ if (!string.IsNullOrWhiteSpace(databaseUrl))
     builder.Services.AddDbContext<AppDbContext>(o => o.UseNpgsql(ConnectionStrings.Normalize(databaseUrl)));
 else if (!builder.Environment.IsEnvironment("Testing"))
     throw new InvalidOperationException("DATABASE_URL is required (dotnet user-secrets set DATABASE_URL ...).");
+if (builder.Environment.IsProduction() && string.IsNullOrWhiteSpace(builder.Configuration["PUBLIC_ORIGIN"]))
+    throw new InvalidOperationException("PUBLIC_ORIGIN is required in production (e.g. https://spygame.miracdeprem.com).");
 
 builder.Services.AddIdentity<Account, IdentityRole>(o =>
     {
@@ -93,7 +97,7 @@ builder.Services.AddIdentity<Account, IdentityRole>(o =>
     .AddDefaultTokenProviders();
 builder.Services.ConfigureApplicationCookie(o =>
 {
-    o.Cookie.Name = "sg_auth";
+    o.Cookie.Name = CookieNames.For(builder.Environment, "sg_auth");
     o.Cookie.HttpOnly = true;
     o.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest; // https in production
     o.Cookie.SameSite = SameSiteMode.Lax;
@@ -102,7 +106,14 @@ builder.Services.ConfigureApplicationCookie(o =>
     o.ExpireTimeSpan = TimeSpan.FromDays(30);
     o.SlidingExpiration = true;
 });
-builder.Services.AddAntiforgery(o => o.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest);
+builder.Services.AddAntiforgery(o =>
+{
+    o.Cookie.Name = CookieNames.For(builder.Environment, "sg_af");
+    o.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+});
+// The sign-in cookie is checked against the account on every request, so a password reset or a
+// removed account logs the other devices out at once (the default waits up to 30 minutes).
+builder.Services.Configure<SecurityStampValidatorOptions>(o => o.ValidationInterval = TimeSpan.Zero);
 builder.Services.Configure<CookieTempDataProviderOptions>(o => o.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest);
 // The keys that protect cookies and e-mail links live in the database: a restart keeps them valid.
 builder.Services.AddDataProtection().SetApplicationName("SpyGame").PersistKeysToDbContext<AppDbContext>();

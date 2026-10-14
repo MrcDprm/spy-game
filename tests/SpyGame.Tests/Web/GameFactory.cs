@@ -2,7 +2,6 @@ using System.Net;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Http.Connections;
@@ -51,12 +50,16 @@ public sealed class FakeEmailSender : IEmailSender
 /// </summary>
 public sealed class GameFactory : WebApplicationFactory<Program>
 {
-    private readonly SqliteConnection _database = new("DataSource=:memory:");
+    // A temporary SQLite file: each request opens its own connection, like with Postgres
+    // (one shared in-memory connection breaks when requests run at the same time).
+    private readonly string _databaseFile = Path.Combine(Path.GetTempPath(), $"spygame-test-{Guid.NewGuid():N}.db");
+    private string ConnectionString => $"Data Source={_databaseFile};Pooling=False;Default Timeout=30";
 
     public ManualClock Clock { get; } = new(DateTimeOffset.UtcNow);
     public FakeEmailSender Emails { get; } = new();
 
     public const string AdminEmail = "boss@example.com";
+    public const string PublicOrigin = "https://spygame.test";
 
     // The app redirects plain HTTP to HTTPS outside Development, like in production.
     public static readonly Uri Https = new("https://localhost/");
@@ -64,10 +67,10 @@ public sealed class GameFactory : WebApplicationFactory<Program>
     public GameFactory()
     {
         ClientOptions.BaseAddress = Https;
-        _database.Open(); // an in-memory SQLite database lives as long as its connection
         // The schema must exist before the app starts: data protection reads its keys at start-up.
-        using var db = new AppDbContext(new DbContextOptionsBuilder<AppDbContext>().UseSqlite(_database).Options);
+        using var db = new AppDbContext(new DbContextOptionsBuilder<AppDbContext>().UseSqlite(ConnectionString).Options);
         db.Database.EnsureCreated();
+        db.Database.ExecuteSqlRaw("PRAGMA journal_mode=WAL;"); // readers do not wait for a writer
     }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
@@ -75,10 +78,11 @@ public sealed class GameFactory : WebApplicationFactory<Program>
         builder.UseEnvironment("Testing"); // not Development: user-secrets (REDIS_URL) are not read
         builder.UseSetting("REDIS_URL", "");
         builder.UseSetting("ADMIN_EMAILS", GameFactory.AdminEmail);
+        builder.UseSetting("PUBLIC_ORIGIN", PublicOrigin);
         builder.ConfigureServices(services =>
         {
             services.Replace(ServiceDescriptor.Singleton<TimeProvider>(Clock));
-            services.AddDbContext<AppDbContext>(o => o.UseSqlite(_database));
+            services.AddDbContext<AppDbContext>(o => o.UseSqlite(ConnectionString));
             services.RemoveAll<IEmailSender>();
             services.AddSingleton<IEmailSender>(Emails);
         });
@@ -87,7 +91,11 @@ public sealed class GameFactory : WebApplicationFactory<Program>
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);
-        if (disposing) _database.Dispose();
+        if (!disposing) return;
+        foreach (var file in new[] { _databaseFile, _databaseFile + "-wal", _databaseFile + "-shm" })
+        {
+            try { File.Delete(file); } catch (IOException) { /* still open: the temp folder cleans it later */ }
+        }
     }
 
     public Browser NewBrowser(string ip) => new(this, ip);
@@ -156,9 +164,19 @@ public sealed partial class Browser(GameFactory factory, string ip)
         return channel;
     }
 
+    /// <summary>Throws away cookies whose name contains <paramref name="part"/> (an expired or lost cookie).</summary>
+    public void Drop(string part)
+    {
+        foreach (var name in _cookies.Keys.Where(k => k.Contains(part)).ToList()) _cookies.Remove(name);
+    }
+
+    /// <summary>Extra request headers for the next requests (for example a forged Host).</summary>
+    public Dictionary<string, string> Headers { get; } = [];
+
     private HttpRequestMessage Request(HttpMethod method, string path)
     {
         var request = new HttpRequestMessage(method, path);
+        foreach (var (name, value) in Headers) request.Headers.TryAddWithoutValidation(name, value);
         if (_cookies.Count > 0) request.Headers.Add("Cookie", CookieHeader);
         request.Headers.Add("CF-Connecting-IP", ip);
         return request;
@@ -170,7 +188,8 @@ public sealed partial class Browser(GameFactory factory, string ip)
         foreach (var value in values)
         {
             var pair = value.Split(';')[0].Split('=', 2);
-            _cookies[pair[0]] = pair[1];
+            if (pair[1].Length == 0 || value.Contains("expires=Thu, 01 Jan 1970", StringComparison.OrdinalIgnoreCase)) _cookies.Remove(pair[0]);
+            else _cookies[pair[0]] = pair[1];
         }
     }
 

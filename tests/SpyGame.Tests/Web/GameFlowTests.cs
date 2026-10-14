@@ -208,7 +208,7 @@ public class RoomPageTests : IClassFixture<GameFactory>
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var html = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         Assert.Contains($"data-room=\"{code}\"", html);
-        Assert.Contains($"https://localhost/join/{code}", html);
+        Assert.Contains($"{GameFactory.PublicOrigin}/join/{code}", html); // the configured address, not the request's Host
         Assert.Contains("src=\"data:image/png;base64,", html);
         Assert.Contains("<script type=\"application/json\" id=\"texts\">", html);
         Assert.Contains("\"lobby.start\":", html); // the room script's texts are on the page
@@ -228,7 +228,8 @@ public class RoomPageTests : IClassFixture<GameFactory>
     {
         var browser = _factory.NewBrowser(NewIp());
         var response = await browser.SubmitAsync("/", "/join", new() { ["Nickname"] = "kuki" + Guid.NewGuid().ToString("N")[..6], ["Code"] = "ZZZZZZ" });
-        var cookie = response.Headers.GetValues("Set-Cookie").Single(c => c.StartsWith("sg_session="));
+        var cookie = response.Headers.GetValues("Set-Cookie").Single(c => c.StartsWith("__Host-sg_session="));
+        Assert.Contains("secure", cookie, StringComparison.OrdinalIgnoreCase); // required by the __Host- prefix
         Assert.Contains("httponly", cookie, StringComparison.OrdinalIgnoreCase);
         Assert.Contains("samesite=lax", cookie, StringComparison.OrdinalIgnoreCase);
     }

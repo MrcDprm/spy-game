@@ -7,7 +7,7 @@ namespace SpyGame.Web.Services.Storage;
 /// Rooms, sessions and nicknames in Redis. Every "check, then write" happens inside one Lua
 /// script, which Redis runs as a single step, so two requests can never both win a race.
 /// </summary>
-public sealed class RedisGameStore(IConnectionMultiplexer redis) : IRoomStore, ISessionStore, INicknameRegistry, ILeaderboardCache
+public sealed class RedisGameStore(IConnectionMultiplexer redis) : IRoomStore, ISessionStore, INicknameRegistry, ILeaderboardCache, IRateCounter
 {
     private const int MaxRetries = 20;
     private IDatabase Db => redis.GetDatabase();
@@ -27,6 +27,13 @@ public sealed class RedisGameStore(IConnectionMultiplexer redis) : IRoomStore, I
           return 1
         end
         return 0
+        """;
+
+    // Count, and start the window's clock on the first use.
+    private const string Hit = """
+        local n = redis.call('INCR', KEYS[1])
+        if n == 1 then redis.call('EXPIRE', KEYS[1], ARGV[1]) end
+        return n
         """;
 
     private const string ReleaseIfOwner = """
@@ -94,6 +101,9 @@ public sealed class RedisGameStore(IConnectionMultiplexer redis) : IRoomStore, I
         Db.ScriptEvaluateAsync(ReleaseIfOwner, [StoreKeys.Nickname(nickname)], [playerId]);
 
     // --- weekly leaderboard (sorted set) ---
+
+    public async Task<bool> TryHitAsync(string key, int limit, TimeSpan window) =>
+        (long)await Db.ScriptEvaluateAsync(Hit, [StoreKeys.Counter(key)], [(long)window.TotalSeconds]) <= limit;
 
     public Task<bool> ExistsAsync(string week) => Db.KeyExistsAsync(StoreKeys.Leaderboard(week));
 

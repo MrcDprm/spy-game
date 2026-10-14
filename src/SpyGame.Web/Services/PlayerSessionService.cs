@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using System.Security.Cryptography;
+using SpyGame.Web.Infrastructure;
 using SpyGame.Web.Services.Storage;
 
 namespace SpyGame.Web.Services;
@@ -10,7 +11,7 @@ namespace SpyGame.Web.Services;
 /// </summary>
 public sealed class PlayerSessionService(ISessionStore sessions, IWebHostEnvironment env)
 {
-    public const string CookieName = "sg_session";
+    public string CookieName { get; } = CookieNames.For(env, "sg_session");
 
     /// <summary>The session of this request, or null if the browser has none (or it expired).</summary>
     public async Task<PlayerSession?> FindAsync(HttpContext http)
@@ -43,8 +44,13 @@ public sealed class PlayerSessionService(ISessionStore sessions, IWebHostEnviron
 
     public Task SaveAsync(string token, PlayerSession session) => sessions.SaveAsync(token, session);
 
-    /// <summary>Ends the game session (on logout): the browser plays on as a new guest.</summary>
-    public void Forget(HttpContext http) => http.Response.Cookies.Delete(CookieName);
+    /// <summary>
+    /// Ends the game session: on logout (play on as a new guest) and on login (a session that was
+    /// planted in the browser before must not become the account's).
+    /// </summary>
+    public void Forget(HttpContext http) =>
+        // A "__Host-" cookie is only removed by a reply with the same Secure and Path attributes.
+        http.Response.Cookies.Delete(CookieName, new CookieOptions { Path = "/", Secure = !env.IsDevelopment() || http.Request.IsHttps, HttpOnly = true, SameSite = SameSiteMode.Lax });
 
     /// <summary>
     /// A logged-in browser plays as its account: same session, the account's id and name.
@@ -52,7 +58,15 @@ public sealed class PlayerSessionService(ISessionStore sessions, IWebHostEnviron
     /// </summary>
     private async Task<PlayerSession> WithAccountAsync(HttpContext http, string token, PlayerSession session)
     {
-        if (http.User.Identity?.IsAuthenticated != true) return session;
+        if (http.User.Identity?.IsAuthenticated != true)
+        {
+            // No (valid) sign-in any more: logged out elsewhere, password reset, cookie expired.
+            // The game session must not keep playing, or scoring, as the account.
+            if (session.AccountId is null) return session;
+            var guest = session with { AccountId = null, Nickname = null };
+            await sessions.SaveAsync(token, guest);
+            return guest;
+        }
         var accountId = http.User.FindFirstValue(ClaimTypes.NameIdentifier);
         var name = http.User.FindFirstValue(ClaimTypes.Name);
         if (accountId is null || name is null || (session.AccountId == accountId && session.Nickname == name)) return session;

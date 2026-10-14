@@ -57,7 +57,7 @@ public class RoomController(RoomService rooms, PlayerSessionService sessions) : 
         var session = await sessions.FindAsync(HttpContext);
         if (session is null || !RoomCode.IsValid(code) || await rooms.ViewAsync(code, session.PlayerId) is null)
             return RedirectToAction(nameof(Join), new { code }); // not in this room (yet)
-        var invite = $"{Request.Scheme}://{Request.Host}/join/{code}";
+        var invite = $"{PublicOrigin.Of(HttpContext)}/join/{code}";
         return View(new PlayViewModel { Code = code, InviteUrl = invite, QrDataUrl = QrCode.PngDataUrl(invite) });
     }
 

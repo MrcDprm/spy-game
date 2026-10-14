@@ -1,11 +1,28 @@
 using System.Text.Encodings.Web;
+using SpyGame.Web.Services.Storage;
 
 namespace SpyGame.Web.Services.Email;
 
-/// <summary>The account e-mails, in the language the page was in. User data is HTML-encoded.</summary>
-public sealed class AccountEmails(IEmailSender sender)
+/// <summary>
+/// The account e-mails, in the language the page was in. User data is HTML-encoded. At most
+/// 3 e-mails per address per hour, so the forms cannot be used to flood someone's inbox;
+/// the pages answer the same either way.
+/// </summary>
+public sealed class AccountEmails(IEmailSender mail, IRateCounter counter)
 {
+    public const int PerAddressPerHour = 3;
     private static readonly HtmlEncoder Html = HtmlEncoder.Default;
+
+    private readonly ThrottledSender sender = new(mail, counter);
+
+    private sealed class ThrottledSender(IEmailSender mail, IRateCounter counter)
+    {
+        public async Task SendAsync(string to, string subject, string html)
+        {
+            if (await counter.TryHitAsync("mail:" + to.Trim().ToLowerInvariant(), PerAddressPerHour, TimeSpan.FromHours(1)))
+                await mail.SendAsync(to, subject, html);
+        }
+    }
 
     public Task ConfirmAsync(string to, string nickname, string link, bool english) => sender.SendAsync(to,
         english ? "Confirm your e-mail · Casus" : "E-postanı doğrula · Casus",

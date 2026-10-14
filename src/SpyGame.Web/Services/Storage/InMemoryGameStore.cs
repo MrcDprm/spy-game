@@ -7,7 +7,7 @@ namespace SpyGame.Web.Services.Storage;
 /// It stores JSON exactly like the Redis store, so a room that does not survive being written
 /// and read back fails here too. Lifetimes are honoured with the given clock.
 /// </summary>
-public sealed class InMemoryGameStore(TimeProvider clock) : IRoomStore, ISessionStore, INicknameRegistry, ILeaderboardCache
+public sealed class InMemoryGameStore(TimeProvider clock) : IRoomStore, ISessionStore, INicknameRegistry, ILeaderboardCache, IRateCounter
 {
     private readonly Lock _lock = new();
     private readonly Dictionary<string, (string Value, DateTimeOffset Expires)> _values = [];
@@ -98,6 +98,18 @@ public sealed class InMemoryGameStore(TimeProvider clock) : IRoomStore, ISession
             if (owner is not null && owner != playerId) return Task.FromResult(false);
             Write(key, playerId, StoreKeys.NicknameLifetime);
             return Task.FromResult(true);
+        }
+    }
+
+    public Task<bool> TryHitAsync(string key, int limit, TimeSpan window)
+    {
+        lock (_lock)
+        {
+            var k = StoreKeys.Counter(key);
+            var count = Read(k) is { } text ? int.Parse(text) + 1 : 1;
+            var expires = count == 1 ? clock.GetUtcNow() + window : _values[k].Expires;
+            _values[k] = (count.ToString(), expires);
+            return Task.FromResult(count <= limit);
         }
     }
 

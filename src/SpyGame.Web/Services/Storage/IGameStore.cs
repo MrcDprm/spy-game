@@ -68,6 +68,13 @@ public interface ILeaderboardCache
     Task RemoveAsync(string week, string accountId);
 }
 
+/// <summary>A simple counter per key and time window, for limits that are not per request.</summary>
+public interface IRateCounter
+{
+    /// <summary>Counts one more use; false once <paramref name="limit"/> uses happened within the window.</summary>
+    Task<bool> TryHitAsync(string key, int limit, TimeSpan window);
+}
+
 internal static class StoreKeys
 {
     public static readonly TimeSpan RoomLifetime = TimeSpan.FromHours(3);
@@ -80,6 +87,7 @@ internal static class StoreKeys
     public static string Room(string code) => $"sg:room:{code}";
     public static string Session(string token) => $"sg:session:{Hash(token)}";
     public static string Nickname(string name) => $"sg:nick:{name}";
+    public static string Counter(string key) => $"sg:count:{Hash(key)}";
 
     // Only a hash of the cookie is stored: someone who reads Redis cannot take over a player.
     private static string Hash(string token) =>
