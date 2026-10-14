@@ -1,0 +1,5 @@
+@model string?
+@if (Model is not null)
+{
+    <p class="alert" role="alert" data-error="@Model">@T[$"error.{Model}"]</p>
+}

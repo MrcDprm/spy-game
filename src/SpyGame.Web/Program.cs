@@ -1,14 +1,36 @@
+using System.Globalization;
+using System.Text.Encodings.Web;
+using System.Text.Unicode;
 using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Localization;
+using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.WebEncoders;
 using Microsoft.AspNetCore.SignalR;
 using SpyGame.Web.Controllers;
 using SpyGame.Web.Hubs;
 using SpyGame.Web.Infrastructure;
+using SpyGame.Web.Localization;
 using SpyGame.Web.Models.Game;
 using SpyGame.Web.Services;
 using SpyGame.Web.Services.Storage;
 using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Text in two flat JSON files (Resources/tr.json, en.json); the JSON localizer is registered first.
+builder.Services.AddSingleton<IStringLocalizerFactory, JsonStringLocalizerFactory>();
+builder.Services.AddLocalization();
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    var cultures = new[] { new CultureInfo("tr"), new CultureInfo("en") };
+    options.DefaultRequestCulture = new RequestCulture("tr");
+    options.SupportedCultures = cultures;
+    options.SupportedUICultures = cultures;
+    options.RequestCultureProviders = [new CookieRequestCultureProvider(), new AcceptLanguageHeaderRequestCultureProvider()];
+});
+// Razor encodes everything outside Basic Latin by default ("ı" becomes &#x131;); <, >, & and quotes stay encoded.
+builder.Services.Configure<WebEncoderOptions>(options => options.TextEncoderSettings = new TextEncoderSettings(UnicodeRanges.All));
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddSignalR(o => o.AddFilter<HubRateLimitFilter>())
@@ -58,16 +80,38 @@ builder.Services.AddRateLimiter(o =>
         _ => new FixedWindowRateLimiterOptions { PermitLimit = 30, Window = TimeSpan.FromMinutes(10) }));
 });
 
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    // Render terminates TLS at its proxy and forwards plain HTTP.
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownIPNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+builder.Services.AddHttpsRedirection(options => options.HttpsPort = 443); // behind Render's proxy
+builder.Services.AddHsts(options => options.MaxAge = TimeSpan.FromDays(365));
+builder.Services.AddHealthChecks();
+
 var app = builder.Build();
 
+app.UseForwardedHeaders();
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
+    app.UseExceptionHandler("/Error");
     app.UseHsts();
+    // Render's health check calls the container over plain HTTP; a redirect would mark it down.
+    app.UseWhen(context => !context.Request.Path.StartsWithSegments("/healthz"), branch => branch.UseHttpsRedirection());
 }
-
-app.UseHttpsRedirection();
-app.UseStaticFiles();
+app.UseStatusCodePagesWithReExecute("/Error/{0}");
+app.UseSecurityHeaders();
+app.UseStaticFiles(new StaticFileOptions
+{
+    // Files linked with asp-append-version (?v=hash) change URL when they change: cache for a year.
+    OnPrepareResponse = context =>
+        context.Context.Response.Headers.CacheControl = context.Context.Request.Query.ContainsKey("v")
+            ? "public,max-age=31536000,immutable"
+            : "no-cache",
+});
+app.UseRequestLocalization();
 
 // Browsers send cookies with WebSocket connections from other sites too, and CORS does not
 // cover WebSockets: only pages of this site may open the game channel.
@@ -86,7 +130,8 @@ app.Use(async (http, next) =>
 app.UseRouting();
 app.UseRateLimiter();
 
-app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}");
+app.MapHealthChecks("/healthz");
+app.MapControllers();
 app.MapHub<GameHub>(GameHub.Path);
 
 app.Run();

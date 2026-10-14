@@ -19,6 +19,11 @@ public sealed class GameFactory : WebApplicationFactory<Program>
 {
     public ManualClock Clock { get; } = new(DateTimeOffset.UtcNow);
 
+    // The app redirects plain HTTP to HTTPS outside Development, like in production.
+    public static readonly Uri Https = new("https://localhost/");
+
+    public GameFactory() => ClientOptions.BaseAddress = Https;
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Testing"); // not Development: user-secrets (REDIS_URL) are not read
@@ -35,7 +40,7 @@ public sealed class GameFactory : WebApplicationFactory<Program>
 /// </summary>
 public sealed partial class Browser(GameFactory factory, string ip)
 {
-    private readonly HttpClient _http = factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false, HandleCookies = false });
+    private readonly HttpClient _http = factory.CreateClient(new WebApplicationFactoryClientOptions { AllowAutoRedirect = false, HandleCookies = false, BaseAddress = GameFactory.Https });
     private readonly Dictionary<string, string> _cookies = [];
 
     public string CookieHeader => string.Join("; ", _cookies.Select(c => $"{c.Key}={c.Value}"));
@@ -80,7 +85,7 @@ public sealed partial class Browser(GameFactory factory, string ip)
     public async Task<GameChannel> ConnectAsync(string code)
     {
         var connection = new HubConnectionBuilder()
-            .WithUrl(new Uri(factory.Server.BaseAddress, $"hubs/game?room={code}"), o =>
+            .WithUrl(new Uri(GameFactory.Https, $"hubs/game?room={code}"), o =>
             {
                 o.HttpMessageHandlerFactory = _ => factory.Server.CreateHandler();
                 o.Transports = HttpTransportType.LongPolling;

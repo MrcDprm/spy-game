@@ -1,0 +1,8 @@
+@model (string Name, string? Value, string Id)
+<div class="field">
+    <label for="@Model.Id">@T["form.nickname"]</label>
+    <input id="@Model.Id" name="@Model.Name" value="@Model.Value" required minlength="3" maxlength="20"
+           pattern="[a-z][a-z0-9]{2,19}" autocomplete="nickname" autocapitalize="none" autocorrect="off" spellcheck="false"
+           inputmode="text" data-nickname aria-describedby="@(Model.Id)-hint" />
+    <p class="hint" id="@(Model.Id)-hint">@T["form.nickname.hint"]</p>
+</div>

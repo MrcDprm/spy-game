@@ -1,4 +1,10 @@
+@model ErrorViewModel
 @{
-    ViewData["Title"] = "Hata";
+    ViewData["Title"] = T[Model.TitleKey];
 }
-<h1>Bir şeyler ters gitti</h1>
+<section class="empty-state">
+    <p class="stamp">@Model.StatusCode</p>
+    <h1>@T[Model.TitleKey]</h1>
+    <p class="muted">@T[Model.TextKey]</p>
+    <a class="btn" href="/">@T["error.home"]</a>
+</section>

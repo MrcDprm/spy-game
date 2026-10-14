@@ -1,45 +1,93 @@
 @model SpyGame.Web.Models.ViewModels.HomeViewModel
 @using SpyGame.Web.Models.Game
 @{
-    ViewData["Title"] = "Casus";
+    var english = Culture.IsEnglish;
 }
-<h1>Casus</h1>
-@if (Model.Error is not null)
-{
-    <p role="alert" data-error="@Model.Error">@Model.Error</p>
-}
-
-<section>
-    <h2>Oda kur</h2>
-    <form method="post" action="/rooms">
-        @Html.AntiForgeryToken()
-        <label>Takma ad <input name="Create.Nickname" value="@Model.Create.Nickname" maxlength="20" autocomplete="nickname" required /></label>
-        <fieldset>
-            <legend>Kategoriler</legend>
-            @foreach (var category in WordBank.Categories)
-            {
-                <label><input type="checkbox" name="Create.CategoryIds" value="@category.Id" checked="@Model.Create.CategoryIds.Contains(category.Id)" /> @category.NameTr</label>
-            }
-        </fieldset>
-        <label>Tur süresi (dakika) <input type="number" name="Create.RoundMinutes" value="@Model.Create.RoundMinutes" min="1" max="15" /></label>
-        <label>Casus sayısı
-            <select name="Create.SpyCount">
-                @for (var i = RoundRules.MinSpies; i <= RoundRules.MaxSpies; i++)
-                {
-                    <option value="@i" selected="@(Model.Create.SpyCount == i)">@i</option>
-                }
-            </select>
-        </label>
-        <button type="submit">Oda kur</button>
-    </form>
+<section class="hero">
+    <p class="eyebrow">@T["home.eyebrow"]</p>
+    <h1 class="hero__title">@T["home.title"]</h1>
+    <p class="hero__lead">@T["home.lead"]</p>
 </section>
 
-<section>
-    <h2>Odaya katıl</h2>
-    <form method="post" action="/join">
-        @Html.AntiForgeryToken()
-        <label>Takma ad <input name="Nickname" value="@Model.Join.Nickname" maxlength="20" autocomplete="nickname" required /></label>
-        <label>Oda kodu <input name="Code" value="@Model.Join.Code" maxlength="8" autocomplete="off" required /></label>
-        <button type="submit">Katıl</button>
-    </form>
+<div class="home-grid">
+    <section class="card card--paper" aria-labelledby="create-title">
+        <p class="stamp stamp--small" aria-hidden="true">@(english ? "Top secret" : "Çok gizli")</p>
+        <h2 id="create-title">@T["home.create.title"]</h2>
+        <p class="muted">@T["home.create.text"]</p>
+        <partial name="_FormError" model="@Model.Error" />
+        <form method="post" action="/rooms" class="form">
+            @Html.AntiForgeryToken()
+            <partial name="_NicknameField" model="@(("Create.Nickname", Model.Create.Nickname, "create-nick"))" />
+
+            <fieldset class="field">
+                <legend>@T["form.categories"]</legend>
+                <div class="chips" data-chips>
+                    @foreach (var category in WordBank.Categories)
+                    {
+                        <label class="chip">
+                            <input type="checkbox" name="Create.CategoryIds" value="@category.Id" checked="@Model.Create.CategoryIds.Contains(category.Id)" />
+                            <span>@category.NameIn(english ? "en" : "tr")</span>
+                        </label>
+                    }
+                </div>
+                <div class="chip-actions">
+                    <button type="button" class="link-btn" data-chips-all>@T["form.categories.all"]</button>
+                    <button type="button" class="link-btn" data-chips-none>@T["form.categories.none"]</button>
+                </div>
+            </fieldset>
+
+            <div class="field-row">
+                <div class="field">
+                    <label for="round">@T["form.round"]</label>
+                    <select id="round" name="Create.RoundMinutes">
+                        @for (var m = 1; m <= 15; m++)
+                        {
+                            <option value="@m" selected="@(Model.Create.RoundMinutes == m)">@T["form.round.minutes", m]</option>
+                        }
+                    </select>
+                </div>
+                <fieldset class="field">
+                    <legend>@T["form.spies"]</legend>
+                    <div class="segmented">
+                        @for (var i = RoundRules.MinSpies; i <= RoundRules.MaxSpies; i++)
+                        {
+                            <label><input type="radio" name="Create.SpyCount" value="@i" checked="@(Model.Create.SpyCount == i)" /><span>@i</span></label>
+                        }
+                    </div>
+                </fieldset>
+            </div>
+            <p class="hint">@T["form.spies.hint"]</p>
+            <button type="submit" class="btn btn--block">@T["form.create"]</button>
+        </form>
+    </section>
+
+    <section class="card" aria-labelledby="join-title">
+        <h2 id="join-title">@T["home.join.title"]</h2>
+        <p class="muted">@T["home.join.text"]</p>
+        <form method="post" action="/join" class="form">
+            @Html.AntiForgeryToken()
+            <partial name="_NicknameField" model="@(("Nickname", Model.Join.Nickname, "join-nick"))" />
+            <div class="field">
+                <label for="join-code">@T["form.code"]</label>
+                <input id="join-code" class="code-input" name="Code" value="@Model.Join.Code" required maxlength="8"
+                       autocomplete="off" autocapitalize="characters" spellcheck="false" data-room-code aria-describedby="join-code-hint" />
+                <p class="hint" id="join-code-hint">@T["form.code.hint"]</p>
+            </div>
+            <button type="submit" class="btn btn--ghost btn--block">@T["form.join"]</button>
+        </form>
+    </section>
+</div>
+
+<section class="how" aria-labelledby="how-title">
+    <h2 id="how-title">@T["how.title"]</h2>
+    <ol class="steps">
+        @for (var i = 1; i <= 4; i++)
+        {
+            <li class="step">
+                <span class="step__num" aria-hidden="true">0@(i)</span>
+                <h3>@T[$"how.{i}.title"]</h3>
+                <p class="muted">@T[$"how.{i}.text"]</p>
+            </li>
+        }
+    </ol>
 </section>
