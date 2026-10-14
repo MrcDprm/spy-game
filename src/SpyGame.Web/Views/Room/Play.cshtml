@@ -2,5 +2,48 @@
 @{
     ViewData["Title"] = Model.Code;
 }
-<h1>Oda @Model.Code</h1>
-<div id="game" data-room="@Model.Code"></div>
+<div class="room" data-room="@Model.Code" data-invite="@Model.InviteUrl">
+    <div class="room-bar">
+        <div class="room-bar__code">
+            <span class="eyebrow">@T["js.code"]</span>
+            <span class="room-code mono">@Model.Code</span>
+        </div>
+        <span class="room-bar__round mono" data-round></span>
+        <span class="timer mono" data-timer hidden aria-label="@T["js.asking.timer"]"></span>
+    </div>
+
+    <p class="banner" data-banner role="status" hidden></p>
+
+    <div class="room-grid">
+        <section class="stage" data-stage aria-live="polite"></section>
+
+        <aside class="side">
+            <section class="card invite" data-invite-panel hidden>
+                <h2>@T["js.lobby.invite"]</h2>
+                <p class="muted small">@T["js.lobby.inviteHint"]</p>
+                <img class="invite__qr" src="@Model.QrDataUrl" width="200" height="200" alt="QR: @Model.InviteUrl" />
+                <p class="invite__link mono small">@Model.InviteUrl</p>
+                <div class="invite__actions">
+                    <button type="button" class="btn btn--ghost" data-copy>@T["js.lobby.copy"]</button>
+                    <button type="button" class="btn btn--ghost" data-share hidden>@T["js.lobby.share"]</button>
+                </div>
+            </section>
+
+            <section class="card">
+                <h2>@T["js.players"]</h2>
+                <ul class="players" data-players></ul>
+            </section>
+
+            <button type="button" class="link-btn" data-leave>@T["js.leave"]</button>
+        </aside>
+    </div>
+
+    <p class="toast" data-toast role="alert" hidden></p>
+</div>
+
+<partial name="_ScriptText" />
+
+@section Scripts {
+    <script src="~/lib/signalr/signalr.min.js" asp-append-version="true"></script>
+    <script src="~/js/room.js" asp-append-version="true"></script>
+}

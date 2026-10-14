@@ -200,6 +200,21 @@ public class RoomPageTests : IClassFixture<GameFactory>
     }
 
     [Fact]
+    public async Task A_member_gets_the_room_page_with_its_invite_link_qr_and_texts()
+    {
+        var host = _factory.NewBrowser(NewIp());
+        var code = await host.CreateRoomAsync("page" + Guid.NewGuid().ToString("N")[..8]);
+        var response = await host.GetAsync($"/r/{code}");
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var html = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        Assert.Contains($"data-room=\"{code}\"", html);
+        Assert.Contains($"https://localhost/join/{code}", html);
+        Assert.Contains("src=\"data:image/png;base64,", html);
+        Assert.Contains("<script type=\"application/json\" id=\"texts\">", html);
+        Assert.Contains("\"lobby.start\":", html); // the room script's texts are on the page
+    }
+
+    [Fact]
     public async Task The_room_page_sends_outsiders_to_the_join_form()
     {
         var browser = _factory.NewBrowser(NewIp());

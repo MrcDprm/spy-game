@@ -1,0 +1,10 @@
+@using System.Text.Json
+@{
+    // Texts the room script needs ("js.*" and the error messages) in the current language.
+    // A JSON data block is never executed, so the policy still allows no inline script;
+    // System.Text.Json escapes <, > and & so the content cannot close the tag early.
+    var texts = T.GetAllStrings(false)
+        .Where(s => s.Name.StartsWith("js.", StringComparison.Ordinal) || s.Name.StartsWith("error.", StringComparison.Ordinal))
+        .ToDictionary(s => s.Name.StartsWith("js.", StringComparison.Ordinal) ? s.Name[3..] : s.Name, s => s.Value);
+}
+<script type="application/json" id="texts">@Html.Raw(JsonSerializer.Serialize(texts))</script>

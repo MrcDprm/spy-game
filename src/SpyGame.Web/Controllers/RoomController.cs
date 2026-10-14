@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using SpyGame.Web.Infrastructure;
 using SpyGame.Web.Models.Game;
 using SpyGame.Web.Models.ViewModels;
 using SpyGame.Web.Services;
@@ -56,7 +57,8 @@ public class RoomController(RoomService rooms, PlayerSessionService sessions) : 
         var session = await sessions.FindAsync(HttpContext);
         if (session is null || !RoomCode.IsValid(code) || await rooms.ViewAsync(code, session.PlayerId) is null)
             return RedirectToAction(nameof(Join), new { code }); // not in this room (yet)
-        return View(new PlayViewModel { Code = code });
+        var invite = $"{Request.Scheme}://{Request.Host}/join/{code}";
+        return View(new PlayViewModel { Code = code, InviteUrl = invite, QrDataUrl = QrCode.PngDataUrl(invite) });
     }
 
     /// <summary>Starts or finds the browser's session and gives it the chosen nickname.</summary>
