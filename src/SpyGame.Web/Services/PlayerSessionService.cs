@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using System.Security.Cryptography;
 using SpyGame.Web.Services.Storage;
 
@@ -15,17 +16,18 @@ public sealed class PlayerSessionService(ISessionStore sessions, IWebHostEnviron
     public async Task<PlayerSession?> FindAsync(HttpContext http)
     {
         var token = http.Request.Cookies[CookieName];
-        return IsWellFormed(token) ? await sessions.GetAsync(token!) : null;
+        if (!IsWellFormed(token) || await sessions.GetAsync(token!) is not { } session) return null;
+        return await WithAccountAsync(http, token!, session);
     }
 
     /// <summary>The session of this request, starting a new one if needed.</summary>
     public async Task<(string Token, PlayerSession Session)> GetOrCreateAsync(HttpContext http)
     {
         var token = http.Request.Cookies[CookieName];
-        if (IsWellFormed(token) && await sessions.GetAsync(token!) is { } existing) return (token!, existing);
+        if (IsWellFormed(token) && await sessions.GetAsync(token!) is { } existing) return (token!, await WithAccountAsync(http, token!, existing));
 
         token = RandomToken(32);
-        var session = new PlayerSession(RandomToken(12), null);
+        var session = await WithAccountAsync(http, token, new PlayerSession(RandomToken(12), null));
         await sessions.SaveAsync(token, session);
         http.Response.Cookies.Append(CookieName, token, new CookieOptions
         {
@@ -40,6 +42,24 @@ public sealed class PlayerSessionService(ISessionStore sessions, IWebHostEnviron
     }
 
     public Task SaveAsync(string token, PlayerSession session) => sessions.SaveAsync(token, session);
+
+    /// <summary>Ends the game session (on logout): the browser plays on as a new guest.</summary>
+    public void Forget(HttpContext http) => http.Response.Cookies.Delete(CookieName);
+
+    /// <summary>
+    /// A logged-in browser plays as its account: same session, the account's id and name.
+    /// The sign-in cookie is the proof; nothing the page sends can set these.
+    /// </summary>
+    private async Task<PlayerSession> WithAccountAsync(HttpContext http, string token, PlayerSession session)
+    {
+        if (http.User.Identity?.IsAuthenticated != true) return session;
+        var accountId = http.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var name = http.User.FindFirstValue(ClaimTypes.Name);
+        if (accountId is null || name is null || (session.AccountId == accountId && session.Nickname == name)) return session;
+        var linked = session with { AccountId = accountId, Nickname = name };
+        await sessions.SaveAsync(token, linked);
+        return linked;
+    }
 
     // 32 random bytes in base64url are 43 characters; anything else is not one of our tokens.
     private static bool IsWellFormed(string? token) =>

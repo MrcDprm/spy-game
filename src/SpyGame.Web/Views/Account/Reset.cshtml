@@ -1,0 +1,19 @@
+@model SpyGame.Web.Models.ViewModels.ResetForm
+@{
+    ViewData["Title"] = T["account.reset.title"];
+}
+<section class="narrow">
+    <div class="card card--paper">
+        <h1>@T["account.reset.title"]</h1>
+        <partial name="_FormError" model="@(ViewData["Error"] as string)" />
+        <form method="post" action="/account/reset" class="form">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="UserId" value="@Model.UserId" />
+            <input type="hidden" name="Code" value="@Model.Code" />
+            <partial name="_PasswordField" model="@(("Password", "account.password.new", "reset-pass", "new-password"))" />
+            <p class="hint">@T["account.password.hint"]</p>
+            <partial name="_PasswordField" model="@(("ConfirmPassword", "account.password.again", "reset-pass2", "new-password"))" />
+            <button type="submit" class="btn btn--block">@T["account.reset.submit"]</button>
+        </form>
+    </div>
+</section>

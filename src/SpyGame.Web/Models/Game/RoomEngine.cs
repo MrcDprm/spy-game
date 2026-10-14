@@ -10,17 +10,17 @@ public static class RoomEngine
     public const int VotingSeconds = 60;
     public const int GuessSeconds = 30;
 
-    public static Room Create(string code, string hostId, string hostNickname, RoomSettings settings, DateTimeOffset now) => new()
+    public static Room Create(string code, string hostId, string hostNickname, RoomSettings settings, DateTimeOffset now, string? hostAccountId = null) => new()
     {
         Code = code,
         HostId = hostId,
         Settings = settings,
         CreatedAt = now,
-        Players = [new RoomPlayer { Id = hostId, Nickname = hostNickname, JoinedAt = now }],
+        Players = [new RoomPlayer { Id = hostId, Nickname = hostNickname, AccountId = hostAccountId, JoinedAt = now }],
     };
 
     /// <summary>Joining in the middle of a round is fine: the newcomer plays from the next one.</summary>
-    public static string? Join(Room room, string playerId, string nickname, DateTimeOffset now)
+    public static string? Join(Room room, string playerId, string nickname, DateTimeOffset now, string? accountId = null)
     {
         var existing = room.Find(playerId);
         if (existing is not null)
@@ -31,7 +31,7 @@ public static class RoomEngine
         }
         if (room.Players.Count(p => !p.Left) >= RoundRules.MaxPlayers) return "room_full";
         if (room.Players.Any(p => p.Nickname == nickname)) return "nickname_taken";
-        room.Players.Add(new RoomPlayer { Id = playerId, Nickname = nickname, JoinedAt = now });
+        room.Players.Add(new RoomPlayer { Id = playerId, Nickname = nickname, AccountId = accountId, JoinedAt = now });
         return null;
     }
 

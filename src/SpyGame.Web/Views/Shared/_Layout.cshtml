@@ -33,6 +33,18 @@
                 <span class="brand__name">casus</span>
             </a>
             <div class="toolbar">
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <span class="account-name mono" title="@T["account.signedInAs"]">@User.Identity.Name</span>
+                    <form method="post" action="/account/logout" class="inline-form">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="icon-btn icon-btn--text">@T["account.logout"]</button>
+                    </form>
+                }
+                else
+                {
+                    <a class="icon-btn icon-btn--text" href="/account/login">@T["account.login.title"]</a>
+                }
                 <a class="icon-btn lang" href="/lang/@(english ? "tr" : "en")?returnUrl=@Uri.EscapeDataString(path)"
                    lang="@(english ? "tr" : "en")" aria-label="@T["nav.language"]">@(english ? "TR" : "EN")</a>
                 <button class="icon-btn" type="button" data-theme-toggle aria-label="@T["nav.theme"]">

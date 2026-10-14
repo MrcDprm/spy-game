@@ -65,6 +65,7 @@ public class RoomController(RoomService rooms, PlayerSessionService sessions) : 
     private async Task<(PlayerSession Session, string? Error)> WithNicknameAsync(string? nickname)
     {
         var (token, session) = await sessions.GetOrCreateAsync(HttpContext);
+        if (session.AccountId is not null) nickname = session.Nickname; // a logged-in player plays as their account
         var (error, updated) = await rooms.ChooseNicknameAsync(session, nickname);
         if (error is null && updated != session) await sessions.SaveAsync(token, updated);
         return (updated, error);

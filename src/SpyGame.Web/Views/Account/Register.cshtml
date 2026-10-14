@@ -1,0 +1,24 @@
+@model SpyGame.Web.Models.ViewModels.RegisterForm
+@{
+    ViewData["Title"] = T["account.register.title"];
+}
+<section class="narrow">
+    <div class="card card--paper">
+        <h1>@T["account.register.title"]</h1>
+        <p class="muted">@T["account.register.lead"]</p>
+        <partial name="_FormError" model="@(ViewData["Error"] as string)" />
+        <form method="post" action="/account/register" class="form">
+            @Html.AntiForgeryToken()
+            <partial name="_NicknameField" model="@(("Nickname", Model.Nickname, "reg-nick"))" />
+            <div class="field">
+                <label for="reg-email">@T["account.email"]</label>
+                <input id="reg-email" name="Email" type="email" value="@Model.Email" required maxlength="254" autocomplete="email" />
+            </div>
+            <partial name="_PasswordField" model="@(("Password", "account.password", "reg-pass", "new-password"))" />
+            <p class="hint">@T["account.password.hint"]</p>
+            <partial name="_PasswordField" model="@(("ConfirmPassword", "account.password.again", "reg-pass2", "new-password"))" />
+            <button type="submit" class="btn btn--block">@T["account.register.submit"]</button>
+        </form>
+    </div>
+    <p class="center">@T["account.register.haveAccount"] <a href="/account/login">@T["account.login.title"]</a></p>
+</section>

@@ -2,33 +2,94 @@ using System.Net;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Http.Connections;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using SpyGame.Tests.Services;
+using SpyGame.Web.Data;
 using SpyGame.Web.Hubs;
 using SpyGame.Web.Models.Game;
+using SpyGame.Web.Services.Email;
 using SpyGame.Web.Services.Storage;
 
 namespace SpyGame.Tests.Web;
 
-/// <summary>The real app in memory: in-memory store (no Redis) and a clock the test can move.</summary>
+/// <summary>E-mails are kept here instead of being sent; tests open the links in them.</summary>
+public sealed class FakeEmailSender : IEmailSender
+{
+    private readonly Lock _lock = new();
+    private readonly List<(string To, string Subject, string Html)> _sent = [];
+
+    public Task SendAsync(string to, string subject, string html)
+    {
+        lock (_lock) _sent.Add((to, subject, html));
+        return Task.CompletedTask;
+    }
+
+    public IReadOnlyList<(string To, string Subject, string Html)> To(string address)
+    {
+        lock (_lock) return _sent.Where(m => m.To == address).ToList();
+    }
+
+    /// <summary>The path and query of the button link in the last e-mail to this address.</summary>
+    public string LastLink(string address)
+    {
+        var html = To(address)[^1].Html;
+        var href = System.Text.RegularExpressions.Regex.Match(html, "href=\"([^\"]+)\"").Groups[1].Value;
+        return new Uri(System.Net.WebUtility.HtmlDecode(href)).PathAndQuery;
+    }
+}
+
+/// <summary>
+/// The real app in memory: in-memory game store (no Redis), SQLite instead of Postgres,
+/// e-mails kept in a list, and a clock the test can move.
+/// </summary>
 public sealed class GameFactory : WebApplicationFactory<Program>
 {
+    private readonly SqliteConnection _database = new("DataSource=:memory:");
+
     public ManualClock Clock { get; } = new(DateTimeOffset.UtcNow);
+    public FakeEmailSender Emails { get; } = new();
 
     // The app redirects plain HTTP to HTTPS outside Development, like in production.
     public static readonly Uri Https = new("https://localhost/");
 
-    public GameFactory() => ClientOptions.BaseAddress = Https;
+    public GameFactory()
+    {
+        ClientOptions.BaseAddress = Https;
+        _database.Open(); // an in-memory SQLite database lives as long as its connection
+    }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Testing"); // not Development: user-secrets (REDIS_URL) are not read
         builder.UseSetting("REDIS_URL", "");
-        builder.ConfigureServices(services => services.Replace(ServiceDescriptor.Singleton<TimeProvider>(Clock)));
+        builder.ConfigureServices(services =>
+        {
+            services.Replace(ServiceDescriptor.Singleton<TimeProvider>(Clock));
+            services.AddDbContext<AppDbContext>(o => o.UseSqlite(_database));
+            services.RemoveAll<IEmailSender>();
+            services.AddSingleton<IEmailSender>(Emails);
+        });
+    }
+
+    protected override IHost CreateHost(IHostBuilder builder)
+    {
+        var host = base.CreateHost(builder);
+        using var scope = host.Services.CreateScope();
+        scope.ServiceProvider.GetRequiredService<AppDbContext>().Database.EnsureCreated();
+        return host;
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        base.Dispose(disposing);
+        if (disposing) _database.Dispose();
     }
 
     public Browser NewBrowser(string ip) => new(this, ip);

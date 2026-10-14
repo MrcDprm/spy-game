@@ -1,0 +1,18 @@
+@model SpyGame.Web.Models.ViewModels.ForgotForm
+@{
+    ViewData["Title"] = T["account.forgot.title"];
+}
+<section class="narrow">
+    <div class="card card--paper">
+        <h1>@T["account.forgot.title"]</h1>
+        <p class="muted">@T["account.forgot.text"]</p>
+        <form method="post" action="/account/forgot" class="form">
+            @Html.AntiForgeryToken()
+            <div class="field">
+                <label for="forgot-email">@T["account.email"]</label>
+                <input id="forgot-email" name="Email" type="email" value="@Model.Email" required maxlength="254" autocomplete="email" />
+            </div>
+            <button type="submit" class="btn btn--block">@T["account.forgot.submit"]</button>
+        </form>
+    </div>
+</section>

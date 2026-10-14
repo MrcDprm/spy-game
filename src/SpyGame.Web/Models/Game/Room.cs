@@ -38,6 +38,7 @@ public sealed class RoomPlayer
 {
     public string Id { get; set; } = "";
     public string Nickname { get; set; } = "";
+    public string? AccountId { get; set; } // a confirmed account: its points count for the leaderboard
     public bool Connected { get; set; } = true;
     public bool Left { get; set; } // left during a round; removed when the round ends
     public int Score { get; set; }

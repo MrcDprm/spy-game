@@ -27,8 +27,8 @@ public interface IRoomStore
     Task<IReadOnlyList<string>> DueAsync(DateTimeOffset now, int max = 100);
 }
 
-/// <summary>A browser's player: a random id and the nickname they chose.</summary>
-public sealed record PlayerSession(string PlayerId, string? Nickname);
+/// <summary>A browser's player: a random id, the nickname they chose, and their account once they log in.</summary>
+public sealed record PlayerSession(string PlayerId, string? Nickname, string? AccountId = null);
 
 /// <summary>Guest sessions, found by the (hashed) token in the browser's cookie.</summary>
 public interface ISessionStore

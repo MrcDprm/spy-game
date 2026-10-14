@@ -2,17 +2,23 @@ using System.Globalization;
 using System.Text.Encodings.Web;
 using System.Text.Unicode;
 using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.WebEncoders;
 using Microsoft.AspNetCore.SignalR;
 using SpyGame.Web.Controllers;
+using SpyGame.Web.Data;
 using SpyGame.Web.Hubs;
 using SpyGame.Web.Infrastructure;
 using SpyGame.Web.Localization;
 using SpyGame.Web.Models.Game;
 using SpyGame.Web.Services;
+using SpyGame.Web.Services.Email;
 using SpyGame.Web.Services.Storage;
 using StackExchange.Redis;
 
@@ -61,6 +67,48 @@ else
     builder.Services.AddSingleton<INicknameRegistry>(sp => sp.GetRequiredService<InMemoryGameStore>());
 }
 
+// Lasting data (accounts, scores, data-protection keys): Neon Postgres. Tests plug in SQLite instead.
+var databaseUrl = builder.Configuration["DATABASE_URL"];
+if (!string.IsNullOrWhiteSpace(databaseUrl))
+    builder.Services.AddDbContext<AppDbContext>(o => o.UseNpgsql(ConnectionStrings.Normalize(databaseUrl)));
+else if (!builder.Environment.IsEnvironment("Testing"))
+    throw new InvalidOperationException("DATABASE_URL is required (dotnet user-secrets set DATABASE_URL ...).");
+
+builder.Services.AddIdentity<Account, IdentityRole>(o =>
+    {
+        o.SignIn.RequireConfirmedEmail = true;
+        o.User.RequireUniqueEmail = true;
+        o.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyz0123456789"; // the nickname rules
+        o.Password.RequiredLength = 10;
+        o.Password.RequireDigit = true;
+        o.Password.RequireLowercase = true;
+        o.Password.RequireUppercase = false;
+        o.Password.RequireNonAlphanumeric = false;
+        o.Lockout.MaxFailedAccessAttempts = 5;
+        o.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+    })
+    .AddEntityFrameworkStores<AppDbContext>()
+    .AddDefaultTokenProviders();
+builder.Services.ConfigureApplicationCookie(o =>
+{
+    o.Cookie.Name = "sg_auth";
+    o.Cookie.HttpOnly = true;
+    o.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest; // https in production
+    o.Cookie.SameSite = SameSiteMode.Lax;
+    o.LoginPath = "/account/login";
+    o.AccessDeniedPath = "/";
+    o.ExpireTimeSpan = TimeSpan.FromDays(30);
+    o.SlidingExpiration = true;
+});
+builder.Services.AddAntiforgery(o => o.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest);
+builder.Services.Configure<CookieTempDataProviderOptions>(o => o.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest);
+// The keys that protect cookies and e-mail links live in the database: a restart keeps them valid.
+builder.Services.AddDataProtection().SetApplicationName("SpyGame").PersistKeysToDbContext<AppDbContext>();
+
+builder.Services.AddHttpClient<IEmailSender, ResendEmailSender>();
+builder.Services.AddScoped<AccountEmails>();
+builder.Services.AddSingleton<IRegisteredNames, DbRegisteredNames>();
+
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddSingleton<IRandomSource, CryptoRandomSource>();
 builder.Services.AddSingleton<IRoomNotifier, HubNotifier>();
@@ -76,6 +124,8 @@ builder.Services.AddRateLimiter(o =>
     o.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
     o.AddPolicy(RoomController.CreatePolicy, http => RateLimitPartition.GetFixedWindowLimiter(ClientIp.Of(http),
         _ => new FixedWindowRateLimiterOptions { PermitLimit = 10, Window = TimeSpan.FromMinutes(10) }));
+    o.AddPolicy(AccountController.AuthPolicy, http => RateLimitPartition.GetFixedWindowLimiter(ClientIp.Of(http),
+        _ => new FixedWindowRateLimiterOptions { PermitLimit = 10, Window = TimeSpan.FromMinutes(1) }));
     o.AddPolicy(RoomController.JoinPolicy, http => RateLimitPartition.GetFixedWindowLimiter(ClientIp.Of(http),
         _ => new FixedWindowRateLimiterOptions { PermitLimit = 30, Window = TimeSpan.FromMinutes(10) }));
 });
@@ -92,6 +142,13 @@ builder.Services.AddHsts(options => options.MaxAge = TimeSpan.FromDays(365));
 builder.Services.AddHealthChecks();
 
 var app = builder.Build();
+
+// Bring the database schema up to date at start-up (Postgres only; the tests build theirs).
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetService<AppDbContext>();
+    if (db is not null && db.Database.IsNpgsql()) db.Database.Migrate();
+}
 
 app.UseForwardedHeaders();
 if (!app.Environment.IsDevelopment())
@@ -128,6 +185,8 @@ app.Use(async (http, next) =>
 });
 
 app.UseRouting();
+app.UseAuthentication();
+app.UseAuthorization();
 app.UseRateLimiter();
 
 app.MapHealthChecks("/healthz");

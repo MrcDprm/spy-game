@@ -1,0 +1,32 @@
+@model SpyGame.Web.Models.ViewModels.LoginForm
+@{
+    ViewData["Title"] = T["account.login.title"];
+    var error = ViewData["Error"] as string;
+}
+<section class="narrow">
+    <partial name="_Notice" />
+    <div class="card card--paper">
+        <h1>@T["account.login.title"]</h1>
+        <partial name="_FormError" model="@error" />
+        @if (error == "email_not_confirmed")
+        {
+            <form method="post" action="/account/resend" class="resend">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="email" value="@Model.Email" />
+                <button type="submit" class="link-btn">@T["account.resend"]</button>
+            </form>
+        }
+        <form method="post" action="/account/login" class="form">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="ReturnUrl" value="@Model.ReturnUrl" />
+            <div class="field">
+                <label for="login-email">@T["account.email"]</label>
+                <input id="login-email" name="Email" type="email" value="@Model.Email" required maxlength="254" autocomplete="email" />
+            </div>
+            <partial name="_PasswordField" model="@(("Password", "account.password", "login-pass", "current-password"))" />
+            <button type="submit" class="btn btn--block">@T["account.login.submit"]</button>
+        </form>
+        <p class="small"><a href="/account/forgot">@T["account.forgot.link"]</a></p>
+    </div>
+    <p class="center">@T["account.login.noAccount"] <a href="/account/register">@T["account.register.title"]</a></p>
+</section>

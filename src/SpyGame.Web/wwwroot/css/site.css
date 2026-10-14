@@ -132,6 +132,19 @@ a:hover { color: var(--accent-strong); }
 .icon-btn svg { width: 1.1rem; height: 1.1rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
 :root[data-theme="dark"] .i-sun, :root[data-theme="light"] .i-moon { display: none; }
 
+.icon-btn--text { font: 700 0.8rem "Archivo", sans-serif; padding: 0 0.9rem; }
+.account-name { align-self: center; max-width: 9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ink-2); font-size: 0.85rem; }
+.inline-form { display: contents; }
+.notice { margin: 0 0 1rem; padding: 0.75rem 1rem; border: 1.5px solid color-mix(in srgb, var(--ok) 60%, transparent); border-radius: 12px; background: color-mix(in srgb, var(--ok) 12%, transparent); }
+.resend { margin-top: 0.5rem; }
+input[type="email"], input[type="password"] {
+  width: 100%; min-height: 3rem; padding: 0.65rem 0.9rem; border: 1.5px solid var(--line); border-radius: 12px;
+  background: var(--bg-2); color: var(--ink); font: 500 1rem "Archivo", sans-serif;
+}
+input[readonly] { opacity: 0.75; cursor: not-allowed; }
+.card--paper input[type="email"], .card--paper input[type="password"] { background: #fff; color: var(--paper-ink); border-color: var(--paper-line); }
+@media (max-width: 420px) { .account-name { display: none; } }
+
 /* Buttons and forms */
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;

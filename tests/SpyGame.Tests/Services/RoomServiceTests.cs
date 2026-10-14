@@ -5,6 +5,12 @@ using SpyGame.Web.Services.Storage;
 
 namespace SpyGame.Tests.Services;
 
+/// <summary>Registered names for tests: a fixed list of name → account id.</summary>
+internal sealed class FixedRegisteredNames(Dictionary<string, string>? names = null) : IRegisteredNames
+{
+    public Task<string?> AccountIdForAsync(string nickname) => Task.FromResult(names?.GetValueOrDefault(nickname));
+}
+
 internal sealed class RecordingNotifier : IRoomNotifier
 {
     public List<Room> Sent { get; } = [];
@@ -26,7 +32,7 @@ public class RoomServiceTests
     public RoomServiceTests()
     {
         _store = new InMemoryGameStore(_clock);
-        _service = new RoomService(_store, _store, new CryptoRandomSource(), _clock, _notifier);
+        _service = new RoomService(_store, _store, new FixedRegisteredNames(new() { ["mira"] = "acc-1" }), new CryptoRandomSource(), _clock, _notifier);
     }
 
     private static readonly RoomSettings Settings = new() { CategoryIds = ["food"], RoundSeconds = 120, SpyCount = 1 };
@@ -63,6 +69,19 @@ public class RoomServiceTests
         Assert.Null(changed);
         Assert.Equal("veli", renamed.Nickname);
         Assert.Equal("ali", (await Player("p2", "ali")).Nickname);
+    }
+
+    [Fact]
+    public async Task An_account_name_is_only_for_its_account()
+    {
+        var (guest, _) = await _service.ChooseNicknameAsync(new PlayerSession("p1", null), "mira");
+        Assert.Equal("nickname_registered", guest);
+        var (owner, session) = await _service.ChooseNicknameAsync(new PlayerSession("p2", null, AccountId: "acc-1"), "mira");
+        Assert.Null(owner);
+        Assert.Equal("mira", session.Nickname);
+        // The owner can use it from a second browser too (no guest-style reservation in the way).
+        var (again, _) = await _service.ChooseNicknameAsync(new PlayerSession("p3", null, AccountId: "acc-1"), "mira");
+        Assert.Null(again);
     }
 
     [Fact]

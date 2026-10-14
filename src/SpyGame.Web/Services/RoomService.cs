@@ -3,6 +3,13 @@ using SpyGame.Web.Services.Storage;
 
 namespace SpyGame.Web.Services;
 
+/// <summary>Nicknames that belong to an account (kept in the database, for good).</summary>
+public interface IRegisteredNames
+{
+    /// <summary>The id of the account with this user name, or null.</summary>
+    Task<string?> AccountIdForAsync(string nickname);
+}
+
 /// <summary>Tells every player in a room what they may now see (the hub does the sending).</summary>
 public interface IRoomNotifier
 {
@@ -18,6 +25,7 @@ public interface IRoomNotifier
 public sealed class RoomService(
     IRoomStore rooms,
     INicknameRegistry nicknames,
+    IRegisteredNames registered,
     IRandomSource random,
     TimeProvider clock,
     IRoomNotifier notifier)
@@ -32,6 +40,16 @@ public sealed class RoomService(
     {
         var name = Nickname.Clean(nickname);
         if (Nickname.Problem(name) is { } problem) return (problem, session);
+
+        // An account's name is its own for good; the database is the authority, not the reservation.
+        var owner = await registered.AccountIdForAsync(name);
+        if (owner is not null)
+        {
+            if (owner != session.AccountId) return ("nickname_registered", session);
+            if (session.Nickname is { } previous && previous != name) await nicknames.ReleaseAsync(previous, session.PlayerId);
+            return (null, session with { Nickname = name });
+        }
+
         if (name == session.Nickname)
         {
             await nicknames.TryReserveAsync(name, session.PlayerId); // renew it
@@ -49,7 +67,7 @@ public sealed class RoomService(
 
         for (var attempt = 0; attempt < MaxCodeAttempts; attempt++)
         {
-            var room = RoomEngine.Create(RoomCode.Generate(random), player.PlayerId, player.Nickname, settings, clock.GetUtcNow());
+            var room = RoomEngine.Create(RoomCode.Generate(random), player.PlayerId, player.Nickname, settings, clock.GetUtcNow(), player.AccountId);
             if (await rooms.CreateAsync(room)) return (null, room.Code);
         }
         return ("try_again", null); // ten taken codes in a row: practically never
@@ -60,7 +78,7 @@ public sealed class RoomService(
         if (player.Nickname is null) return "nickname_required";
         code = RoomCode.Normalize(code);
         if (!RoomCode.IsValid(code)) return "room_not_found";
-        return await ChangeAsync(code, room => RoomEngine.Join(room, player.PlayerId, player.Nickname, clock.GetUtcNow()));
+        return await ChangeAsync(code, room => RoomEngine.Join(room, player.PlayerId, player.Nickname, clock.GetUtcNow(), player.AccountId));
     }
 
     public Task<string?> LeaveAsync(string playerId, string code) =>
