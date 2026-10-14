@@ -3,6 +3,7 @@ namespace SpyGame.Web.Models.Game;
 /// <summary>What the server decided for one round. Only the server ever holds all of it.</summary>
 public sealed record RoundDeal(IReadOnlyList<string> SpyIds, string CategoryId, int WordIndex, string FirstAskerId)
 {
+    [System.Text.Json.Serialization.JsonIgnore]
     public Word Word => WordBank.Find(CategoryId)!.Words[WordIndex];
 
     public bool IsSpy(string playerId) => SpyIds.Contains(playerId);
