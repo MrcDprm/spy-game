@@ -1,0 +1,12 @@
+# Only src/ and global.json are needed to build the image.
+.git
+.vs
+.vscode
+**/bin
+**/obj
+**/TestResults
+tests
+docs
+*.md
+.env
+*.local.json

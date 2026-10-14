@@ -165,6 +165,13 @@ builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 
+// SignalR in ASP.NET Core 10.0.12 and earlier has a denial-of-service flaw (CVE-2026-70159).
+var runtime = Environment.Version;
+if (runtime < new Version(10, 0, 13))
+    app.Logger.LogCritical("ASP.NET Core runtime {Runtime} is older than 10.0.13 (CVE-2026-70159): rebuild the image.", runtime);
+else
+    app.Logger.LogInformation("ASP.NET Core runtime {Runtime}", runtime);
+
 // Bring the database schema up to date at start-up (Postgres only; the tests build theirs).
 using (var scope = app.Services.CreateScope())
 {

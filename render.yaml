@@ -1,0 +1,37 @@
+# Render Blueprint: a Key Value (Redis) instance for the live game and the web service built
+# from the Dockerfile. Secrets are "sync: false": Render asks for them once and they never
+# enter the repository. Redis is reachable only inside Render (empty IP allow list).
+services:
+  - type: keyvalue
+    name: spygame-redis
+    plan: free
+    region: frankfurt
+    maxmemoryPolicy: noeviction # never drop rooms or sessions silently
+    ipAllowList: []
+
+  - type: web
+    name: spy-game
+    runtime: docker
+    plan: free
+    region: frankfurt
+    branch: main
+    healthCheckPath: /healthz
+    autoDeploy: true
+    envVars:
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: spygame-redis
+          property: connectionString
+      - key: DATABASE_URL
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: ADMIN_EMAILS
+        sync: false
+      - key: EMAIL_FROM
+        value: "Casus <casus@miracdeprem.com>"
+      - key: PUBLIC_ORIGIN
+        value: "https://spygame.miracdeprem.com"
+      - key: AllowedHosts
+        value: "spygame.miracdeprem.com;spy-game.onrender.com"
