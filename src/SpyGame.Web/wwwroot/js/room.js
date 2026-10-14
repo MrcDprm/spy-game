@@ -279,7 +279,8 @@
         el("p", { text: t(r.spyIds.length > 1 ? "result.spiesWere" : "result.spyWas") + ": " + r.spyIds.map(nameOf).join(", ") }),
         el("p", { className: "muted", text: story.join(" ") })),
       el("div", { className: "card" }, el("h2", { text: t("result.votes") }), votes),
-      hostButton(t("result.next"))));
+      hostButton(t("result.next")),
+      el("a", { className: "board-link", text: t("result.board") + " →", attrs: { href: "/leaderboard", target: "_blank", rel: "noopener" } })));
   }
 
   // --- invite and leave ---

@@ -10,6 +10,12 @@ public interface IRegisteredNames
     Task<string?> AccountIdForAsync(string nickname);
 }
 
+/// <summary>Adds a finished round's points to the leaderboard.</summary>
+public interface IRoundRecorder
+{
+    Task RecordAsync(Room room);
+}
+
 /// <summary>Tells every player in a room what they may now see (the hub does the sending).</summary>
 public interface IRoomNotifier
 {
@@ -28,7 +34,9 @@ public sealed class RoomService(
     IRegisteredNames registered,
     IRandomSource random,
     TimeProvider clock,
-    IRoomNotifier notifier)
+    IRoomNotifier notifier,
+    IRoundRecorder recorder,
+    ILogger<RoomService> log)
 {
     private const int MaxCodeAttempts = 10;
 
@@ -138,5 +146,32 @@ public sealed class RoomService(
         if (room is null) return; // the last player left and the room was deleted
         await rooms.SetDeadlineAsync(room.Code, RoomEngine.NextDeadline(room));
         await notifier.RoomChangedAsync(room);
+        await RecordIfFinishedAsync(room);
+    }
+
+    /// <summary>
+    /// A finished round with account holders goes to the leaderboard once. The "recorded" flag is
+    /// claimed in the store first, so two servers (or a retry) cannot record the same round twice.
+    /// </summary>
+    private async Task RecordIfFinishedAsync(Room room)
+    {
+        if (room.Phase != Phase.Results || room.Round is not { Recorded: false } round || !room.Players.Any(p => p.AccountId is not null))
+            return;
+        var claim = await rooms.UpdateAsync(room.Code, r =>
+        {
+            if (r.Round is not { Recorded: false } current || current.Number != round.Number) return false;
+            current.Recorded = true;
+            return true;
+        });
+        if (!claim.Result || claim.Room is null) return;
+        try
+        {
+            await recorder.RecordAsync(claim.Room);
+        }
+        catch (Exception e)
+        {
+            // The game goes on; only this round's leaderboard points are missing.
+            log.LogError(e, "Could not record round {Round} of room {Code}", round.Number, room.Code);
+        }
     }
 }

@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging.Abstractions;
 using SpyGame.Tests.Models;
 using SpyGame.Web.Models.Game;
 using SpyGame.Web.Services;
@@ -9,6 +10,17 @@ namespace SpyGame.Tests.Services;
 internal sealed class FixedRegisteredNames(Dictionary<string, string>? names = null) : IRegisteredNames
 {
     public Task<string?> AccountIdForAsync(string nickname) => Task.FromResult(names?.GetValueOrDefault(nickname));
+}
+
+internal sealed class RecordingRecorder : IRoundRecorder
+{
+    public List<(string Code, int Round)> Recorded { get; } = [];
+
+    public Task RecordAsync(Room room)
+    {
+        Recorded.Add((room.Code, room.Round!.Number));
+        return Task.CompletedTask;
+    }
 }
 
 internal sealed class RecordingNotifier : IRoomNotifier
@@ -27,12 +39,13 @@ public class RoomServiceTests
     private readonly ManualClock _clock = new(new DateTimeOffset(2026, 10, 15, 18, 0, 0, TimeSpan.Zero));
     private readonly InMemoryGameStore _store;
     private readonly RecordingNotifier _notifier = new();
+    private readonly RecordingRecorder _recorder = new();
     private readonly RoomService _service;
 
     public RoomServiceTests()
     {
         _store = new InMemoryGameStore(_clock);
-        _service = new RoomService(_store, _store, new FixedRegisteredNames(new() { ["mira"] = "acc-1" }), new CryptoRandomSource(), _clock, _notifier);
+        _service = new RoomService(_store, _store, new FixedRegisteredNames(new() { ["mira"] = "acc-1" }), new CryptoRandomSource(), _clock, _notifier, _recorder, NullLogger<RoomService>.Instance);
     }
 
     private static readonly RoomSettings Settings = new() { CategoryIds = ["food"], RoundSeconds = 120, SpyCount = 1 };
@@ -82,6 +95,32 @@ public class RoomServiceTests
         // The owner can use it from a second browser too (no guest-style reservation in the way).
         var (again, _) = await _service.ChooseNicknameAsync(new PlayerSession("p3", null, AccountId: "acc-1"), "mira");
         Assert.Null(again);
+    }
+
+    [Fact]
+    public async Task A_finished_round_with_an_account_holder_is_recorded_once()
+    {
+        var host = await Player("p1", "host");
+        var (_, code) = await _service.CreateAsync(host with { AccountId = "acc-9" }, Settings);
+        Assert.Null(await _service.JoinAsync(await Player("p2", "two"), code!));
+        Assert.Null(await _service.JoinAsync(await Player("p3", "three"), code!));
+        Assert.Null(await _service.StartRoundAsync("p1", code!));
+
+        _clock.Advance(TimeSpan.FromHours(1)); // questions, voting: all past
+        await _service.TickAsync(code!);
+        await _service.TickAsync(code!);       // a second tick changes nothing
+        Assert.Equal([(code!, 1)], _recorder.Recorded);
+        Assert.True((await _store.GetAsync(code!))!.Round!.Recorded);
+    }
+
+    [Fact]
+    public async Task Rooms_of_guests_only_are_not_recorded()
+    {
+        var code = await RoomWithPlayers(3);
+        Assert.Null(await _service.StartRoundAsync("p1", code));
+        _clock.Advance(TimeSpan.FromHours(1));
+        await _service.TickAsync(code);
+        Assert.Empty(_recorder.Recorded);
     }
 
     [Fact]

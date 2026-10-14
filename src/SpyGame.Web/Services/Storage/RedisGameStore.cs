@@ -7,7 +7,7 @@ namespace SpyGame.Web.Services.Storage;
 /// Rooms, sessions and nicknames in Redis. Every "check, then write" happens inside one Lua
 /// script, which Redis runs as a single step, so two requests can never both win a race.
 /// </summary>
-public sealed class RedisGameStore(IConnectionMultiplexer redis) : IRoomStore, ISessionStore, INicknameRegistry
+public sealed class RedisGameStore(IConnectionMultiplexer redis) : IRoomStore, ISessionStore, INicknameRegistry, ILeaderboardCache
 {
     private const int MaxRetries = 20;
     private IDatabase Db => redis.GetDatabase();
@@ -92,4 +92,44 @@ public sealed class RedisGameStore(IConnectionMultiplexer redis) : IRoomStore, I
 
     public Task ReleaseAsync(string nickname, string playerId) =>
         Db.ScriptEvaluateAsync(ReleaseIfOwner, [StoreKeys.Nickname(nickname)], [playerId]);
+
+    // --- weekly leaderboard (sorted set) ---
+
+    public Task<bool> ExistsAsync(string week) => Db.KeyExistsAsync(StoreKeys.Leaderboard(week));
+
+    public async Task AddAsync(string week, string accountId, long points)
+    {
+        var key = StoreKeys.Leaderboard(week);
+        await Db.SortedSetIncrementAsync(key, accountId, points);
+        await Db.KeyExpireAsync(key, StoreKeys.LeaderboardLifetime);
+    }
+
+    public async Task ReplaceAsync(string week, IReadOnlyCollection<WeeklyScore> scores)
+    {
+        var key = StoreKeys.Leaderboard(week);
+        var transaction = Db.CreateTransaction(); // readers never see it half-built
+        _ = transaction.KeyDeleteAsync(key);
+        if (scores.Count > 0)
+        {
+            _ = transaction.SortedSetAddAsync(key, scores.Select(s => new SortedSetEntry(s.AccountId, s.Points)).ToArray());
+            _ = transaction.KeyExpireAsync(key, StoreKeys.LeaderboardLifetime);
+        }
+        await transaction.ExecuteAsync();
+    }
+
+    public async Task<IReadOnlyList<WeeklyScore>> TopAsync(string week, int count)
+    {
+        var top = await Db.SortedSetRangeByRankWithScoresAsync(StoreKeys.Leaderboard(week), 0, count - 1, Order.Descending);
+        return top.Select(e => new WeeklyScore(e.Element.ToString(), (long)e.Score)).ToList();
+    }
+
+    public async Task<(long Rank, long Points)?> RankAsync(string week, string accountId)
+    {
+        var key = StoreKeys.Leaderboard(week);
+        var rank = await Db.SortedSetRankAsync(key, accountId, Order.Descending);
+        var score = await Db.SortedSetScoreAsync(key, accountId);
+        return rank is { } r && score is { } s ? (r, (long)s) : null;
+    }
+
+    public Task RemoveAsync(string week, string accountId) => Db.SortedSetRemoveAsync(StoreKeys.Leaderboard(week), accountId);
 }

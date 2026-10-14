@@ -7,11 +7,12 @@ namespace SpyGame.Web.Services.Storage;
 /// It stores JSON exactly like the Redis store, so a room that does not survive being written
 /// and read back fails here too. Lifetimes are honoured with the given clock.
 /// </summary>
-public sealed class InMemoryGameStore(TimeProvider clock) : IRoomStore, ISessionStore, INicknameRegistry
+public sealed class InMemoryGameStore(TimeProvider clock) : IRoomStore, ISessionStore, INicknameRegistry, ILeaderboardCache
 {
     private readonly Lock _lock = new();
     private readonly Dictionary<string, (string Value, DateTimeOffset Expires)> _values = [];
     private readonly Dictionary<string, DateTimeOffset> _deadlines = [];
+    private readonly Dictionary<string, Dictionary<string, long>> _boards = [];
 
     private string? Read(string key)
     {
@@ -98,6 +99,58 @@ public sealed class InMemoryGameStore(TimeProvider clock) : IRoomStore, ISession
             Write(key, playerId, StoreKeys.NicknameLifetime);
             return Task.FromResult(true);
         }
+    }
+
+    public Task<bool> ExistsAsync(string week)
+    {
+        lock (_lock) return Task.FromResult(_boards.ContainsKey(week));
+    }
+
+    public Task AddAsync(string week, string accountId, long points)
+    {
+        lock (_lock)
+        {
+            var board = _boards.TryGetValue(week, out var b) ? b : _boards[week] = [];
+            board[accountId] = board.GetValueOrDefault(accountId) + points;
+        }
+        return Task.CompletedTask;
+    }
+
+    public Task ReplaceAsync(string week, IReadOnlyCollection<WeeklyScore> scores)
+    {
+        lock (_lock)
+        {
+            if (scores.Count == 0) _boards.Remove(week);
+            else _boards[week] = scores.ToDictionary(s => s.AccountId, s => s.Points);
+        }
+        return Task.CompletedTask;
+    }
+
+    // Same order as Redis: points high to low, ties by member (descending, like ZREVRANGE).
+    private List<WeeklyScore> Ordered(string week) =>
+        _boards.TryGetValue(week, out var board)
+            ? board.OrderByDescending(e => e.Value).ThenByDescending(e => e.Key, StringComparer.Ordinal).Select(e => new WeeklyScore(e.Key, e.Value)).ToList()
+            : [];
+
+    public Task<IReadOnlyList<WeeklyScore>> TopAsync(string week, int count)
+    {
+        lock (_lock) return Task.FromResult<IReadOnlyList<WeeklyScore>>(Ordered(week).Take(count).ToList());
+    }
+
+    public Task<(long Rank, long Points)?> RankAsync(string week, string accountId)
+    {
+        lock (_lock)
+        {
+            var ordered = Ordered(week);
+            var index = ordered.FindIndex(s => s.AccountId == accountId);
+            return Task.FromResult<(long, long)?>(index < 0 ? null : (index, ordered[index].Points));
+        }
+    }
+
+    public Task RemoveAsync(string week, string accountId)
+    {
+        lock (_lock) if (_boards.TryGetValue(week, out var board)) board.Remove(accountId);
+        return Task.CompletedTask;
     }
 
     public Task ReleaseAsync(string nickname, string playerId)

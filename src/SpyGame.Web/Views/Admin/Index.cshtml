@@ -1,0 +1,56 @@
+@model SpyGame.Web.Models.ViewModels.AdminViewModel
+@{
+    ViewData["Title"] = T["admin.title"];
+}
+<section class="board">
+    <h1>@T["admin.title"]</h1>
+    <p class="muted">@T["admin.lead"] (@Model.Week)</p>
+    <div class="card">
+        @if (Model.Lines.Count == 0)
+        {
+            <p class="muted">@T["board.empty"]</p>
+        }
+        <ul class="admin-list">
+            @foreach (var line in Model.Lines)
+            {
+                <li>
+                    <span class="mono">@line.Rank</span>
+                    <span class="board__name">@line.Nickname</span>
+                    <span class="mono">@line.Points</span>
+                    <form method="post" action="/admin/remove">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="accountId" value="@line.AccountId" />
+                        <input type="hidden" name="week" value="@Model.Week" />
+                        <button type="submit" class="link-btn">@T["admin.remove"]</button>
+                    </form>
+                    <form method="post" action="/admin/ban">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="accountId" value="@line.AccountId" />
+                        <button type="submit" class="link-btn">@T["admin.ban"]</button>
+                    </form>
+                </li>
+            }
+        </ul>
+    </div>
+    <h2>@T["admin.banned"]</h2>
+    <div class="card">
+        @if (Model.Banned.Count == 0)
+        {
+            <p class="muted">@T["admin.bannedNone"]</p>
+        }
+        <ul class="admin-list">
+            @foreach (var account in Model.Banned)
+            {
+                <li>
+                    <span class="board__name">@account.Nickname</span>
+                    <form method="post" action="/admin/ban">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="accountId" value="@account.Id" />
+                        <input type="hidden" name="banned" value="false" />
+                        <button type="submit" class="link-btn">@T["admin.unban"]</button>
+                    </form>
+                </li>
+            }
+        </ul>
+    </div>
+</section>

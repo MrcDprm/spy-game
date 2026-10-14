@@ -56,6 +56,8 @@ public sealed class GameFactory : WebApplicationFactory<Program>
     public ManualClock Clock { get; } = new(DateTimeOffset.UtcNow);
     public FakeEmailSender Emails { get; } = new();
 
+    public const string AdminEmail = "boss@example.com";
+
     // The app redirects plain HTTP to HTTPS outside Development, like in production.
     public static readonly Uri Https = new("https://localhost/");
 
@@ -63,12 +65,16 @@ public sealed class GameFactory : WebApplicationFactory<Program>
     {
         ClientOptions.BaseAddress = Https;
         _database.Open(); // an in-memory SQLite database lives as long as its connection
+        // The schema must exist before the app starts: data protection reads its keys at start-up.
+        using var db = new AppDbContext(new DbContextOptionsBuilder<AppDbContext>().UseSqlite(_database).Options);
+        db.Database.EnsureCreated();
     }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Testing"); // not Development: user-secrets (REDIS_URL) are not read
         builder.UseSetting("REDIS_URL", "");
+        builder.UseSetting("ADMIN_EMAILS", GameFactory.AdminEmail);
         builder.ConfigureServices(services =>
         {
             services.Replace(ServiceDescriptor.Singleton<TimeProvider>(Clock));
@@ -76,14 +82,6 @@ public sealed class GameFactory : WebApplicationFactory<Program>
             services.RemoveAll<IEmailSender>();
             services.AddSingleton<IEmailSender>(Emails);
         });
-    }
-
-    protected override IHost CreateHost(IHostBuilder builder)
-    {
-        var host = base.CreateHost(builder);
-        using var scope = host.Services.CreateScope();
-        scope.ServiceProvider.GetRequiredService<AppDbContext>().Database.EnsureCreated();
-        return host;
     }
 
     protected override void Dispose(bool disposing)

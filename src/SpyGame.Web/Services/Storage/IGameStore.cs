@@ -49,6 +49,25 @@ public interface INicknameRegistry
     Task ReleaseAsync(string nickname, string playerId);
 }
 
+/// <summary>One account's total for a week.</summary>
+public sealed record WeeklyScore(string AccountId, long Points);
+
+/// <summary>
+/// The weekly leaderboard as a Redis sorted set (account id → points): adding, the top of the
+/// list and one player's rank are each a single command. The database keeps the history it is
+/// rebuilt from.
+/// </summary>
+public interface ILeaderboardCache
+{
+    Task<bool> ExistsAsync(string week);
+    Task AddAsync(string week, string accountId, long points);
+    Task ReplaceAsync(string week, IReadOnlyCollection<WeeklyScore> scores);
+    Task<IReadOnlyList<WeeklyScore>> TopAsync(string week, int count);
+    /// <summary>0-based position (highest points first) and points, or null if not on the board.</summary>
+    Task<(long Rank, long Points)?> RankAsync(string week, string accountId);
+    Task RemoveAsync(string week, string accountId);
+}
+
 internal static class StoreKeys
 {
     public static readonly TimeSpan RoomLifetime = TimeSpan.FromHours(3);
@@ -56,6 +75,8 @@ internal static class StoreKeys
     public static readonly TimeSpan NicknameLifetime = TimeSpan.FromHours(24);
 
     public const string Deadlines = "sg:deadlines";
+    public static readonly TimeSpan LeaderboardLifetime = TimeSpan.FromDays(21); // this week and the last, with room to spare
+    public static string Leaderboard(string week) => $"sg:lb:{week}";
     public static string Room(string code) => $"sg:room:{code}";
     public static string Session(string token) => $"sg:session:{Hash(token)}";
     public static string Nickname(string name) => $"sg:nick:{name}";

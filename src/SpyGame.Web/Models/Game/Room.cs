@@ -61,6 +61,7 @@ public sealed class RoundState
     public int? GuessIndex { get; set; }
     public RoundOutcome? Outcome { get; set; }
     public Dictionary<string, int>? Points { get; set; }
+    public bool Recorded { get; set; } // the points went to the leaderboard (exactly once)
 }
 
 public sealed class Room

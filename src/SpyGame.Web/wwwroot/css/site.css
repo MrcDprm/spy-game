@@ -306,6 +306,27 @@ input.code-input { font-family: "JetBrains Mono", monospace; font-size: 1.35rem;
 
 .toast { position: fixed; left: 50%; bottom: 1.25rem; transform: translateX(-50%); z-index: 20; max-width: calc(100% - 2rem); margin: 0; padding: 0.7rem 1.1rem; border-radius: 12px; background: var(--ink); color: var(--bg); font-weight: 600; box-shadow: var(--shadow); }
 
+/* Leaderboard */
+.board-link { display: inline-block; margin-top: 0.5rem; color: var(--accent); font: 700 0.95rem "Archivo", sans-serif; text-decoration: none; }
+.board-link:hover { text-decoration: underline; }
+.board { max-width: 40rem; margin-inline: auto; display: grid; gap: 1rem; }
+.board h1 { margin: 0; }
+.board__tabs { display: flex; gap: 0.5rem; }
+.board__tabs a { padding: 0.45rem 0.9rem; border: 1.5px solid var(--line); border-radius: 999px; color: var(--ink-2); text-decoration: none; font-weight: 650; font-size: 0.9rem; }
+.board__tabs a[aria-current="page"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.board__list { list-style: none; margin: 0; padding: 0.5rem 1rem; }
+.board__line { display: grid; grid-template-columns: 2.5rem 1fr auto; align-items: center; gap: 0.75rem; padding: 0.7rem 0; border-bottom: 1px dashed var(--paper-line); }
+.board__line:last-child { border-bottom: 0; }
+.board__line:nth-child(-n+3) .board__rank { color: var(--accent); font-weight: 800; }
+.board__line--you { background: color-mix(in srgb, var(--accent) 10%, transparent); border-radius: 8px; padding-inline: 0.5rem; }
+.board__rank { font-size: 1.1rem; text-align: center; }
+.board__name { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.board__points { color: var(--paper-ink-2); }
+.board__you { font-weight: 650; }
+.admin-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.25rem; }
+.admin-list li { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; padding: 0.5rem 0; border-bottom: 1px dashed var(--line); }
+.admin-list form { margin: 0; }
+
 /* Footer */
 .site-footer { border-top: 1px solid var(--line); padding-block: 1.75rem; }
 .site-footer__inner { display: grid; justify-items: center; gap: 0.75rem; text-align: center; }

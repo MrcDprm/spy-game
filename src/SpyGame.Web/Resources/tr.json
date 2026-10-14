@@ -177,5 +177,22 @@
   "error.login_failed": "E-posta ya da şifre yanlış.",
   "error.login_locked": "Çok fazla yanlış deneme oldu; hesap 15 dakika kilitlendi.",
   "error.email_not_confirmed": "Önce e-postanı doğrulaman gerekiyor. Gelen kutunu kontrol et.",
-  "error.link_invalid": "Bu bağlantı geçersiz ya da süresi dolmuş. Yeni bir bağlantı iste."
+  "error.link_invalid": "Bu bağlantı geçersiz ya da süresi dolmuş. Yeni bir bağlantı iste.",
+  "board.title": "Haftanın casusları",
+  "board.lead": "Doğrulanmış hesapların bu hafta topladığı puanlar. Her pazartesi sıfırlanır (İstanbul saatiyle).",
+  "board.thisWeek": "Bu hafta",
+  "board.lastWeek": "Geçen hafta",
+  "board.weeks": "Haftalar",
+  "board.empty": "Bu hafta henüz puan yok. İlk turu sen oyna!",
+  "board.guest": "Misafirlerin puanları sıralamaya girmez.",
+  "board.you": "Sen {0}. sıradasın, {1} puanla.",
+  "board.youNone": "Bu hafta henüz puanın yok.",
+  "js.result.board": "Haftanın casusları",
+  "admin.title": "Yönetim",
+  "admin.lead": "Bu haftanın sıralaması",
+  "admin.remove": "Bu haftaki puanlarını sil",
+  "admin.ban": "Sıralamadan çıkar",
+  "admin.unban": "Sıralamaya geri al",
+  "admin.banned": "Sıralamadan çıkarılanlar",
+  "admin.bannedNone": "Kimse çıkarılmadı."
 }

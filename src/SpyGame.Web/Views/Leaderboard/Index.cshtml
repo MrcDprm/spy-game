@@ -1,0 +1,47 @@
+@model SpyGame.Web.Models.ViewModels.LeaderboardViewModel
+@{
+    ViewData["Title"] = T["board.title"];
+    var culture = System.Globalization.CultureInfo.CurrentUICulture;
+    var range = $"{Model.Starts.ToString("d MMMM", culture)} – {Model.Starts.AddDays(6).ToString("d MMMM yyyy", culture)}";
+}
+<section class="board">
+    <p class="eyebrow">@(Model.IsLastWeek ? T["board.lastWeek"] : T["board.thisWeek"]) · @range</p>
+    <h1>@T["board.title"]</h1>
+    <p class="muted">@T["board.lead"]</p>
+
+    <nav class="board__tabs" aria-label="@T["board.weeks"]">
+        <a href="/leaderboard" aria-current="@(Model.IsLastWeek ? null : "page")">@T["board.thisWeek"]</a>
+        <a href="/leaderboard?last=true" aria-current="@(Model.IsLastWeek ? "page" : null)">@T["board.lastWeek"]</a>
+    </nav>
+
+    @if (Model.Lines.Count == 0)
+    {
+        <div class="card"><p class="muted">@T["board.empty"]</p></div>
+    }
+    else
+    {
+        <ol class="board__list card card--paper">
+            @foreach (var line in Model.Lines)
+            {
+                <li class="board__line@(line.AccountId == Model.YourAccountId ? " board__line--you" : "")">
+                    <span class="board__rank mono">@line.Rank</span>
+                    <span class="board__name">@line.Nickname</span>
+                    <span class="board__points mono">@T["js.points", line.Points]</span>
+                </li>
+            }
+        </ol>
+    }
+
+    @if (Model.YourAccountId is null)
+    {
+        <p class="muted small">@T["board.guest"] <a href="/account/register">@T["account.register.title"]</a></p>
+    }
+    else if (Model.You is { } you)
+    {
+        <p class="board__you">@T["board.you", you.Position, you.Points]</p>
+    }
+    else
+    {
+        <p class="muted small">@T["board.youNone"]</p>
+    }
+</section>

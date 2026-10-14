@@ -177,5 +177,22 @@
   "error.login_failed": "Wrong e-mail or password.",
   "error.login_locked": "Too many wrong tries; the account is locked for 15 minutes.",
   "error.email_not_confirmed": "Confirm your e-mail first. Check your inbox.",
-  "error.link_invalid": "This link is invalid or has expired. Ask for a new one."
+  "error.link_invalid": "This link is invalid or has expired. Ask for a new one.",
+  "board.title": "Spies of the week",
+  "board.lead": "Points won this week by confirmed accounts. It starts again every Monday (Istanbul time).",
+  "board.thisWeek": "This week",
+  "board.lastWeek": "Last week",
+  "board.weeks": "Weeks",
+  "board.empty": "No points yet this week. Play the first round!",
+  "board.guest": "Guests' points do not enter the leaderboard.",
+  "board.you": "You are number {0}, with {1} points.",
+  "board.youNone": "You have no points yet this week.",
+  "js.result.board": "Spies of the week",
+  "admin.title": "Admin",
+  "admin.lead": "This week's leaderboard",
+  "admin.remove": "Delete this week's points",
+  "admin.ban": "Remove from the leaderboard",
+  "admin.unban": "Let back on the leaderboard",
+  "admin.banned": "Removed from the leaderboard",
+  "admin.bannedNone": "Nobody has been removed."
 }

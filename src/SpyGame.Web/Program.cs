@@ -54,6 +54,7 @@ if (!string.IsNullOrWhiteSpace(redisUrl))
     builder.Services.AddSingleton<IRoomStore>(sp => sp.GetRequiredService<RedisGameStore>());
     builder.Services.AddSingleton<ISessionStore>(sp => sp.GetRequiredService<RedisGameStore>());
     builder.Services.AddSingleton<INicknameRegistry>(sp => sp.GetRequiredService<RedisGameStore>());
+    builder.Services.AddSingleton<ILeaderboardCache>(sp => sp.GetRequiredService<RedisGameStore>());
 }
 else if (builder.Environment.IsProduction())
 {
@@ -65,6 +66,7 @@ else
     builder.Services.AddSingleton<IRoomStore>(sp => sp.GetRequiredService<InMemoryGameStore>());
     builder.Services.AddSingleton<ISessionStore>(sp => sp.GetRequiredService<InMemoryGameStore>());
     builder.Services.AddSingleton<INicknameRegistry>(sp => sp.GetRequiredService<InMemoryGameStore>());
+    builder.Services.AddSingleton<ILeaderboardCache>(sp => sp.GetRequiredService<InMemoryGameStore>());
 }
 
 // Lasting data (accounts, scores, data-protection keys): Neon Postgres. Tests plug in SQLite instead.
@@ -108,6 +110,15 @@ builder.Services.AddDataProtection().SetApplicationName("SpyGame").PersistKeysTo
 builder.Services.AddHttpClient<IEmailSender, ResendEmailSender>();
 builder.Services.AddScoped<AccountEmails>();
 builder.Services.AddSingleton<IRegisteredNames, DbRegisteredNames>();
+builder.Services.AddSingleton<LeaderboardService>();
+builder.Services.AddSingleton<IRoundRecorder>(sp => sp.GetRequiredService<LeaderboardService>());
+
+// The admin is whoever logs in with an address listed in ADMIN_EMAILS (logging in needs a confirmed e-mail).
+var adminEmails = (builder.Configuration["ADMIN_EMAILS"] ?? "")
+    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+    .ToHashSet(StringComparer.OrdinalIgnoreCase);
+builder.Services.AddAuthorizationBuilder().AddPolicy(AdminController.AdminPolicy, p => p.RequireAssertion(
+    ctx => ctx.User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value is { } email && adminEmails.Contains(email)));
 
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddSingleton<IRandomSource, CryptoRandomSource>();

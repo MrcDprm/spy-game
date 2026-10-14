@@ -35,6 +35,10 @@
             <div class="toolbar">
                 @if (User.Identity?.IsAuthenticated == true)
                 {
+                    @if ((await AuthorizationService.AuthorizeAsync(User, SpyGame.Web.Controllers.AdminController.AdminPolicy)).Succeeded)
+                    {
+                        <a class="icon-btn icon-btn--text" href="/admin">@T["admin.title"]</a>
+                    }
                     <span class="account-name mono" title="@T["account.signedInAs"]">@User.Identity.Name</span>
                     <form method="post" action="/account/logout" class="inline-form">
                         @Html.AntiForgeryToken()
