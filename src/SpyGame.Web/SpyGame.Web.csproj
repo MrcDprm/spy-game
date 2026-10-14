@@ -4,6 +4,12 @@
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <!-- Local secrets (REDIS_URL...) live outside the repo: dotnet user-secrets set REDIS_URL ... -->
+    <UserSecretsId>spygame-web</UserSecretsId>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="StackExchange.Redis" Version="3.4.5" />
+  </ItemGroup>
 
 </Project>
