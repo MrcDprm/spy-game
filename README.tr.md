@@ -2,23 +2,23 @@
 
 [English](README.md) | **Türkçe**
 
-3-12 kişilik, herkesin kendi telefonundan oynadığı gerçek zamanlı bir parti oyunu. Casus (ya da casuslar) dışındaki herkes aynı gizli mekânı alır; casus sadece kategoriyi görür. Oyuncular birbirine sorular sorar, casusun kim olduğunu oylar; yakalanan casusun mekânı bilmek için son bir şansı vardır.
+3-12 kişilik, herkesin kendi telefonundan oynadığı gerçek zamanlı bir parti oyunu. Casus (ya da casuslar) dışındaki herkes aynı gizli mekânı alır; casus sadece olası mekânların listesini görür. Oyuncular birbirine sorular sorar, casusun kim olduğunu oylar; yakalanan casusun mekânı bilmek için son bir şansı vardır.
 
 Bu, 2025'te ASP.NET Core MVC ile ilk kez yazdığım bir oyunun yeniden yazımı. O sürümde telefon masada elden ele dolaşıyordu. Siteye giren herkes aynı tek oyunu paylaşıyordu ve sunucu her oyuncunun rolünü bütün odaya gönderiyordu.
 
 **Canlı:** [spygame.miracdeprem.com](https://spygame.miracdeprem.com)
 
-![Basılı tutulan bir sivil kartı: gizli mekân, kategorisi ve tur süresi](docs/screenshot-card.png)
+![Basılı tutulan bir sivil kartı: gizli mekân ve tur süresi](docs/screenshot-card.png)
 
 ## Özellikler
 
 - **Odalar:**
   - Oda kurulur; 6 karakterlik kodu, linki ya da QR kodu paylaşılır.
-  - Odayı kuran kişi kategorileri, tur süresini (1–15 dakika) ve casus sayısını (1–3) seçer. Az kişi gelirse casus sayısı oyun başlarken azaltılır.
+  - Odayı kuran kişi mekânları, tur süresini (1–15 dakika) ve casus sayısını (1–3) seçer. Az kişi gelirse casus sayısı oyun başlarken azaltılır.
   - Sayfayı yenileyen ya da bağlantısı kopan oyuncu yerini kaybetmez.
 - **Gizli kartlar:**
   - Her telefona sadece kendi kartı gider; kart yalnızca basılı tutulunca görünür.
-  - Casus kategoriyi ve 15 olası mekânı görür, mekânın kendisini asla görmez.
+  - Casus mekânın kendisini asla görmez. Turdaki herkes odanın mekân listesini aynı şekilde, alfabetik ve grupsuz görür; liste kimseyi ele vermez.
   - Kartlar kapalıyken sivilin ve casusun ekranı birebir aynı görünür.
 - **Canlı tur:**
   - Turun süresini sunucudaki saat sayar.
@@ -30,14 +30,14 @@ Bu, 2025'te ASP.NET Core MVC ile ilk kez yazdığım bir oyunun yeniden yazımı
   - E-posta doğrulamalı kayıtla takma ad kalıcı olarak senin olur ve sıralamaya girersin.
   - Misafirler 24 saat boyunca kendilerine ayrılan bir takma adla oynayabilir.
 - **Yönetim sayfası:** bir haftanın puanlarını silme, bir hesabı sıralamadan çıkarma ve geri alma.
-- **Mekân listesi:** 10 kategori ve 150 mekân, Türkçe ve İngilizce.
+- **Mekân listesi:** Numaralı dört dosyada 102 mekân, Türkçe ve İngilizce. Odayı kuran dosyaların tamamını işaretler ya da dosyayı açıp mekânları tek tek seçer (en az 10); son seçim o cihazda hatırlanır.
 - **Arayüz:** Türkçe ve İngilizce, koyu ve açık tema, önce telefon için tasarlandı.
 
 ## Ekran Görüntüleri
 
 | QR davetli lobi | Casusun kartı | Oylama |
 |---|---|---|
-| ![Oyuncular, ayarlar ve davet QR koduyla lobi](docs/screenshot-lobby.png) | ![Casusun kartı: kategori ve 15 olası mekân](docs/screenshot-spy.png) | ![Oyuncuların düğme olarak listelendiği oylama ekranı](docs/screenshot-voting.png) |
+| ![Oyuncular, ayarlar ve davet QR koduyla lobi](docs/screenshot-lobby.png) | ![Casusun kartı ve olası mekânlar listesi](docs/screenshot-spy.png) | ![Oyuncuların düğme olarak listelendiği oylama ekranı](docs/screenshot-voting.png) |
 
 | Sonuç | Haftanın casusları | Ana sayfa |
 |---|---|---|

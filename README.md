@@ -2,23 +2,23 @@
 
 **English** | [Türkçe](README.tr.md)
 
-A real-time party game for 3 to 12 friends, each playing on their own phone. Everyone gets the same secret place except the spy (or spies), who only sees the category. Players ask each other questions, vote on who the spy is, and a caught spy gets one last chance to name the place.
+A real-time party game for 3 to 12 friends, each playing on their own phone. Everyone gets the same secret place except the spy (or spies), who only sees the list of possible places. Players ask each other questions, vote on who the spy is, and a caught spy gets one last chance to name the place.
 
 This is a rewrite of a game I first built in 2025 with ASP.NET Core MVC. That version passed one phone around the table. Every visitor shared the same single game, and the server sent each player's role to the whole room.
 
 **Live:** [spygame.miracdeprem.com](https://spygame.miracdeprem.com)
 
-![A civilian's card, held down: the secret place, its category and the round timer](docs/screenshot-card.png)
+![A civilian's card, held down: the secret place and the round timer](docs/screenshot-card.png)
 
 ## Features
 
 - **Rooms:**
   - Create a room and share its 6-character code, its link or its QR code.
-  - The person who creates the room chooses the categories, the round length (1–15 minutes) and the number of spies (1–3). The number of spies is lowered at the start if too few people came.
+  - The person who creates the room chooses the places, the round length (1–15 minutes) and the number of spies (1–3). The number of spies is lowered at the start if too few people came.
   - Anyone who reloads the page or loses the connection keeps their seat.
 - **Secret cards:**
   - Each phone receives only its own card, and the card shows only while it is held down.
-  - The spy sees the category and its 15 possible places, never the place itself.
+  - The spy never sees the place itself. Everyone in the round gets the same list of the room's places, alphabetical and without groups, so it gives no one away.
   - While the cards are closed, a civilian's screen and a spy's screen look exactly the same.
 - **A live round:**
   - A server-side clock counts down the round.
@@ -30,14 +30,14 @@ This is a rewrite of a game I first built in 2025 with ASP.NET Core MVC. That ve
   - Sign up with e-mail confirmation to keep your nickname for good and appear on the leaderboard.
   - Guests can play with a nickname that stays theirs for 24 hours.
 - **Admin page:** remove a week's points, or take an account off the leaderboard and let it back on.
-- **The place list:** 10 categories and 150 places, in Turkish and English.
+- **The place list:** 102 places in four numbered dossiers, in Turkish and English. The creator ticks whole dossiers or opens one and picks single places (at least 10); the last choice is remembered on that device.
 - **Interface:** Turkish and English, dark and light themes, designed for phones first.
 
 ## Screenshots
 
 | Lobby with the invite QR code | The spy's card | Voting |
 |---|---|---|
-| ![Lobby with players, settings and an invite QR code](docs/screenshot-lobby.png) | ![The spy's card: the category and the 15 possible places](docs/screenshot-spy.png) | ![Voting screen with the players as buttons](docs/screenshot-voting.png) |
+| ![Lobby with players, settings and an invite QR code](docs/screenshot-lobby.png) | ![The spy's card and the list of possible places](docs/screenshot-spy.png) | ![Voting screen with the players as buttons](docs/screenshot-voting.png) |
 
 | Results | Spies of the week | Start page |
 |---|---|---|
