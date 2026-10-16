@@ -22,6 +22,7 @@ public static class RoomEngine
     /// <summary>Joining in the middle of a round is fine: the newcomer plays from the next one.</summary>
     public static string? Join(Room room, string playerId, string nickname, DateTimeOffset now, string? accountId = null)
     {
+        if (room.KickedIds.Contains(playerId)) return "kicked";
         var existing = room.Find(playerId);
         if (existing is not null)
         {
@@ -59,6 +60,19 @@ public static class RoomEngine
         }
         if (room.HostId == playerId) PickNewHost(room);
         return null;
+    }
+
+    /// <summary>
+    /// The host removes a player, who then cannot join this room again. During a round the player
+    /// is handled like someone who left: their part of the round still counts until it ends.
+    /// </summary>
+    public static string? Kick(Room room, string byPlayerId, string playerId)
+    {
+        if (room.HostId != byPlayerId) return "not_host";
+        if (playerId == byPlayerId) return "cannot_kick_self";
+        if (room.Find(playerId) is not { Left: false }) return "unknown_player";
+        room.KickedIds.Add(playerId);
+        return Leave(room, playerId);
     }
 
     public static string? StartRound(Room room, string byPlayerId, DateTimeOffset now, IRandomSource random)

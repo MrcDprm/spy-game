@@ -20,6 +20,9 @@ public interface IRoundRecorder
 public interface IRoomNotifier
 {
     Task RoomChangedAsync(Room room);
+
+    /// <summary>Tells a removed player's page that it is out (it no longer gets the room).</summary>
+    Task KickedAsync(string code, string playerId);
 }
 
 /// <summary>
@@ -109,6 +112,19 @@ public sealed class RoomService(
 
     public Task<string?> SkipTurnAsync(string playerId, string code) =>
         ChangeAsync(code, room => QuestionTurns.SkipTurn(room, playerId));
+
+    public Task<string?> SendChatAsync(string playerId, string code, string text) =>
+        ChangeAsync(code, room => RoomChat.Send(room, playerId, text, clock.GetUtcNow()));
+
+    public Task<string?> HideMessageAsync(string playerId, string code, int messageId) =>
+        ChangeAsync(code, room => RoomChat.Hide(room, playerId, messageId));
+
+    public async Task<string?> KickAsync(string playerId, string code, string targetId)
+    {
+        var error = await ChangeAsync(code, room => RoomEngine.Kick(room, playerId, targetId));
+        if (error is null) await notifier.KickedAsync(RoomCode.Normalize(code), targetId);
+        return error;
+    }
 
     public Task<string?> StrikePlaceAsync(string playerId, string code, string placeId) =>
         ChangeAsync(code, room => RoomEngine.StrikePlace(room, playerId, placeId));

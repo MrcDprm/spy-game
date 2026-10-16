@@ -27,9 +27,17 @@ internal sealed class RecordingNotifier : IRoomNotifier
 {
     public List<Room> Sent { get; } = [];
 
+    public List<(string Code, string PlayerId)> Kicked { get; } = [];
+
     public Task RoomChangedAsync(Room room)
     {
         Sent.Add(room);
+        return Task.CompletedTask;
+    }
+
+    public Task KickedAsync(string code, string playerId)
+    {
+        Kicked.Add((code, playerId));
         return Task.CompletedTask;
     }
 }
@@ -121,6 +129,19 @@ public class RoomServiceTests
         _clock.Advance(TimeSpan.FromHours(1));
         await _service.TickAsync(code);
         Assert.Empty(_recorder.Recorded);
+    }
+
+    [Fact]
+    public async Task A_removed_player_is_told_and_cannot_join_again()
+    {
+        var code = await RoomWithPlayers(4);
+        Assert.Equal("not_host", await _service.KickAsync("p2", code, "p3"));
+        Assert.Empty(_notifier.Kicked);
+
+        Assert.Null(await _service.KickAsync("p1", code, "p3"));
+        Assert.Equal([(code, "p3")], _notifier.Kicked);
+        Assert.Null(await _service.ViewAsync(code, "p3"));
+        Assert.Equal("kicked", await _service.JoinAsync(await Player("p3", "player3"), code));
     }
 
     [Fact]

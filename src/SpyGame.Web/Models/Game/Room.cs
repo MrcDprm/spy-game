@@ -92,6 +92,13 @@ public sealed class Room
 
     /// <summary>Who asked first in the last rounds, newest last: they are skipped next time, so the first question moves around.</summary>
     public List<string> RecentFirstAskers { get; set; } = [];
+
+    /// <summary>The last chat lines (groups playing apart), oldest first, and the last id given out.</summary>
+    public List<ChatMessage> Chat { get; set; } = [];
+    public int ChatSeq { get; set; }
+
+    /// <summary>Players the host removed: they cannot come back to this room.</summary>
+    public List<string> KickedIds { get; set; } = [];
     public DateTimeOffset CreatedAt { get; set; }
 
     public RoomPlayer? Find(string playerId) => Players.FirstOrDefault(p => p.Id == playerId);

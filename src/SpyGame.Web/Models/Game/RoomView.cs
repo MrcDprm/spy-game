@@ -19,6 +19,9 @@ public sealed record QuestionView(string AskerId, string TargetId, string Questi
 /// <summary>The round's questions, whose turn it is, and when the asker may turn to someone else.</summary>
 public sealed record QuestionsView(IReadOnlyList<QuestionView> Entries, string? TurnId, DateTimeOffset? ReaskAt);
 
+/// <summary>A chat line; a hidden one has no text.</summary>
+public sealed record ChatLineView(int Id, string PlayerId, string Nickname, string? Text, bool Hidden);
+
 public sealed record VotingView(string? YourVote, int VotesCast, int Voters);
 
 /// <summary>The list of places goes only to the accused spy, who has to pick from it.</summary>
@@ -50,7 +53,8 @@ public sealed record RoomView(
     VotingView? Voting,
     GuessView? Guess,
     ResultView? Result,
-    QuestionsView? Questions)
+    QuestionsView? Questions,
+    IReadOnlyList<ChatLineView>? Chat)
 {
     public static RoomView For(Room room, string playerId, DateTimeOffset now)
     {
@@ -133,6 +137,9 @@ public sealed record RoomView(
             voting,
             guess,
             result,
-            questions);
+            questions,
+            room.Settings.Remote
+                ? room.Chat.Select(m => new ChatLineView(m.Id, m.PlayerId, m.Nickname, m.Hidden ? null : m.Text, m.Hidden)).ToList()
+                : null);
     }
 }

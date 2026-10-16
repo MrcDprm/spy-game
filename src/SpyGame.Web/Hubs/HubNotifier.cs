@@ -17,4 +17,7 @@ public sealed class HubNotifier(IHubContext<GameHub> hub, TimeProvider clock) : 
             .Where(p => !p.Left)
             .Select(p => hub.Clients.Group(GameHub.PlayerGroup(room.Code, p.Id)).SendAsync("room", RoomView.For(room, p.Id, now))));
     }
+
+    public Task KickedAsync(string code, string playerId) =>
+        hub.Clients.Group(GameHub.PlayerGroup(code, playerId)).SendAsync("kicked");
 }

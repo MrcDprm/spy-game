@@ -61,6 +61,12 @@ public sealed class GameHub(RoomService rooms, PlayerSessionService sessions, Co
 
     public Task<string?> SkipTurn() => rooms.SkipTurnAsync(PlayerId, Code);
 
+    public Task<string?> SendChat(string text) => rooms.SendChatAsync(PlayerId, Code, text);
+
+    public Task<string?> HideMessage(int messageId) => rooms.HideMessageAsync(PlayerId, Code, messageId);
+
+    public Task<string?> Kick(string playerId) => rooms.KickAsync(PlayerId, Code, playerId);
+
     public Task<string?> StrikePlace(string placeId) => rooms.StrikePlaceAsync(PlayerId, Code, placeId);
 
     public Task<string?> Leave() => rooms.LeaveAsync(PlayerId, Code);

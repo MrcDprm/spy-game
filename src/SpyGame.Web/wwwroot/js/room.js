@@ -352,6 +352,15 @@
     banner.hidden = true;
     render();
   });
+  // The host removed this player: the room is gone for them, and so is the connection.
+  connection.on("kicked", function () {
+    state = null;
+    connection.stop();
+    stage.replaceChildren(el("div", { className: "card" },
+      el("p", { text: t("kicked") }), el("a", { className: "btn", text: t("home"), attrs: { href: "/" } })));
+    invitePanel.hidden = true;
+    timer.hidden = true;
+  });
   connection.onreconnecting(function () { banner.textContent = t("connection.lost"); banner.hidden = false; });
   connection.onreconnected(function () { banner.hidden = true; });
   connection.onclose(function () {
