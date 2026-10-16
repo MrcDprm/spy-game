@@ -74,6 +74,10 @@ public sealed class RoundState
     public RoundOutcome? Outcome { get; set; }
     public Dictionary<string, int>? Points { get; set; }
     public bool Recorded { get; set; } // the points went to the leaderboard (exactly once)
+
+    // Groups playing apart: whose turn it is to ask, and the typed questions so far.
+    public string? TurnId { get; set; }
+    public List<QuestionEntry> Questions { get; set; } = [];
 }
 
 public sealed class Room

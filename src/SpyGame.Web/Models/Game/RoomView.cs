@@ -13,6 +13,12 @@ public sealed record SettingsView(IReadOnlyList<Word> Places, IReadOnlyList<stri
 /// <summary>A civilian gets the place, a spy does not; both get every place of the room (no groups) and the number of spies.</summary>
 public sealed record CardView(bool IsSpy, Word? Place, IReadOnlyList<Word> Places, int SpyCount);
 
+/// <summary>A typed question and its answer (groups playing apart).</summary>
+public sealed record QuestionView(string AskerId, string TargetId, string Question, string? Answer, bool Unanswered);
+
+/// <summary>The round's questions, whose turn it is, and when the asker may turn to someone else.</summary>
+public sealed record QuestionsView(IReadOnlyList<QuestionView> Entries, string? TurnId, DateTimeOffset? ReaskAt);
+
 public sealed record VotingView(string? YourVote, int VotesCast, int Voters);
 
 /// <summary>The list of places goes only to the accused spy, who has to pick from it.</summary>
@@ -43,7 +49,8 @@ public sealed record RoomView(
     string? FirstAskerId,
     VotingView? Voting,
     GuessView? Guess,
-    ResultView? Result)
+    ResultView? Result,
+    QuestionsView? Questions)
 {
     public static RoomView For(Room room, string playerId, DateTimeOffset now)
     {
@@ -100,6 +107,17 @@ public sealed record RoomView(
                 round.Points ?? []);
         }
 
+        // Questions are public: everyone in the room sees them, during the round and in the results.
+        QuestionsView? questions = null;
+        if (room.Settings.Remote && round is not null && room.Phase != Phase.Lobby)
+        {
+            var pending = QuestionTurns.Pending(round);
+            questions = new QuestionsView(
+                round.Questions.Select(q => new QuestionView(q.AskerId, q.TargetId, q.Question, q.Answer, q.Unanswered)).ToList(),
+                room.Phase == Phase.Asking ? round.TurnId : null,
+                room.Phase == Phase.Asking ? pending?.AskedAt.AddSeconds(QuestionTurns.ReaskSeconds) : null);
+        }
+
         return new RoomView(
             room.Code,
             room.Phase,
@@ -114,6 +132,7 @@ public sealed record RoomView(
             active ? round!.Deal.FirstAskerId : null,
             voting,
             guess,
-            result);
+            result,
+            questions);
     }
 }

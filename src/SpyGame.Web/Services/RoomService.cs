@@ -101,6 +101,15 @@ public sealed class RoomService(
     public Task<string?> VoteAsync(string playerId, string code, string suspectId) =>
         ChangeAsync(code, room => RoomEngine.Vote(room, playerId, suspectId, clock.GetUtcNow()));
 
+    public Task<string?> AskAsync(string playerId, string code, string targetId, string text) =>
+        ChangeAsync(code, room => QuestionTurns.Ask(room, playerId, targetId, text, clock.GetUtcNow()));
+
+    public Task<string?> AnswerAsync(string playerId, string code, string text) =>
+        ChangeAsync(code, room => QuestionTurns.Answer(room, playerId, text));
+
+    public Task<string?> SkipTurnAsync(string playerId, string code) =>
+        ChangeAsync(code, room => QuestionTurns.SkipTurn(room, playerId));
+
     public Task<string?> StrikePlaceAsync(string playerId, string code, string placeId) =>
         ChangeAsync(code, room => RoomEngine.StrikePlace(room, playerId, placeId));
 

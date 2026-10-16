@@ -78,6 +78,7 @@ public static class RoomEngine
             PlayerIds = players,
             StartedAt = now,
             AskingEndsAt = now.AddSeconds(room.Settings.RoundSeconds),
+            TurnId = deal.FirstAskerId,
         };
         room.Phase = Phase.Asking;
         return null;
