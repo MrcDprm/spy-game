@@ -133,7 +133,7 @@
 
   function settingsSummary() {
     var s = state.settings;
-    return el("p", { className: "muted", text: [t("lobby.places", s.places.length - s.struck.length), t("lobby.minutes", s.roundSeconds / 60), t("lobby.spies", s.spyCount)].join(" · ") });
+    return el("p", { className: "muted", text: [t(s.remote ? "lobby.remote" : "lobby.together"), t("lobby.places", s.places.length - s.struck.length), t("lobby.minutes", s.roundSeconds / 60), t("lobby.spies", s.spyCount)].join(" · ") });
   }
 
   // Between rounds: the room's places, struck ones crossed out. The host taps one to strike it out

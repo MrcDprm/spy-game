@@ -8,7 +8,7 @@ namespace SpyGame.Web.Models.Game;
 public sealed record PlayerView(string Id, string Nickname, bool Connected, int Score, bool IsHost, bool InRound, bool Ready, bool HasVoted);
 
 /// <summary>The room's places with the struck ones marked: the same for everyone, so it gives no one away.</summary>
-public sealed record SettingsView(IReadOnlyList<Word> Places, IReadOnlyList<string> Struck, int RoundSeconds, int SpyCount);
+public sealed record SettingsView(IReadOnlyList<Word> Places, IReadOnlyList<string> Struck, int RoundSeconds, int SpyCount, bool Remote);
 
 /// <summary>A civilian gets the place, a spy does not; both get every place of the room (no groups) and the number of spies.</summary>
 public sealed record CardView(bool IsSpy, Word? Place, IReadOnlyList<Word> Places, int SpyCount);
@@ -67,7 +67,8 @@ public sealed record RoomView(
             room.Settings.PlaceIds.Select(id => WordBank.Find(id)!).ToList(),
             room.Settings.StruckPlaceIds,
             room.Settings.RoundSeconds,
-            room.Settings.SpyCount);
+            room.Settings.SpyCount,
+            room.Settings.Remote);
 
         CardView? card = null;
         if (inRound)

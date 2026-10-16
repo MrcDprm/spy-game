@@ -53,6 +53,15 @@
                 </div>
             </fieldset>
 
+            <fieldset class="field">
+                <legend>@T["form.mode"]</legend>
+                <div class="segmented segmented--text">
+                    <label><input type="radio" name="Create.Remote" value="false" checked="@(!Model.Create.Remote)" /><span>@T["form.mode.together"]</span></label>
+                    <label><input type="radio" name="Create.Remote" value="true" checked="@Model.Create.Remote" /><span>@T["form.mode.remote"]</span></label>
+                </div>
+                <p class="hint">@T["form.mode.hint"]</p>
+            </fieldset>
+
             <div class="field-row">
                 <div class="field">
                     <label for="round">@T["form.round"]</label>

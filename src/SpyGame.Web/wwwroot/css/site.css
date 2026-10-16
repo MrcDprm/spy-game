@@ -209,6 +209,8 @@ input.code-input { font-family: "JetBrains Mono", monospace; font-size: 1.35rem;
 .segmented label + label span { border-left: 1.5px solid var(--line); }
 .segmented input:checked + span { background: var(--accent); color: var(--on-accent); }
 .segmented input:focus-visible + span { outline: 3px solid var(--focus); outline-offset: -3px; }
+.segmented--text { grid-template-columns: repeat(2, 1fr); }
+.segmented--text span { font: 650 0.95rem "Archivo", sans-serif; padding: 0 0.5rem; text-align: center; }
 
 /* Cards */
 .card { position: relative; padding: 1.4rem; border: 1px solid var(--line); border-radius: 18px; background: var(--surface); box-shadow: var(--shadow); }

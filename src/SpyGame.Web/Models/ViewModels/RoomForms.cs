@@ -9,12 +9,14 @@ public sealed class CreateRoomForm
     public List<string> PlaceIds { get; set; } = [];
     public int RoundMinutes { get; set; } = RoomSettings.DefaultRoundSeconds / 60;
     public int SpyCount { get; set; } = 1;
+    public bool Remote { get; set; }
 
     public RoomSettings ToSettings() => new()
     {
         PlaceIds = PlaceIds.Distinct().ToList(),
         RoundSeconds = RoundMinutes * 60,
         SpyCount = SpyCount,
+        Remote = Remote,
     };
 }
 
