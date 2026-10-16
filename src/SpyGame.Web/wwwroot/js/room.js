@@ -74,6 +74,7 @@
   // --- the clock ---
 
   function tick() {
+    if (remote()) renderCompose(); // the "ask someone else" wait runs out on its own
     if (!state || !state.endsAt) { timer.hidden = true; return; }
     var left = Math.max(0, Math.ceil((Date.parse(state.endsAt) - (Date.now() + clockOffset)) / 1000));
     timer.hidden = false;
@@ -101,6 +102,7 @@
     invitePanel.hidden = active;
     keepAwake(active);
     renderPlayers();
+    renderTalk();
     tick();
 
     stage.replaceChildren();
@@ -125,9 +127,16 @@
       if (!p.connected) tags.appendChild(el("span", { className: "tag tag--away", text: t("away") }));
       if (p.ready) tags.appendChild(el("span", { className: "tag tag--ok", text: t("ready") }));
       if (p.hasVoted) tags.appendChild(el("span", { className: "tag tag--ok", text: t("voted") }));
+      var kick = state.youAreHost && p.id !== state.youId
+        ? el("button", {
+            className: "link-btn players__kick", text: t("kick"),
+            attrs: { type: "button", "aria-label": t("kick.label", p.nickname) },
+            on: { click: function () { if (window.confirm(t("kick.confirm", p.nickname))) invoke("Kick", p.id); } },
+          })
+        : null;
       playersList.appendChild(el("li", { className: "players__item" + (p.connected ? "" : " players__item--away") },
         el("span", { className: "players__name", text: p.nickname }), tags,
-        el("span", { className: "players__score mono", text: String(p.score) })));
+        el("span", { className: "players__score mono", text: String(p.score) }), kick));
     });
   }
 
@@ -213,6 +222,13 @@
     return el("div", { className: "stack" }, secret, el("p", { className: "hint center", text: t("card.holdHint") }));
   }
 
+  // Together: who asks the first question. Apart: whose turn it is now.
+  function askingLine() {
+    var q = state.questions;
+    if (!q) return t("asking.first", nameOf(state.firstAskerId));
+    return q.turnId === state.youId ? t("asking.turnYou") : t("asking.turnOf", nameOf(q.turnId));
+  }
+
   function renderAsking() {
     var me = player(state.youId);
     var inRound = state.players.filter(function (p) { return p.inRound && p.connected; });
@@ -221,7 +237,7 @@
     readyBtn.disabled = me.ready;
     stage.appendChild(el("div", { className: "stack" },
       holdCard(),
-      el("p", { className: "first-asker", text: t("asking.first", nameOf(state.firstAskerId)) }),
+      el("p", { className: "first-asker", text: askingLine() }),
       placesList(state.card.places),
       el("div", { className: "card" }, readyBtn, el("p", { className: "muted small center", text: t("asking.readyCount", ready, inRound.length) }))));
   }
@@ -310,6 +326,267 @@
       el("a", { className: "board-link", text: t("result.board") + " →", attrs: { href: "/leaderboard", target: "_blank", rel: "noopener" } })));
   }
 
+  // --- questions and chat (groups playing apart) ---
+  // The panel lives outside the stage. Its lists are redrawn when they change, but the input
+  // boxes are only rebuilt when what this player can do changes, so typing survives everyone
+  // else's messages. On phones it is a sheet at the bottom; on wide screens a card in the side.
+
+  var talk = root.querySelector("[data-talk]");
+  var talkToggle = talk.querySelector("[data-talk-toggle]");
+  var talkStatus = talk.querySelector("[data-talk-status]");
+  var talkBadge = talk.querySelector("[data-talk-badge]");
+  var questionBox = talk.querySelector('[data-compose="questions"]');
+  var chatForm = talk.querySelector('[data-compose="chat"]');
+  var logs = { questions: talk.querySelector('[data-log="questions"]'), chat: talk.querySelector('[data-log="chat"]') };
+  var panes = { questions: talk.querySelector('[data-pane="questions"]'), chat: talk.querySelector('[data-pane="chat"]') };
+  var tabBadges = { questions: talk.querySelector('[data-tab-badge="questions"]'), chat: talk.querySelector('[data-tab-badge="chat"]') };
+  var wide = window.matchMedia("(min-width: 960px)");
+
+  var talkOpen = false;
+  var tab = "questions";
+  var shown = { questions: "", chat: "" }; // what each log shows now, to skip needless redraws
+  var composeKey = "";
+  var lastNeed = "";                        // the last time this player had to act (opens the sheet once)
+  var askTarget = null;
+  var countdown = null;
+  var seenKey = "sg-seen-" + code;
+  var seen = { round: 0, questions: 0, chat: 0 };
+  try { seen = JSON.parse(sessionStorage.getItem(seenKey)) || seen; } catch (e) { /* storage blocked */ }
+
+  function remote() { return !!(state && state.settings.remote); }
+  function showing(name) { return (wide.matches || talkOpen) && tab === name && !document.hidden; }
+  function nearBottom(log) { return log.scrollHeight - log.scrollTop - log.clientHeight < 40; }
+  function scrollDown(log, stick) { if (stick) log.scrollTop = log.scrollHeight; }
+
+  function setOpen(open) {
+    talkOpen = open;
+    talk.classList.toggle("talk--open", open);
+    talkToggle.setAttribute("aria-expanded", String(open));
+    placeTalk();
+    if (open) scrollDown(logs[tab], true);
+    markSeen();
+  }
+
+  function setTab(name) {
+    tab = name;
+    Object.keys(panes).forEach(function (k) { panes[k].hidden = k !== name; });
+    talk.querySelectorAll("[data-tab]").forEach(function (b) { b.setAttribute("aria-selected", String(b.dataset.tab === name)); });
+    scrollDown(logs[name], true);
+    markSeen();
+  }
+
+  talkToggle.addEventListener("click", function () { if (!wide.matches) setOpen(!talkOpen); });
+  talk.querySelectorAll("[data-tab]").forEach(function (b) { b.addEventListener("click", function () { setTab(b.dataset.tab); }); });
+  talk.addEventListener("keydown", function (e) { if (e.key === "Escape" && talkOpen) { setOpen(false); talkToggle.focus(); } });
+  wide.addEventListener("change", function () { placeTalk(); markSeen(); });
+  document.addEventListener("visibilitychange", markSeen);
+
+  // With the on-screen keyboard open, keep the sheet just above it (iOS leaves fixed elements behind it).
+  function placeTalk() {
+    var vv = window.visualViewport;
+    var lift = wide.matches || !vv ? 0 : Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+    talk.style.setProperty("--kb", lift + "px");
+  }
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize", placeTalk);
+    window.visualViewport.addEventListener("scroll", placeTalk);
+  }
+
+  // --- unread counts ---
+
+  function setBadge(node, n) { node.hidden = n <= 0; node.textContent = n > 9 ? "9+" : String(n); }
+
+  function markSeen() {
+    if (!remote()) return;
+    if (seen.round !== state.round) { seen.round = state.round; seen.questions = 0; }
+    var questions = state.questions ? state.questions.entries.length : 0;
+    var lastChat = state.chat.length ? state.chat[state.chat.length - 1].id : 0;
+    if (showing("questions")) seen.questions = questions;
+    if (showing("chat")) seen.chat = lastChat;
+    try { sessionStorage.setItem(seenKey, JSON.stringify(seen)); } catch (e) { /* storage blocked */ }
+    var q = Math.max(0, questions - seen.questions);
+    var c = state.chat.filter(function (m) { return m.id > seen.chat && m.playerId !== state.youId; }).length;
+    setBadge(tabBadges.questions, q);
+    setBadge(tabBadges.chat, c);
+    setBadge(talkBadge, wide.matches || talkOpen ? 0 : q + c);
+  }
+
+  // --- the logs ---
+
+  function renderQuestionLog() {
+    var q = state.questions;
+    var key = JSON.stringify(q ? q.entries : null) + "|" + state.players.map(function (p) { return p.id; }).join();
+    if (key === shown.questions) return;
+    shown.questions = key;
+    var log = logs.questions, stick = nearBottom(log);
+    log.replaceChildren();
+    if (!q || q.entries.length === 0) {
+      log.appendChild(el("li", { className: "talk__empty muted small", text: t(q ? "talk.noQuestionsYet" : "talk.noQuestions") }));
+      return;
+    }
+    q.entries.forEach(function (e) {
+      var toMe = e.answer == null && !e.unanswered && e.targetId === state.youId && state.phase === "asking";
+      var answer = e.answer != null
+        ? el("p", { className: "qa__answer" }, el("strong", { text: nameOf(e.targetId) + ": " }), document.createTextNode(e.answer))
+        : el("p", { className: "qa__answer qa__answer--none", text: t(e.unanswered ? "talk.unanswered" : "talk.waiting") });
+      log.appendChild(el("li", { className: "qa" + (toMe ? " qa--ask" : "") },
+        el("p", { className: "qa__who small", text: nameOf(e.askerId) + " → " + nameOf(e.targetId) }),
+        el("p", { className: "qa__question", text: e.question }),
+        answer));
+    });
+    scrollDown(log, stick);
+  }
+
+  function renderChatLog() {
+    var key = JSON.stringify(state.chat) + state.youAreHost;
+    if (key === shown.chat) return;
+    shown.chat = key;
+    var log = logs.chat, stick = nearBottom(log);
+    log.replaceChildren();
+    if (state.chat.length === 0) {
+      log.appendChild(el("li", { className: "talk__empty muted small", text: t("talk.noChat") }));
+      return;
+    }
+    state.chat.forEach(function (m) {
+      var mine = m.playerId === state.youId;
+      var line = el("li", { className: "chat" + (mine ? " chat--mine" : "") }, el("span", { className: "chat__name", text: m.nickname }));
+      if (m.hidden) {
+        line.appendChild(el("span", { className: "chat__text chat__text--hidden", text: t("talk.hidden") }));
+      } else {
+        line.appendChild(el("span", { className: "chat__text", text: m.text }));
+        if (state.youAreHost && !mine) {
+          line.appendChild(el("button", {
+            className: "link-btn chat__hide", text: t("talk.hide"), attrs: { type: "button" },
+            on: { click: function () { invoke("HideMessage", m.id); } },
+          }));
+        }
+      }
+      log.appendChild(line);
+    });
+    scrollDown(log, stick);
+  }
+
+  chatForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var input = chatForm.elements.message;
+    if (!input.value.trim()) return;
+    invoke("SendChat", input.value).then(function (error) { if (error === null) input.value = ""; });
+  });
+
+  // --- whose turn it is, and what this player can do ---
+
+  function questionAction() {
+    var q = state.questions;
+    var me = player(state.youId);
+    if (state.phase !== "asking" || !q) return { kind: "none" };
+    if (!(me && me.inRound)) return { kind: "watch" };
+    var last = q.entries[q.entries.length - 1];
+    var pending = last && last.answer == null && !last.unanswered ? last : null;
+    if (pending && pending.targetId === state.youId) return { kind: "answer", entry: pending };
+    if (q.turnId === state.youId) {
+      if (!pending) return { kind: "ask" };
+      var left = Math.ceil((Date.parse(q.reaskAt) - (Date.now() + clockOffset)) / 1000);
+      return left <= 0 ? { kind: "ask", reask: true } : { kind: "wait", pending: pending, left: left };
+    }
+    return { kind: "wait", pending: pending };
+  }
+
+  function statusText(a) {
+    if (a.kind === "ask") return t("talk.yourTurn");
+    if (a.kind === "answer") return t("talk.askedYou", nameOf(a.entry.askerId));
+    if (a.kind === "wait") return a.pending ? t("talk.waitingFor", nameOf(a.pending.targetId)) : t("talk.turnOf", nameOf(state.questions.turnId));
+    return t("talk.title");
+  }
+
+  function textForm(placeholder, label, send) {
+    var input = el("input", { className: "talk__input", attrs: { type: "text", maxlength: "200", enterkeyhint: "send", placeholder: placeholder, "aria-label": placeholder } });
+    var form = el("form", { className: "talk__row", attrs: { autocomplete: "off" } }, input, el("button", { className: "btn talk__send", text: label, attrs: { type: "submit" } }));
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      if (input.value.trim()) send(input);
+    });
+    return form;
+  }
+
+  function renderCompose() {
+    var a = questionAction();
+    var others = state.players.filter(function (p) { return p.inRound && p.id !== state.youId; });
+    var q = state.questions;
+    var key = [a.kind, state.round, q ? q.entries.length : 0, q ? q.turnId : "", a.reask ? 1 : 0, state.youAreHost,
+      a.kind === "ask" ? others.map(function (p) { return p.id + (p.connected ? "" : "~"); }).join() : ""].join("|");
+
+    talkStatus.textContent = statusText(a);
+    talkToggle.classList.toggle("talk__handle--alert", a.kind === "ask" || a.kind === "answer");
+    if (countdown && a.kind === "wait" && a.left) countdown.textContent = t("talk.reaskIn", a.left);
+    if (key === composeKey) return;
+
+    // Keep what was being typed when only the details changed (someone joined, the round moved on).
+    var old = questionBox.querySelector("input.talk__input");
+    var draft = old && composeKey.split("|")[0] === a.kind ? old.value : "";
+    composeKey = key;
+    countdown = null;
+    questionBox.replaceChildren();
+    questionBox.hidden = a.kind === "none";
+
+    if (a.kind === "watch") questionBox.appendChild(el("p", { className: "talk__note", text: t("talk.watching") }));
+
+    if (a.kind === "wait") {
+      // Whose turn it is already heads the panel; here only the countdown and the host's way out.
+      if (a.pending && a.pending.askerId === state.youId && a.left) {
+        countdown = el("p", { className: "talk__note small", text: t("talk.reaskIn", a.left) });
+        questionBox.appendChild(countdown);
+      }
+      if (state.youAreHost) questionBox.appendChild(button(t("talk.skip"), function () { invoke("SkipTurn"); }, "btn btn--ghost talk__skip"));
+    }
+
+    if (a.kind === "ask") {
+      if (a.reask) questionBox.appendChild(el("p", { className: "talk__note", text: t("talk.reaskNow") }));
+      if (!others.some(function (p) { return p.id === askTarget; })) askTarget = null;
+      var targets = el("div", { className: "chips targets", attrs: { role: "radiogroup", "aria-label": t("talk.pickTarget") } });
+      others.forEach(function (p) {
+        var radio = el("input", { attrs: { type: "radio", name: "ask-target", value: p.id } });
+        radio.checked = p.id === askTarget;
+        radio.addEventListener("change", function () { askTarget = p.id; });
+        targets.appendChild(el("label", { className: "chip" + (p.connected ? "" : " chip--away") }, radio, el("span", { text: p.nickname })));
+      });
+      var form = textForm(t("talk.questionPlaceholder"), t("talk.ask"), function (input) {
+        if (!askTarget) { showToast(t("talk.pickTarget")); return; }
+        invoke("Ask", askTarget, input.value).then(function (error) { if (error === null) { input.value = ""; askTarget = null; } });
+      });
+      form.querySelector("input").value = draft;
+      questionBox.append(el("p", { className: "talk__label", text: t("talk.pickTarget") }), targets, form);
+    }
+
+    if (a.kind === "answer") {
+      // The question itself is right above, marked in the log.
+      var answerForm = textForm(t("talk.answerPlaceholder"), t("talk.answer"), function (input) {
+        invoke("Answer", input.value).then(function (error) { if (error === null) input.value = ""; });
+      });
+      answerForm.querySelector("input").value = draft;
+      questionBox.appendChild(answerForm);
+    }
+
+    // The moment this player has to act, bring the questions to them (once per question).
+    var need = a.kind === "ask" || a.kind === "answer" ? [a.kind, state.round, q.entries.length, a.reask ? 1 : 0].join("|") : "";
+    if (need && need !== lastNeed) {
+      setTab("questions");
+      if (!wide.matches) setOpen(true);
+      if (navigator.vibrate) navigator.vibrate(120);
+    }
+    lastNeed = need;
+  }
+
+  function renderTalk() {
+    var on = remote();
+    talk.hidden = !on;
+    root.classList.toggle("room--talk", on);
+    if (!on) return;
+    renderQuestionLog();
+    renderChatLog();
+    renderCompose();
+    markSeen();
+  }
+
   // --- invite and leave ---
 
   root.querySelector("[data-copy]").addEventListener("click", function (e) {
@@ -353,7 +630,9 @@
     render();
   });
   // The host removed this player: the room is gone for them, and so is the connection.
+  var kicked = false;
   connection.on("kicked", function () {
+    kicked = true; // closing the connection below must not replace this message
     state = null;
     connection.stop();
     stage.replaceChildren(el("div", { className: "card" },
@@ -364,6 +643,7 @@
   connection.onreconnecting(function () { banner.textContent = t("connection.lost"); banner.hidden = false; });
   connection.onreconnected(function () { banner.hidden = true; });
   connection.onclose(function () {
+    if (kicked) return;
     if (!state) { showGone(); return; } // the server refused us: not (or no longer) in this room
     banner.replaceChildren(document.createTextNode(t("connection.closed") + " "),
       el("button", { className: "link-btn", text: t("connection.retry"), attrs: { type: "button" }, on: { click: function () { window.location.reload(); } } }));

@@ -18,6 +18,38 @@
         <section class="stage" data-stage aria-live="polite"></section>
 
         <aside class="side">
+            @* Questions and chat for groups playing apart. It lives outside the stage, which is redrawn
+               on every update: what someone is typing must survive other people's messages.
+               On phones it is a sheet at the bottom of the screen; on wide screens a card here. *@
+            <section class="talk" data-talk hidden aria-label="@T["js.talk.title"]">
+                <button type="button" class="talk__handle" data-talk-toggle aria-expanded="false">
+                    <span class="talk__status" data-talk-status>@T["js.talk.title"]</span>
+                    <span class="talk__badge mono" data-talk-badge hidden></span>
+                    <span class="talk__chevron" aria-hidden="true"></span>
+                </button>
+                <div class="talk__body" data-talk-body>
+                    <div class="talk__tabs" role="tablist">
+                        <button type="button" role="tab" class="talk__tab" data-tab="questions" aria-selected="true">
+                            @T["js.talk.questions"] <span class="talk__badge mono" data-tab-badge="questions" hidden></span>
+                        </button>
+                        <button type="button" role="tab" class="talk__tab" data-tab="chat" aria-selected="false">
+                            @T["js.talk.chat"] <span class="talk__badge mono" data-tab-badge="chat" hidden></span>
+                        </button>
+                    </div>
+                    <div class="talk__pane" data-pane="questions" role="tabpanel">
+                        <ol class="talk__log" data-log="questions" aria-live="polite"></ol>
+                        <div class="talk__compose" data-compose="questions"></div>
+                    </div>
+                    <div class="talk__pane" data-pane="chat" role="tabpanel" hidden>
+                        <ol class="talk__log" data-log="chat" aria-live="polite"></ol>
+                        <form class="talk__compose talk__row" data-compose="chat" autocomplete="off">
+                            <input type="text" class="talk__input" name="message" maxlength="200" enterkeyhint="send" placeholder="@T["js.talk.chatPlaceholder"]" aria-label="@T["js.talk.chatPlaceholder"]" />
+                            <button type="submit" class="btn talk__send">@T["js.talk.send"]</button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
             <section class="card invite" data-invite-panel hidden>
                 <h2>@T["js.lobby.invite"]</h2>
                 <p class="muted small">@T["js.lobby.inviteHint"]</p>

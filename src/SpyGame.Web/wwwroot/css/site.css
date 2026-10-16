@@ -318,6 +318,57 @@ input.code-input { font-family: "JetBrains Mono", monospace; font-size: 1.35rem;
 .votes { list-style: none; margin: 0.5rem 0 0; padding: 0; display: grid; gap: 0.3rem; }
 .votes li { display: grid; grid-template-columns: 1fr 1fr auto; gap: 0.5rem; padding: 0.4rem 0; border-bottom: 1px dashed var(--line); }
 
+/* Questions and chat (groups playing apart): a sheet at the bottom on phones, a card in the side column on wide screens. */
+.talk { position: fixed; left: 0; right: 0; bottom: var(--kb, 0px); z-index: 15; background: var(--surface); border-top: 1px solid var(--line); border-radius: 18px 18px 0 0; box-shadow: 0 -12px 32px rgb(0 0 0 / 0.28); }
+.talk[hidden] { display: none; }
+.talk__handle { display: flex; align-items: center; gap: 0.6rem; width: 100%; padding: 0.9rem 1.1rem calc(0.9rem + env(safe-area-inset-bottom)); background: none; border: 0; color: var(--ink); font: 650 0.95rem "Archivo", sans-serif; text-align: left; cursor: pointer; }
+.talk--open .talk__handle { padding-bottom: 0.75rem; }
+.talk__status { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.talk__handle--alert .talk__status { color: var(--accent-strong); }
+.talk__chevron { width: 0.55rem; height: 0.55rem; border-right: 2px solid var(--ink-2); border-bottom: 2px solid var(--ink-2); transform: translateY(2px) rotate(-135deg); }
+.talk--open .talk__chevron { transform: translateY(-2px) rotate(45deg); }
+.talk__badge { min-width: 1.35rem; padding: 0.05rem 0.4rem; border-radius: 999px; background: var(--accent); color: var(--on-accent); font-size: 0.72rem; font-weight: 700; text-align: center; }
+.talk__badge[hidden] { display: none; }
+.talk__body { display: none; padding: 0 1.1rem calc(1rem + env(safe-area-inset-bottom)); }
+.talk--open .talk__body { display: grid; gap: 0.75rem; }
+.talk__tabs { display: grid; grid-template-columns: 1fr 1fr; border: 1.5px solid var(--line); border-radius: 12px; overflow: hidden; }
+.talk__tab { display: flex; align-items: center; justify-content: center; gap: 0.4rem; min-height: 2.6rem; background: var(--bg-2); border: 0; color: var(--ink-2); font: 650 0.9rem "Archivo", sans-serif; cursor: pointer; }
+.talk__tab + .talk__tab { border-left: 1.5px solid var(--line); }
+.talk__tab[aria-selected="true"] { background: var(--ink); color: var(--bg); }
+.talk__tab:focus-visible { outline: 3px solid var(--focus); outline-offset: -3px; }
+.talk__pane { display: grid; gap: 0.75rem; }
+.talk__pane[hidden] { display: none; }
+.talk__log { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.6rem; align-content: start; max-height: min(40dvh, 22rem); overflow-y: auto; overscroll-behavior: contain; }
+.talk__empty { padding: 0.25rem 0; }
+.talk__compose { display: grid; gap: 0.6rem; }
+.talk__compose[hidden] { display: none; }
+.talk__row { display: grid; grid-template-columns: 1fr auto; gap: 0.5rem; }
+/* 16px text: iOS zooms into smaller inputs. */
+.talk__input { width: 100%; min-width: 0; padding: 0.7rem 0.85rem; border: 1.5px solid var(--line); border-radius: 12px; background: var(--bg-2); color: var(--ink); font: 500 1rem "Archivo", sans-serif; }
+.talk__input:focus { outline: 3px solid var(--focus); outline-offset: 1px; }
+.talk__send { padding: 0.7rem 1.1rem; }
+.talk__note, .talk__label { margin: 0; color: var(--ink-2); font-size: 0.9rem; }
+.talk__label { font-weight: 650; color: var(--ink); }
+.talk__skip { justify-self: start; padding: 0.5rem 1rem; }
+.targets .chip span { padding: 0.45rem 0.8rem; }
+.chip--away span { opacity: 0.6; border-style: dashed; }
+.qa { padding: 0.6rem 0.75rem; border-radius: 12px; background: var(--surface-2); }
+.qa p { margin: 0; }
+.qa__who { color: var(--ink-2); font-weight: 650; }
+.qa__question { margin-top: 0.15rem; font-weight: 650; overflow-wrap: anywhere; }
+.qa__answer { margin-top: 0.35rem; padding-left: 0.6rem; border-left: 2px solid var(--line); overflow-wrap: anywhere; }
+.qa__answer--none { color: var(--ink-3); font-style: italic; }
+.qa--ask { border: 1.5px solid var(--accent); }
+.chat { display: grid; gap: 0.1rem; }
+.chat__name { font-weight: 700; font-size: 0.8rem; color: var(--ink-2); }
+.chat--mine .chat__name { color: var(--accent-strong); }
+.chat__text { overflow-wrap: anywhere; }
+.chat__text--hidden { color: var(--ink-3); font-style: italic; }
+.chat__hide { justify-self: start; padding: 0; font-size: 0.75rem; }
+.players__kick { padding: 0; font-size: 0.75rem; }
+/* Room for the closed sheet, and the toast above it. */
+.room--talk { padding-bottom: 4.5rem; }
+.room--talk .toast { bottom: calc(5rem + env(safe-area-inset-bottom)); }
 .toast { position: fixed; left: 50%; bottom: 1.25rem; transform: translateX(-50%); z-index: 20; max-width: calc(100% - 2rem); margin: 0; padding: 0.7rem 1.1rem; border-radius: 12px; background: var(--ink); color: var(--bg); font-weight: 600; box-shadow: var(--shadow); }
 
 /* Leaderboard */
@@ -359,6 +410,12 @@ input.code-input { font-family: "JetBrains Mono", monospace; font-size: 1.35rem;
 @media (min-width: 960px) {
   .main { padding-top: 2.5rem; }
   .room-grid { grid-template-columns: 1fr 20rem; }
+  .talk { position: static; border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); }
+  .talk__handle { cursor: default; padding-bottom: 0.75rem; }
+  .talk__chevron { display: none; }
+  .talk__body { display: grid; gap: 0.75rem; }
+  .room--talk { padding-bottom: 0; }
+  .room--talk .toast { bottom: 1.25rem; }
   .home-grid { grid-template-columns: 1.35fr 1fr; }
   .steps { grid-template-columns: repeat(4, 1fr); }
 }
