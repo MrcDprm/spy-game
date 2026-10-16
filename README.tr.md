@@ -15,6 +15,7 @@ Bu, 2025'te ASP.NET Core MVC ile ilk kez yazdığım bir oyunun yeniden yazımı
 - **Odalar:**
   - Oda kurulur; 6 karakterlik kodu, linki ya da QR kodu paylaşılır.
   - Odayı kuran kişi mekânları, tur süresini (1–15 dakika) ve casus sayısını (1–3) seçer. Az kişi gelirse casus sayısı oyun başlarken azaltılır.
+  - Oda sahibi turlar arasında bir dokunuşla mekânların üstünü çizip sonraki turlardan çıkarabilir ya da geri alabilir. Sadece çıkmış olanlar değil, istenen her mekân çizilebilir; en az 10 mekân oyunda kalır.
   - Sayfayı yenileyen ya da bağlantısı kopan oyuncu yerini kaybetmez.
 - **Gizli kartlar:**
   - Her telefona sadece kendi kartı gider; kart yalnızca basılı tutulunca görünür.
@@ -41,7 +42,11 @@ Bu, 2025'te ASP.NET Core MVC ile ilk kez yazdığım bir oyunun yeniden yazımı
 
 | Sonuç | Haftanın casusları | Ana sayfa |
 |---|---|---|
-| ![Sonuç: siviller kazandı, mekân, oylar ve puanlar](docs/screenshot-results.png) | ![Haftalık sıralama](docs/screenshot-leaderboard.png) | ![Oda kur ve katıl formlarıyla ana sayfa](docs/screenshot-home.png) |
+| ![Sonuç: siviller kazandı, mekân, oylar ve puanlar](docs/screenshot-results.png) | ![Haftalık sıralama](docs/screenshot-leaderboard.png) | ![Ana sayfa: mekân dosyalarıyla oda kurma formu ve katılma formu](docs/screenshot-home.png) |
+
+| Turlar arasında mekânların üstünü çizmek |
+|---|
+| ![Bir turdan sonra oda sahibinin mekân listesi: üç mekânın üstü çizili](docs/screenshot-places.png) |
 
 ## Kullanılan Teknolojiler
 

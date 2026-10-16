@@ -15,6 +15,7 @@ This is a rewrite of a game I first built in 2025 with ASP.NET Core MVC. That ve
 - **Rooms:**
   - Create a room and share its 6-character code, its link or its QR code.
   - The person who creates the room chooses the places, the round length (1–15 minutes) and the number of spies (1–3). The number of spies is lowered at the start if too few people came.
+  - Between rounds the host can strike places out of the next rounds with a tap, or bring them back. Any place can be struck, not only one that has come up; at least 10 stay in play.
   - Anyone who reloads the page or loses the connection keeps their seat.
 - **Secret cards:**
   - Each phone receives only its own card, and the card shows only while it is held down.
@@ -41,7 +42,11 @@ This is a rewrite of a game I first built in 2025 with ASP.NET Core MVC. That ve
 
 | Results | Spies of the week | Start page |
 |---|---|---|
-| ![Results: the civilians win, the place, the votes and the points](docs/screenshot-results.png) | ![Weekly leaderboard](docs/screenshot-leaderboard.png) | ![Start page with the create and join forms](docs/screenshot-home.png) |
+| ![Results: the civilians win, the place, the votes and the points](docs/screenshot-results.png) | ![Weekly leaderboard](docs/screenshot-leaderboard.png) | ![Start page: the create form with the place dossiers, and the join form](docs/screenshot-home.png) |
+
+| Striking places out between rounds |
+|---|
+| ![The host's place list after a round: three places struck out](docs/screenshot-places.png) |
 
 ## Tech Stack
 
