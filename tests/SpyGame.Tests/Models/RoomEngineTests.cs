@@ -178,6 +178,30 @@ public class RoomEngineTests
         Assert.Null(view.Card);
     }
 
+    [Fact]
+    public void Nobody_asks_first_twice_in_a_row_and_everyone_gets_to()
+    {
+        var room = NewRoom(players: 5);
+        var random = new CryptoRandomSource();
+        var counts = new Dictionary<string, int>();
+        string? last = null, beforeLast = null;
+        var now = T0;
+        for (var i = 0; i < 3000; i++)
+        {
+            now = now.AddHours(1);
+            Assert.Null(RoomEngine.StartRound(room, "p1", now, random));
+            var first = room.Round!.Deal.FirstAskerId;
+            Assert.NotEqual(last, first);
+            Assert.NotEqual(beforeLast, first);
+            counts[first] = counts.GetValueOrDefault(first) + 1;
+            (beforeLast, last) = (last, first);
+            RoomEngine.Tick(room, now.AddMinutes(30));
+        }
+        // 600 expected each; still fair for everyone.
+        Assert.Equal(5, counts.Count);
+        Assert.All(counts.Values, n => Assert.InRange(n, 480, 720));
+    }
+
     // --- Striking places out between rounds ---
 
     private static Room RoomWith(int places)

@@ -68,7 +68,9 @@ public static class RoomEngine
         var players = room.Present.Select(p => p.Id).ToList();
         if (players.Count < RoundRules.MinPlayers) return "not_enough_players";
 
-        var deal = RoundRules.Deal(players, room.Settings.ActivePlaceIds.ToList(), room.Settings.SpyCount, random);
+        var deal = RoundRules.Deal(players, room.Settings.ActivePlaceIds.ToList(), room.Settings.SpyCount, random, room.RecentFirstAskers);
+        room.RecentFirstAskers.Add(deal.FirstAskerId);
+        if (room.RecentFirstAskers.Count > RoundRules.FirstAskerRest) room.RecentFirstAskers.RemoveAt(0);
         room.Round = new RoundState
         {
             Number = room.RoundsPlayed + 1,

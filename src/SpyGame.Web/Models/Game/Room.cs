@@ -31,6 +31,9 @@ public sealed class RoomSettings
     public int RoundSeconds { get; set; } = DefaultRoundSeconds;
     public int SpyCount { get; set; } = 1;
 
+    /// <summary>Playing apart: questions are typed in turn and a chat is open. Together: questions are asked out loud.</summary>
+    public bool Remote { get; set; }
+
     /// <summary>Null when the settings are usable, otherwise an error code.</summary>
     public string? Problem()
     {
@@ -82,6 +85,9 @@ public sealed class Room
     public Phase Phase { get; set; } = Phase.Lobby;
     public RoundState? Round { get; set; }
     public int RoundsPlayed { get; set; }
+
+    /// <summary>Who asked first in the last rounds, newest last: they are skipped next time, so the first question moves around.</summary>
+    public List<string> RecentFirstAskers { get; set; } = [];
     public DateTimeOffset CreatedAt { get; set; }
 
     public RoomPlayer? Find(string playerId) => Players.FirstOrDefault(p => p.Id == playerId);

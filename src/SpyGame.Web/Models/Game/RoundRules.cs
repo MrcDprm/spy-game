@@ -17,6 +17,9 @@ public static class RoundRules
     public const int MinSpies = 1;
     public const int MaxSpies = 3;
 
+    /// <summary>How many recent first askers sit out the draw for the first question.</summary>
+    public const int FirstAskerRest = 2;
+
     /// <summary>
     /// Spies must stay a small group, or there is no one left to catch them:
     /// 3-5 players: 1 spy, 6-8: up to 2, 9-12: up to 3.
@@ -33,9 +36,12 @@ public static class RoundRules
         Math.Clamp(requested, MinSpies, MaxSpiesFor(players));
 
     /// <summary>
-    /// Picks the spies, the place and who asks the first question. Every chosen place is equally likely.
+    /// Picks the spies, the place and who asks the first question. Every chosen place is equally likely,
+    /// and so is every player as a spy. The first asker is drawn from everyone except the first askers
+    /// of the last rounds (<paramref name="recentFirstAskers"/>, newest last), so nobody opens twice in a row.
     /// </summary>
-    public static RoundDeal Deal(IReadOnlyList<string> playerIds, IReadOnlyCollection<string> placeIds, int requestedSpies, IRandomSource random)
+    public static RoundDeal Deal(IReadOnlyList<string> playerIds, IReadOnlyCollection<string> placeIds, int requestedSpies, IRandomSource random,
+        IReadOnlyList<string>? recentFirstAskers = null)
     {
         if (playerIds.Count is < MinPlayers or > MaxPlayers)
             throw new ArgumentException($"A round needs {MinPlayers}-{MaxPlayers} players.", nameof(playerIds));
@@ -59,7 +65,19 @@ public static class RoundRules
             (order[i], order[j]) = (order[j], order[i]);
         }
 
-        var firstAsker = playerIds[random.Next(playerIds.Count)];
+        var firstAsker = PickFirstAsker(playerIds, recentFirstAskers ?? [], random);
         return new RoundDeal(order[..spies], placeId, firstAsker);
+    }
+
+    /// <summary>
+    /// Leaves out the newest recent first askers who are still playing, but always keeps at least two
+    /// people in the draw: with three players only the last one sits out, so it stays a real draw.
+    /// </summary>
+    public static string PickFirstAsker(IReadOnlyList<string> playerIds, IReadOnlyList<string> recentFirstAskers, IRandomSource random)
+    {
+        var rest = Math.Min(FirstAskerRest, playerIds.Count - 2);
+        var resting = recentFirstAskers.Where(playerIds.Contains).Reverse().Distinct().Take(Math.Max(rest, 0)).ToHashSet();
+        var candidates = playerIds.Where(id => !resting.Contains(id)).ToList();
+        return candidates[random.Next(candidates.Count)];
     }
 }

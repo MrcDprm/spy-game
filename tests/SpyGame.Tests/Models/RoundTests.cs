@@ -112,6 +112,37 @@ public class RoundRulesTests
     }
 
     [Fact]
+    public void The_last_two_first_askers_sit_out_the_draw()
+    {
+        var random = new CryptoRandomSource();
+        for (var i = 0; i < 500; i++)
+            Assert.DoesNotContain(RoundRules.PickFirstAsker(Five, ["a", "b"], random), new[] { "a", "b" });
+
+        // Four players: still two sit out, two stay in the draw.
+        string[] four = ["a", "b", "c", "d"];
+        var drawn = Enumerable.Range(0, 500).Select(_ => RoundRules.PickFirstAsker(four, ["a", "b"], random)).ToHashSet();
+        Assert.Equal(["c", "d"], drawn.Order());
+    }
+
+    [Fact]
+    public void With_three_players_only_the_last_first_asker_sits_out()
+    {
+        var random = new CryptoRandomSource();
+        string[] three = ["a", "b", "c"];
+        var drawn = Enumerable.Range(0, 500).Select(_ => RoundRules.PickFirstAsker(three, ["a", "b"], random)).ToHashSet();
+        Assert.Equal(["a", "c"], drawn.Order()); // b asked first last round; a and c stay in the draw
+    }
+
+    [Fact]
+    public void A_first_asker_who_left_does_not_shrink_the_draw()
+    {
+        var random = new CryptoRandomSource();
+        // "x" is gone; only "a" (still here) sits out.
+        var drawn = Enumerable.Range(0, 500).Select(_ => RoundRules.PickFirstAsker(Five, ["a", "x"], random)).ToHashSet();
+        Assert.Equal(["b", "c", "d", "e"], drawn.Order());
+    }
+
+    [Fact]
     public void Bad_setups_are_refused()
     {
         var random = new CryptoRandomSource();
