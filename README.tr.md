@@ -14,7 +14,7 @@ Bu, 2025'te ASP.NET Core MVC ile ilk kez yazdığım bir oyunun yeniden yazımı
 
 - **Odalar:**
   - Oda kurulur; 6 karakterlik kodu, linki ya da QR kodu paylaşılır.
-  - Odayı kuran kişi mekânları, tur süresini (1–15 dakika) ve casus sayısını (1–3) seçer. Az kişi gelirse casus sayısı oyun başlarken azaltılır.
+  - Odayı kuran kişi mekânları, tur süresini (1–15 dakika), casus sayısını (1–3) ve grubun aynı ortamda mı uzaktan mı oynadığını seçer. Az kişi gelirse casus sayısı oyun başlarken azaltılır.
   - Oda sahibi turlar arasında bir dokunuşla mekânların üstünü çizip sonraki turlardan çıkarabilir ya da geri alabilir. Sadece çıkmış olanlar değil, istenen her mekân çizilebilir; en az 10 mekân oyunda kalır.
   - Sayfayı yenileyen ya da bağlantısı kopan oyuncu yerini kaybetmez.
 - **Gizli kartlar:**
@@ -23,9 +23,15 @@ Bu, 2025'te ASP.NET Core MVC ile ilk kez yazdığım bir oyunun yeniden yazımı
   - Kartlar kapalıyken sivilin ve casusun ekranı birebir aynı görünür.
 - **Canlı tur:**
   - Turun süresini sunucudaki saat sayar.
+  - İlk soru el değiştirir: son iki turda ilk soruyu soranlar çekilişe girmez. Casus yine tamamen rastgele seçilir; "sırayla casus olma" son oyuncuya sıranın kendisinde olduğunu belli ederdi.
   - Oyuncuların yarıdan fazlası isterse "Oylamaya geçelim" soruları erken bitirir.
   - Herkes kendi telefonundan oy verir; oylar sonuçlara kadar gizli kalır.
   - Yakalanan casus mekânı bilirse yine kazanır.
+- **Uzaktan oynamak (isteğe bağlı):** aynı yerde olmayan arkadaşlar için.
+  - **Sırayla sorular:** Sırası gelen kişi birini seçip sorusunu yazar; soruyu ve cevabı herkes görür, sıra cevaplayana geçer. Bir dakika içinde cevap gelmezse soran başkasına sorabilir, oda sahibi de sırayı geçebilir. Bütün döküm sonuç ekranında görünür.
+  - **Oda sohbeti:** Her zaman açık, sadece odayla birlikte tutulur (son 50 satır), kişi başına hız sınırı vardır.
+  - **Telefona göre tasarım:** Sorular ve Sohbet sekmeli, okunmamış sayılı bir alt panel. Sıra sana gelince kendiliğinden açılır, ekran klavyesinin üstünde kalır ve başkaları yazarken yazdığın metin kaybolmaz.
+  - **Oda sahibi kontrolleri:** Bir sohbet satırını gizleme ya da bir oyuncuyu odadan çıkarma; çıkarılan kişi o odaya tekrar giremez.
 - **Puanlar:** oda içinde skor tablosu ve doğrulanmış hesaplar için haftalık "Haftanın casusları" sıralaması.
 - **Hesaplar (isteğe bağlı):**
   - E-posta doğrulamalı kayıtla takma ad kalıcı olarak senin olur ve sıralamaya girersin.
@@ -48,6 +54,10 @@ Bu, 2025'te ASP.NET Core MVC ile ilk kez yazdığım bir oyunun yeniden yazımı
 |---|
 | ![Bir turdan sonra oda sahibinin mekân listesi: üç mekânın üstü çizili](docs/screenshot-places.png) |
 
+| Uzaktan: soru sırası sende | Şimdiye kadarki sorular | Oda sohbeti |
+|---|---|---|
+| ![Telefondaki alt panel: bir oyuncu seçip soru yazmak](docs/screenshot-apart-ask.png) | ![İki soru, cevapları ve sıranın kimde olduğu](docs/screenshot-apart-questions.png) | ![Tur sırasında sohbet mesajları](docs/screenshot-apart-chat.png) |
+
 ## Kullanılan Teknolojiler
 
 - **Web:** ASP.NET Core MVC (Model, View, Controller), Razor görünümler, .NET 10
@@ -56,7 +66,7 @@ Bu, 2025'te ASP.NET Core MVC ile ilk kez yazdığım bir oyunun yeniden yazımı
 - **Kalıcı veri:** PostgreSQL (Neon) ve Entity Framework Core: hesaplar, puan geçmişi ve veri koruma anahtarları
 - **Hesaplar:** ASP.NET Core Identity, e-posta Resend ile
 - **Diğer kütüphaneler:** davet QR kodu için QRCoder ve SignalR'ın tarayıcı istemcisi
-- **Testler:** xUnit, 137 test; gerçek SignalR bağlantılarıyla oynanan tam turlar dahil
+- **Testler:** xUnit, 177 test; gerçek SignalR bağlantılarıyla oynanan tam turlar dahil
 - **Yayın:** Render üzerinde Docker
 
 ## Kurulum ve Çalıştırma
@@ -123,11 +133,13 @@ tests/SpyGame.Tests/    Model, servis ve uçtan uca testler
 
 ## Öğrendiklerim
 
-- **Tarayıcıya sır emanet etmemek.** İlk sürüm her rolü bütün odaya gönderiyordu; geliştirici araçlarını açan herkes casusu görebiliyordu. Artık sunucu her oyuncu için ayrı bir görünüm hazırlıyor. Bir test, iki farklı mekân için casusa gidenleri karşılaştırıp bayt bayt aynı olduklarını kontrol ediyor. Ekranı yaparken aynı sızıntıyı başka bir biçimde buldum: kartın dışındaki "olası mekânlar" kutusu sadece casusun telefonunda görünüyordu, yani ekrana bir bakış casusu ele veriyordu. Kutu artık gizli kartın içinde.
+- **Tarayıcıya sır emanet etmemek.** İlk sürüm her rolü bütün odaya gönderiyordu; geliştirici araçlarını açan herkes casusu görebiliyordu. Artık sunucu her oyuncu için ayrı bir görünüm hazırlıyor. Bir test, iki farklı mekân için casusa gidenleri karşılaştırıp bayt bayt aynı olduklarını kontrol ediyor. Ekranı yaparken aynı sızıntıyı başka bir biçimde buldum: kartın dışındaki "olası mekânlar" kutusu sadece casusun telefonunda görünüyordu, yani ekrana bir bakış casusu ele veriyordu. Artık turdaki herkes aynı listeyi alıyor; liste kimseye bir şey söylemiyor.
 - **Asıl hata ortak durumdu.** Eski oyun durumunu static alanlarda tutuyordu; siteye giren herkes aynı tek oyunu oynuyordu. Artık her oda Redis'te kendi nesnesi ve "karşılaştır ve yaz" betiğiyle kaydediliyor. Aynı milisaniyede oy veren iki oyuncu birbirinin üzerine yazamıyor; bir test 11 oyuncuyu aynı anda odaya sokuyor.
 - **Kurallar bir durum makinesi.** Lobi → sorular → oylama → son tahmin → sonuç, zamanı parametre olarak alan sade C# fonksiyonlarından oluşuyor. Bu her kuralı kolay test edilebilir yaptı ve gerçek bir hata buldu: bir duraklamadan sonra (örneğin sunucu uykudan uyanınca) sonraki aşama "şimdi"den başlıyor ve oyunculara zaten geçmiş bir süreyi yeniden veriyordu. Aşamalar artık bir önceki son tarihten başlıyor.
 - **Redis'te bir saat.** Son tarihler sıralı bir kümede duruyor; oyun saati süresi geçmiş bütün odaları saniyede iki kez tek sorguyla buluyor.
 - **Redis'e rağmen kaybolmayan sıralama.** Haftalık puanlar hızlı okuma için Redis'te sıralı küme, geçmiş için veritabanında tablo. Sıralı küme yoksa, bir şey eklenmeden önce veritabanından yeniden kuruluyor; puan hiç kaybolmuyor.
+- **Yazdığını silen yeniden çizim.** Oda sayfası her güncellemede ekranı baştan çiziyor; oyuncular yazı yazmaya başlayana kadar bu sorun değildi: başkasının her sohbet satırı yazılmakta olan soruyu siliyordu. Sorular ve sohbet paneli artık yeniden çizilen alanın dışında; listeleri yenileniyor, yazı kutusu ise sadece oyuncunun yapabileceği şey değişince yeniden kuruluyor.
+- **"Adil değil gibi" hissini ölçmek.** Bir arkadaşın sürekli ilk soran olduğu bir akşamdan sonra gerçek oyun motoruyla 100.000 tur oynattım: casus ve ilk soran herkes için %20 çıktı; kod adildi, o akşam sadece küçük bir örneklemdi. Casus tamamen rastgele kalıyor, ama ilk soru artık son iki turun ilk soranlarını atlıyor; aynı ölçüm bunun da herkes için eşit kaldığını gösteriyor.
 - **Bütünü test etmek.** Uçtan uca testler gerçek uygulamayı bellekte çalıştırıyor ve birkaç "tarayıcı" ile gerçek SignalR bağlantıları üzerinden turlar oynuyor; her birine gelen ham JSON'u kontrol ediyor.
 
 ## Gelecek Planları
@@ -135,6 +147,7 @@ tests/SpyGame.Tests/    Model, servis ve uçtan uca testler
 - Odaya özel kelime listeleri
 - Seyirci modu
 - Birbirini tanıyan casuslar gibi farklı oyun modları
+- Uzaktan oynayan küçük gruplar için sesli sohbet (WebRTC)
 
 ## Katkılar
 

@@ -14,7 +14,7 @@ This is a rewrite of a game I first built in 2025 with ASP.NET Core MVC. That ve
 
 - **Rooms:**
   - Create a room and share its 6-character code, its link or its QR code.
-  - The person who creates the room chooses the places, the round length (1–15 minutes) and the number of spies (1–3). The number of spies is lowered at the start if too few people came.
+  - The person who creates the room chooses the places, the round length (1–15 minutes), the number of spies (1–3) and whether the group plays together or apart. The number of spies is lowered at the start if too few people came.
   - Between rounds the host can strike places out of the next rounds with a tap, or bring them back. Any place can be struck, not only one that has come up; at least 10 stay in play.
   - Anyone who reloads the page or loses the connection keeps their seat.
 - **Secret cards:**
@@ -23,9 +23,15 @@ This is a rewrite of a game I first built in 2025 with ASP.NET Core MVC. That ve
   - While the cards are closed, a civilian's screen and a spy's screen look exactly the same.
 - **A live round:**
   - A server-side clock counts down the round.
+  - The first question moves around: whoever asked first in the last two rounds sits out the draw. The spy is still drawn purely at random; a "take turns" draw would let the last player work out that it is their turn.
   - "Let's vote" ends the questions early once more than half of the players agree.
   - Everyone votes from their own phone, and votes stay secret until the results.
   - A caught spy who names the place still wins.
+- **Playing apart (optional):** for friends who are not in the same place.
+  - **Questions in turn:** whoever has the turn picks someone and types a question; everyone sees the question and the answer, and the turn passes to the one who answered. If no answer comes within a minute, the asker can turn to someone else, and the host can pass the turn on. The whole log is shown with the results.
+  - **Room chat:** open all the time, kept only with the room (the last 50 lines), with a per-player rate limit.
+  - **Built for phones:** a sheet at the bottom with Questions and Chat tabs and unread counts. It opens by itself when it is your turn, stays above the on-screen keyboard, and never loses what you are typing when others write.
+  - **Host controls:** hide a chat line, or remove a player, who then cannot join that room again.
 - **Scores:** a scoreboard for the room, and "Spies of the week", a weekly leaderboard for confirmed accounts.
 - **Accounts (optional):**
   - Sign up with e-mail confirmation to keep your nickname for good and appear on the leaderboard.
@@ -48,6 +54,10 @@ This is a rewrite of a game I first built in 2025 with ASP.NET Core MVC. That ve
 |---|
 | ![The host's place list after a round: three places struck out](docs/screenshot-places.png) |
 
+| Playing apart: your turn to ask | The questions so far | Room chat |
+|---|---|---|
+| ![The bottom sheet on a phone: pick a player and type a question](docs/screenshot-apart-ask.png) | ![Two questions and their answers, and whose turn it is](docs/screenshot-apart-questions.png) | ![Chat messages during a round](docs/screenshot-apart-chat.png) |
+
 ## Tech Stack
 
 - **Web:** ASP.NET Core MVC (Models, Views, Controllers) with Razor views, on .NET 10
@@ -56,7 +66,7 @@ This is a rewrite of a game I first built in 2025 with ASP.NET Core MVC. That ve
 - **Lasting data:** PostgreSQL (Neon) with Entity Framework Core, for accounts, score history and data protection keys
 - **Accounts:** ASP.NET Core Identity, with e-mail through Resend
 - **Other libraries:** QRCoder for the invite QR code, and the SignalR browser client
-- **Tests:** xUnit, 137 tests, including whole rounds played over real SignalR connections
+- **Tests:** xUnit, 177 tests, including whole rounds played over real SignalR connections
 - **Hosting:** Docker on Render
 
 ## Installation
@@ -123,11 +133,13 @@ tests/SpyGame.Tests/    Model, service and end-to-end tests
 
 ## What I Learned
 
-- **Never trusting the browser with a secret.** The first version sent every role to the whole room, so anyone with the developer tools open could see the spy. Now the server builds a separate view for every player. A test compares what a spy receives for two different places and checks that they are byte for byte equal. Building the screen, I found the same leak in a different form: a "possible places" box outside the card was visible only on the spy's phone, so a glance at the screen gave the spy away. It now lives inside the hidden card.
+- **Never trusting the browser with a secret.** The first version sent every role to the whole room, so anyone with the developer tools open could see the spy. Now the server builds a separate view for every player. A test compares what a spy receives for two different places and checks that they are byte for byte equal. Building the screen, I found the same leak in a different form: a "possible places" box outside the card was visible only on the spy's phone, so a glance at the screen gave the spy away. Now everyone in the round gets the same list, so it tells no one anything.
 - **Shared state is the real bug.** The old game kept its state in static fields, so every visitor played the same single game. Now each room is its own object in Redis, saved with a compare-and-set script. Two players voting in the same millisecond cannot overwrite each other, and a test makes 11 players join at once.
 - **Rules as a state machine.** Lobby → questions → voting → last guess → results is a set of plain C# functions that take the time as a parameter. That made every rule easy to test, and it found a real bug: after a pause (for example a server waking up), the next phase started from "now" and gave players time that had already passed. Phases now start from the previous deadline.
 - **A clock in Redis.** Deadlines live in a sorted set, so the game clock finds every overdue room with one query twice a second.
 - **A leaderboard that survives Redis.** Weekly points are a Redis sorted set for fast reads and a database table for history. If the sorted set is missing, it is rebuilt from the database before anything is added, so points are never lost.
+- **A redraw that ate what you typed.** The room page redraws its screen from every update, which was fine until players could type: each chat line from someone else wiped the question being written. The questions and chat panel now lives outside the redrawn area; its lists are refreshed, but an input box is only rebuilt when what the player can do changes.
+- **Measuring "it feels unfair".** After a game where one friend kept asking first, I played 100,000 rounds through the real engine: spies and first askers came out at 20% each, so the code was fair and the evening was just a small sample. The spy stays purely random, but the first question now skips the last two first askers, which the same measurement shows is still even for everyone.
 - **Testing the whole thing.** The end-to-end tests run the real app in memory and play rounds with several "browsers" over real SignalR connections, checking the raw JSON each one receives.
 
 ## Future Plans
@@ -135,6 +147,7 @@ tests/SpyGame.Tests/    Model, service and end-to-end tests
 - Custom word lists per room
 - A spectator mode
 - Other game modes, such as spies who know each other
+- Voice chat for small groups playing apart (WebRTC)
 
 ## Credits
 
