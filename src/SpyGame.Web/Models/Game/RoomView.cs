@@ -7,7 +7,8 @@ namespace SpyGame.Web.Models.Game;
 
 public sealed record PlayerView(string Id, string Nickname, bool Connected, int Score, bool IsHost, bool InRound, bool Ready, bool HasVoted);
 
-public sealed record SettingsView(int PlaceCount, int RoundSeconds, int SpyCount);
+/// <summary>The room's places with the struck ones marked: the same for everyone, so it gives no one away.</summary>
+public sealed record SettingsView(IReadOnlyList<Word> Places, IReadOnlyList<string> Struck, int RoundSeconds, int SpyCount);
 
 /// <summary>A civilian gets the place, a spy does not; both get every place of the room (no groups) and the number of spies.</summary>
 public sealed record CardView(bool IsSpy, Word? Place, IReadOnlyList<Word> Places, int SpyCount);
@@ -49,8 +50,8 @@ public sealed record RoomView(
         var round = room.Round;
         var active = round is not null && room.Phase is Phase.Asking or Phase.Voting or Phase.LastGuess;
         var inRound = active && round!.PlayerIds.Contains(playerId);
-        // The room's places in the order they were chosen; the page sorts them for the reader's language.
-        var places = room.Settings.PlaceIds.Select(id => WordBank.Find(id)!).ToList();
+        // The places the round is dealt from, in the order they were chosen; the page sorts them for the reader's language.
+        var places = room.Settings.ActivePlaceIds.Select(id => WordBank.Find(id)!).ToList();
 
         var players = room.Players
             .Where(p => !p.Left)
@@ -63,7 +64,8 @@ public sealed record RoomView(
             .ToList();
 
         var settings = new SettingsView(
-            room.Settings.PlaceIds.Count,
+            room.Settings.PlaceIds.Select(id => WordBank.Find(id)!).ToList(),
+            room.Settings.StruckPlaceIds,
             room.Settings.RoundSeconds,
             room.Settings.SpyCount);
 

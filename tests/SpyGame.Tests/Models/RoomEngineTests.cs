@@ -178,6 +178,60 @@ public class RoomEngineTests
         Assert.Null(view.Card);
     }
 
+    // --- Striking places out between rounds ---
+
+    private static Room RoomWith(int places)
+    {
+        var room = RoomEngine.Create("ABC234", "p1", "host", new RoomSettings { PlaceIds = TestPlaces.Of(places) }, T0);
+        for (var i = 2; i <= 4; i++) Assert.Null(RoomEngine.Join(room, $"p{i}", $"player{i}", T0.AddSeconds(i)));
+        return room;
+    }
+
+    [Fact]
+    public void The_host_strikes_places_out_between_rounds_and_can_bring_them_back()
+    {
+        var room = RoomWith(12);
+        Assert.Equal("not_host", RoomEngine.StrikePlace(room, "p2", "zoo"));
+        Assert.Equal("invalid_place", RoomEngine.StrikePlace(room, "p1", "zoo")); // not one of this room's places
+        Assert.Null(RoomEngine.StrikePlace(room, "p1", "casino")); // any place, not only one that came up
+        Assert.Null(RoomEngine.StrikePlace(room, "p1", "plane"));
+        Assert.Equal("too_few_places", RoomEngine.StrikePlace(room, "p1", "bank")); // 10 must stay in play
+        Assert.Equal(["casino", "plane"], room.Settings.StruckPlaceIds);
+
+        Assert.Null(RoomEngine.StrikePlace(room, "p1", "casino")); // tapped again: back in play
+        Assert.Equal(["plane"], room.Settings.StruckPlaceIds);
+        Assert.Null(room.Settings.Problem());
+    }
+
+    [Fact]
+    public void Places_cannot_be_struck_during_a_round()
+    {
+        var room = RoomWith(12);
+        Assert.Null(RoomEngine.StartRound(room, "p1", T0.AddMinutes(1), new FixedRandom(0, 3, 0)));
+        Assert.Equal("wrong_phase", RoomEngine.StrikePlace(room, "p1", "bank"));
+        RoomEngine.Tick(room, T0.AddHours(1)); // the round is over: results
+        Assert.Null(RoomEngine.StrikePlace(room, "p1", "plane")); // the place that just came up
+    }
+
+    [Fact]
+    public void A_struck_place_is_never_dealt_or_guessed()
+    {
+        var room = RoomWith(11);
+        Assert.Null(RoomEngine.StrikePlace(room, "p1", "plane"));
+        // Draw #0 would be Plane; with it struck out, #0 is Bank.
+        Assert.Null(RoomEngine.StartRound(room, "p1", T0.AddMinutes(1), new FixedRandom(0, 3, 0)));
+        Assert.Equal("bank", room.Round!.Deal.PlaceId);
+
+        var view = RoomView.For(room, "p4", T0.AddMinutes(2));
+        Assert.DoesNotContain(view.Card!.Places, w => w.Id == "plane"); // not in the round's list
+        Assert.Equal(11, view.Settings.Places.Count);                   // but still in the room's list, struck
+        Assert.Equal(["plane"], view.Settings.Struck);
+
+        foreach (var id in new[] { "p1", "p2", "p3" }) RoomEngine.ReadyToVote(room, id, T0.AddMinutes(2));
+        foreach (var id in new[] { "p1", "p2", "p3", "p4" }) RoomEngine.Vote(room, id, id == "p4" ? "p1" : "p4", T0.AddMinutes(3));
+        Assert.Equal("invalid_guess", RoomEngine.Guess(room, "p4", "plane", T0.AddMinutes(4)));
+    }
+
     // --- What each player can see ---
 
     private static string Json(RoomView view) => JsonSerializer.Serialize(view);

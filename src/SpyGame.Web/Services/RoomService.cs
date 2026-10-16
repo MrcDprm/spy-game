@@ -101,6 +101,9 @@ public sealed class RoomService(
     public Task<string?> VoteAsync(string playerId, string code, string suspectId) =>
         ChangeAsync(code, room => RoomEngine.Vote(room, playerId, suspectId, clock.GetUtcNow()));
 
+    public Task<string?> StrikePlaceAsync(string playerId, string code, string placeId) =>
+        ChangeAsync(code, room => RoomEngine.StrikePlace(room, playerId, placeId));
+
     public Task<string?> GuessAsync(string playerId, string code, string placeId) =>
         ChangeAsync(code, room => RoomEngine.Guess(room, playerId, placeId, clock.GetUtcNow()));
 

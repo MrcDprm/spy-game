@@ -303,6 +303,7 @@ input.code-input { font-family: "JetBrains Mono", monospace; font-size: 1.35rem;
 .place { display: block; width: 100%; padding: 0.5rem 0.7rem; border: 1px solid var(--line); border-radius: 10px; background: var(--bg-2); color: var(--ink-2); font: 600 0.9rem "Archivo", sans-serif; text-align: left; }
 .place--pick { cursor: pointer; color: var(--ink); }
 .place--pick:hover { border-color: var(--accent); color: var(--accent-strong); }
+.place--struck { text-decoration: line-through; text-decoration-thickness: 2px; opacity: 0.5; }
 
 .vote-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr)); gap: 0.5rem; margin: 0.75rem 0; }
 .vote { min-height: 3.2rem; padding: 0.6rem; border: 1.5px solid var(--line); border-radius: 12px; background: var(--bg-2); color: var(--ink); font: 700 1rem "Archivo", sans-serif; cursor: pointer; overflow: hidden; text-overflow: ellipsis; }

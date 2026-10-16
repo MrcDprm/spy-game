@@ -21,6 +21,13 @@ public sealed class RoomSettings
 
     /// <summary>The places this room plays with (at least <see cref="WordBank.MinPlaces"/>).</summary>
     public List<string> PlaceIds { get; set; } = [];
+
+    /// <summary>Places the host struck out between rounds: still listed, but never dealt.</summary>
+    public List<string> StruckPlaceIds { get; set; } = [];
+
+    /// <summary>The places the next round can be dealt from, in the chosen order.</summary>
+    [JsonIgnore]
+    public IEnumerable<string> ActivePlaceIds => PlaceIds.Where(id => !StruckPlaceIds.Contains(id));
     public int RoundSeconds { get; set; } = DefaultRoundSeconds;
     public int SpyCount { get; set; } = 1;
 
@@ -29,6 +36,7 @@ public sealed class RoomSettings
     {
         if (PlaceIds.Count < WordBank.MinPlaces || PlaceIds.Distinct().Count() != PlaceIds.Count || !PlaceIds.All(WordBank.Exists))
             return "invalid_places";
+        if (!StruckPlaceIds.All(PlaceIds.Contains) || ActivePlaceIds.Count() < WordBank.MinPlaces) return "invalid_places";
         if (RoundSeconds is < MinRoundSeconds or > MaxRoundSeconds) return "invalid_round_length";
         if (SpyCount is < RoundRules.MinSpies or > RoundRules.MaxSpies) return "invalid_spy_count";
         return null;

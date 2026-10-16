@@ -133,7 +133,33 @@
 
   function settingsSummary() {
     var s = state.settings;
-    return el("p", { className: "muted", text: [t("lobby.places", s.placeCount), t("lobby.minutes", s.roundSeconds / 60), t("lobby.spies", s.spyCount)].join(" · ") });
+    return el("p", { className: "muted", text: [t("lobby.places", s.places.length - s.struck.length), t("lobby.minutes", s.roundSeconds / 60), t("lobby.spies", s.spyCount)].join(" · ") });
+  }
+
+  // Between rounds: the room's places, struck ones crossed out. The host taps one to strike it out
+  // of the next rounds or bring it back; everyone else sees the same list without buttons.
+  var placesOpen = false;
+  function placesBoard() {
+    var s = state.settings;
+    var list = el("ul", { className: "places" });
+    sorted(s.places).forEach(function (w) {
+      var struck = s.struck.indexOf(w.id) >= 0;
+      var cls = "place" + (struck ? " place--struck" : "");
+      var item = state.youAreHost
+        ? el("button", {
+            className: cls + " place--pick", text: word(w),
+            attrs: { type: "button", "aria-pressed": String(struck) },
+            on: { click: function () { invoke("StrikePlace", w.id); } },
+          })
+        : el("span", { className: cls, text: word(w) });
+      list.appendChild(el("li", {}, item));
+    });
+    var box = el("details", { className: "card places-box", attrs: placesOpen ? { open: "" } : {} },
+      el("summary", { text: t("places.title", s.places.length - s.struck.length, s.places.length) }),
+      el("p", { className: "muted small", text: t(state.youAreHost ? "places.hostHint" : "places.hint") }),
+      list);
+    box.addEventListener("toggle", function () { placesOpen = box.open; });
+    return box;
   }
 
   function hostButton(label) {
@@ -151,10 +177,12 @@
   }
 
   function renderLobby() {
-    stage.appendChild(el("div", { className: "card card--paper" },
-      el("h1", { className: "stage__title", text: t("lobby.title") }),
-      settingsSummary(),
-      hostButton(t("lobby.start"))));
+    stage.appendChild(el("div", { className: "stack" },
+      el("div", { className: "card card--paper" },
+        el("h1", { className: "stage__title", text: t("lobby.title") }),
+        settingsSummary(),
+        hostButton(t("lobby.start"))),
+      placesBoard()));
   }
 
   // The card shows only while it is held down, so a neighbour cannot read it.
@@ -278,6 +306,7 @@
         el("p", { className: "muted", text: story.join(" ") })),
       el("div", { className: "card" }, el("h2", { text: t("result.votes") }), votes),
       hostButton(t("result.next")),
+      placesBoard(),
       el("a", { className: "board-link", text: t("result.board") + " →", attrs: { href: "/leaderboard", target: "_blank", rel: "noopener" } })));
   }
 

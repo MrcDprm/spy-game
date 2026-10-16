@@ -68,7 +68,7 @@ public static class RoomEngine
         var players = room.Present.Select(p => p.Id).ToList();
         if (players.Count < RoundRules.MinPlayers) return "not_enough_players";
 
-        var deal = RoundRules.Deal(players, room.Settings.PlaceIds, room.Settings.SpyCount, random);
+        var deal = RoundRules.Deal(players, room.Settings.ActivePlaceIds.ToList(), room.Settings.SpyCount, random);
         room.Round = new RoundState
         {
             Number = room.RoundsPlayed + 1,
@@ -78,6 +78,23 @@ public static class RoomEngine
             AskingEndsAt = now.AddSeconds(room.Settings.RoundSeconds),
         };
         room.Phase = Phase.Asking;
+        return null;
+    }
+
+    /// <summary>
+    /// Between rounds the host strikes a place out of the next rounds, or brings a struck one back.
+    /// Any place of the room can be struck, not only one that has come up. At least
+    /// <see cref="WordBank.MinPlaces"/> must stay in play.
+    /// </summary>
+    public static string? StrikePlace(Room room, string byPlayerId, string placeId)
+    {
+        if (room.HostId != byPlayerId) return "not_host";
+        if (room.Phase is not (Phase.Lobby or Phase.Results)) return "wrong_phase";
+        var settings = room.Settings;
+        if (!settings.PlaceIds.Contains(placeId)) return "invalid_place";
+        if (settings.StruckPlaceIds.Remove(placeId)) return null;
+        if (settings.ActivePlaceIds.Count() <= WordBank.MinPlaces) return "too_few_places";
+        settings.StruckPlaceIds.Add(placeId);
         return null;
     }
 
@@ -105,13 +122,13 @@ public static class RoomEngine
         return null;
     }
 
-    /// <summary>Only the accused spy can guess, once, from the places of the room.</summary>
+    /// <summary>Only the accused spy can guess, once, from the places the round was dealt from.</summary>
     public static string? Guess(Room room, string playerId, string placeId, DateTimeOffset now)
     {
         if (room.Phase != Phase.LastGuess) return "wrong_phase";
         var round = room.Round!;
         if (round.AccusedId != playerId) return "not_the_accused";
-        if (!room.Settings.PlaceIds.Contains(placeId)) return "invalid_guess";
+        if (!room.Settings.ActivePlaceIds.Contains(placeId)) return "invalid_guess";
         round.GuessPlaceId = placeId;
         Finish(room, guessed: placeId == round.Deal.PlaceId);
         return null;
