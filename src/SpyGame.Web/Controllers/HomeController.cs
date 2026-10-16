@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
+using SpyGame.Web.Models.Game;
 using SpyGame.Web.Models.ViewModels;
 using SpyGame.Web.Services;
 
@@ -14,7 +15,7 @@ public class HomeController(PlayerSessionService sessions) : Controller
         var nickname = (await sessions.FindAsync(HttpContext))?.Nickname;
         return View(new HomeViewModel
         {
-            Create = { Nickname = nickname, CategoryIds = ["sports", "holiday", "food", "fun"] },
+            Create = { Nickname = nickname, PlaceIds = [.. WordBank.DefaultPlaceIds] },
             Join = { Nickname = nickname },
         });
     }

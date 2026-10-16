@@ -21,20 +21,35 @@
             @Html.AntiForgeryToken()
             <partial name="_NicknameField" model="@(("Create.Nickname", Model.Create.Nickname, "create-nick"))" />
 
-            <fieldset class="field">
-                <legend>@T["form.categories"]</legend>
-                <div class="chips" data-chips>
-                    @foreach (var category in WordBank.Categories)
-                    {
-                        <label class="chip">
-                            <input type="checkbox" name="Create.CategoryIds" value="@category.Id" checked="@Model.Create.CategoryIds.Contains(category.Id)" />
-                            <span>@category.NameIn(english ? "en" : "tr")</span>
-                        </label>
-                    }
-                </div>
+            @{
+                var chosen = Model.Create.PlaceIds.ToHashSet();
+            }
+            <fieldset class="field" data-places data-min="@WordBank.MinPlaces" data-restore="@(Model.Error is null ? "true" : "false")" data-total="@T["form.places.total"]">
+                <legend>@T["form.places"]</legend>
+                <p class="hint">@T["form.places.hint", WordBank.MinPlaces]</p>
+                @foreach (var group in WordBank.Groups)
+                {
+                    <details class="place-group" data-group>
+                        <summary>
+                            <input type="checkbox" class="place-group__toggle" data-group-toggle hidden aria-label="@T["form.places.groupAll", group.Number]" />
+                            <span class="place-group__name">@T["form.places.group", group.Number]</span>
+                            <span class="place-group__count mono" data-group-count>@group.Words.Count(w => chosen.Contains(w.Id))/@group.Words.Count</span>
+                        </summary>
+                        <div class="chips">
+                            @foreach (var place in group.Words)
+                            {
+                                <label class="chip">
+                                    <input type="checkbox" name="Create.PlaceIds" value="@place.Id" checked="@chosen.Contains(place.Id)" />
+                                    <span>@place.In(english ? "en" : "tr")</span>
+                                </label>
+                            }
+                        </div>
+                    </details>
+                }
                 <div class="chip-actions">
-                    <button type="button" class="link-btn" data-chips-all>@T["form.categories.all"]</button>
-                    <button type="button" class="link-btn" data-chips-none>@T["form.categories.none"]</button>
+                    <button type="button" class="link-btn" data-places-all hidden>@T["form.places.all"]</button>
+                    <button type="button" class="link-btn" data-places-none hidden>@T["form.places.none"]</button>
+                    <span class="place-total" data-places-total aria-live="polite"></span>
                 </div>
             </fieldset>
 

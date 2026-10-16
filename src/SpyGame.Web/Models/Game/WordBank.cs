@@ -1,108 +1,81 @@
 namespace SpyGame.Web.Models.Game;
 
-public sealed record Word(string Tr, string En)
+/// <summary>A place, with a stable id (what rooms store) and its Turkish and English names.</summary>
+public sealed record Word(string Id, string Tr, string En)
 {
     public string In(string lang) => lang == "en" ? En : Tr;
 }
 
-public sealed record Category(string Id, string NameTr, string NameEn, IReadOnlyList<Word> Words)
-{
-    public string NameIn(string lang) => lang == "en" ? NameEn : NameTr;
-}
+/// <summary>A numbered group of places ("Dossier 1"). The number is its only name: it gives no hint.</summary>
+public sealed record WordGroup(int Number, IReadOnlyList<Word> Words);
 
 /// <summary>
-/// The places players describe without naming them: 10 categories, 15 places each, from the
-/// first version of the game. Every place has a Turkish and an English name.
+/// The places players describe without naming them: four groups. The room's creator chooses whole
+/// groups or single places; the spy then sees every chosen place in one list, without groups.
 /// </summary>
 public static class WordBank
 {
-    public static IReadOnlyList<Category> Categories { get; } =
+    /// <summary>Fewer places would make the spy's guess too easy.</summary>
+    public const int MinPlaces = 10;
+
+    public static IReadOnlyList<WordGroup> Groups { get; } =
     [
-        new("sports", "Spor", "Sports",
+        new(1,
         [
-            new("Stadyum", "Stadium"), new("Yüzme Havuzu", "Swimming Pool"), new("Tenis Kortu", "Tennis Court"),
-            new("Basketbol Sahası", "Basketball Court"), new("Spor Salonu", "Gym"), new("Kayak Merkezi", "Ski Resort"),
-            new("Golf Sahası", "Golf Course"), new("Maraton Parkuru", "Marathon Route"), new("Boks Salonu", "Boxing Gym"),
-            new("Futbol Sahası", "Football Pitch"), new("Voleybol Sahası", "Volleyball Court"), new("Bisiklet Parkuru", "Cycling Track"),
-            new("Okçuluk Alanı", "Archery Range"), new("Beyzbol Sahası", "Baseball Field"), new("Kriket Sahası", "Cricket Ground"),
+            new("plane", "Uçak", "Plane"), new("bank", "Banka", "Bank"), new("beach", "Kumsal", "Beach"),
+            new("theatre", "Tiyatro", "Theatre"), new("casino", "Kumarhane", "Casino"), new("cathedral", "Katedral", "Cathedral"),
+            new("circus-tent", "Sirk Çadırı", "Circus Tent"), new("office-party", "İş Partisi", "Office Party"), new("crusader-army", "Haçlı Ordusu", "Crusader Army"),
+            new("day-spa", "Spa", "Day Spa"), new("embassy", "Büyükelçilik", "Embassy"), new("hospital", "Hastane", "Hospital"),
+            new("hotel", "Otel", "Hotel"), new("military-base", "Askeri Üs", "Military Base"), new("film-studio", "Film Stüdyosu", "Film Studio"),
+            new("ocean-liner", "Yolcu Gemisi", "Ocean Liner"), new("passenger-train", "Yolcu Treni", "Passenger Train"), new("pirate-ship", "Korsan Gemisi", "Pirate Ship"),
+            new("polar-station", "Kutup Araştırma Merkezi", "Polar Research Station"), new("police-station", "Polis Merkezi", "Police Station"), new("restaurant", "Restoran", "Restaurant"),
+            new("school", "Okul", "School"), new("car-repair-shop", "Araba Tamircisi", "Car Repair Shop"), new("space-station", "Uzay İstasyonu", "Space Station"),
+            new("submarine", "Denizaltı", "Submarine"), new("supermarket", "Süpermarket", "Supermarket"), new("university", "Üniversite", "University"),
         ]),
-        new("holiday", "Tatil", "Holiday",
+        new(2,
         [
-            new("Plaj", "Beach"), new("Dağ Evi", "Mountain Cabin"), new("Kamp Alanı", "Campsite"),
-            new("Tatil Köyü", "Holiday Resort"), new("Karavan", "Caravan"), new("Bungalov", "Bungalow"),
-            new("Lüks Otel", "Luxury Hotel"), new("Pansiyon", "Guesthouse"), new("Tatil Adası", "Holiday Island"),
-            new("Yat", "Yacht"), new("Dağ Zirvesi", "Mountain Summit"), new("Orman Kampı", "Forest Camp"),
-            new("Termal Otel", "Thermal Spa Hotel"), new("Tatil Kasabası", "Seaside Town"), new("Çadır", "Tent"),
+            new("amusement-park", "Lunapark", "Amusement Park"), new("art-museum", "Sanat Müzesi", "Art Museum"), new("sweet-factory", "Şeker Fabrikası", "Sweet Factory"),
+            new("cat-show", "Kedi Şovu", "Cat Show"), new("cemetery", "Mezarlık", "Cemetery"), new("coal-mine", "Kömür Madeni", "Coal Mine"),
+            new("building-site", "İnşaat Alanı", "Building Site"), new("gaming-convention", "Oyun Fuarı", "Gaming Convention"), new("petrol-station", "Benzin İstasyonu", "Petrol Station"),
+            new("harbour", "Liman", "Harbour"), new("ice-hockey-arena", "Buz Hokeyi Stadı", "Ice Hockey Arena"), new("prison", "Hapishane", "Prison"),
+            new("jazz-club", "Caz Kulübü", "Jazz Club"), new("library", "Kütüphane", "Library"), new("nightclub", "Gece Kulübü", "Nightclub"),
+            new("race-track", "Yarış Pisti", "Race Track"), new("retirement-home", "Huzurevi", "Retirement Home"), new("rock-concert", "Rock Konseri", "Rock Concert"),
+            new("sightseeing-bus", "Gezi Otobüsü", "Sightseeing Bus"), new("stadium", "Stadyum", "Stadium"), new("underground", "Metro", "Underground"),
+            new("united-nations", "B.M.", "The UN"), new("vineyard", "Üzüm Bağı", "Vineyard"), new("wedding", "Düğün", "Wedding"),
+            new("zoo", "Hayvanat Bahçesi", "Zoo"),
         ]),
-        new("education", "Eğitim", "Education",
+        new(3,
         [
-            new("Okul", "School"), new("Kütüphane", "Library"), new("Üniversite", "University"),
-            new("Dershane", "Tutoring Centre"), new("Sınıf", "Classroom"), new("Laboratuvar", "Laboratory"),
-            new("Konferans Salonu", "Conference Hall"), new("Amfi", "Lecture Theatre"), new("Öğrenci Yurdu", "Student Dormitory"),
-            new("Atölye", "Workshop"), new("Bilgisayar Odası", "Computer Lab"), new("Müzik Sınıfı", "Music Room"),
-            new("Spor Salonu", "School Gym"), new("Öğretmenler Odası", "Staff Room"), new("Kantin", "Canteen"),
+            new("swimming-pool", "Yüzme Havuzu", "Swimming Pool"), new("gym", "Spor Salonu", "Gym"), new("ski-resort", "Kayak Merkezi", "Ski Resort"),
+            new("golf-course", "Golf Sahası", "Golf Course"), new("boxing-gym", "Boks Salonu", "Boxing Gym"), new("campsite", "Kamp Alanı", "Campsite"),
+            new("holiday-resort", "Tatil Köyü", "Holiday Resort"), new("caravan", "Karavan", "Caravan"), new("yacht", "Yat", "Yacht"),
+            new("mountain-cabin", "Dağ Evi", "Mountain Cabin"), new("tutoring-centre", "Dershane", "Tutoring Centre"), new("laboratory", "Laboratuvar", "Laboratory"),
+            new("student-dormitory", "Öğrenci Yurdu", "Student Dormitory"), new("conference-hall", "Konferans Salonu", "Conference Hall"), new("pharmacy", "Eczane", "Chemist"),
+            new("dentist", "Dişçi", "Dentist"), new("ambulance", "Ambulans", "Ambulance"), new("operating-room", "Ameliyathane", "Operating Theatre"),
+            new("airport", "Havalimanı", "Airport"), new("bus-terminal", "Otobüs Terminali", "Bus Terminal"), new("taxi-rank", "Taksi Durağı", "Taxi Rank"),
+            new("car-park", "Otopark", "Car Park"), new("cinema", "Sinema", "Cinema"), new("opera-house", "Opera", "Opera House"),
+            new("photo-studio", "Fotoğraf Stüdyosu", "Photo Studio"),
         ]),
-        new("health", "Sağlık", "Health",
+        new(4,
         [
-            new("Hastane", "Hospital"), new("Eczane", "Pharmacy"), new("Klinik", "Clinic"),
-            new("Ambulans", "Ambulance"), new("Dişçi", "Dentist"), new("Ameliyathane", "Operating Room"),
-            new("Acil Servis", "Emergency Room"), new("Göz Hastanesi", "Eye Hospital"), new("Fizik Tedavi Merkezi", "Physiotherapy Centre"),
-            new("Psikiyatri Kliniği", "Psychiatric Clinic"), new("Aile Sağlığı Merkezi", "Family Health Centre"), new("Doğumhane", "Maternity Ward"),
-            new("Kan Merkezi", "Blood Bank"), new("Radyoloji", "Radiology"), new("Rehabilitasyon Merkezi", "Rehabilitation Centre"),
-        ]),
-        new("transport", "Ulaşım", "Transport",
-        [
-            new("Havalimanı", "Airport"), new("Tren Garı", "Train Station"), new("Otobüs Terminali", "Bus Terminal"),
-            new("Liman", "Harbour"), new("Metro İstasyonu", "Metro Station"), new("Taksi Durağı", "Taxi Rank"),
-            new("Feribot", "Ferry"), new("Otopark", "Car Park"), new("Helikopter Pisti", "Helipad"),
-            new("Tramvay", "Tram"), new("Otoban", "Motorway"), new("Bisiklet Yolu", "Cycle Lane"),
-            new("Gemi", "Ship"), new("Uçak", "Plane"), new("Otobüs", "Bus"),
-        ]),
-        new("food", "Yeme-İçme", "Food & Drink",
-        [
-            new("Restoran", "Restaurant"), new("Kafe", "Café"), new("Bar", "Bar"),
-            new("Pastane", "Patisserie"), new("Fast Food", "Fast Food Place"), new("Lokanta", "Diner"),
-            new("Çay Bahçesi", "Tea Garden"), new("Büfe", "Snack Kiosk"), new("Pideci", "Pide Shop"),
-            new("Kebapçı", "Kebab House"), new("Balıkçı", "Fish Restaurant"), new("Kahve Dükkanı", "Coffee Shop"),
-            new("Dondurmacı", "Ice Cream Shop"), new("Meze Barı", "Meze Bar"), new("Şarap Evi", "Wine Bar"),
-        ]),
-        new("art", "Sanat", "Art",
-        [
-            new("Tiyatro", "Theatre"), new("Sinema", "Cinema"), new("Müzikhol", "Music Hall"),
-            new("Sergi Salonu", "Exhibition Hall"), new("Heykel Atölyesi", "Sculpture Studio"), new("Resim Galerisi", "Art Gallery"),
-            new("Opera", "Opera House"), new("Bale Salonu", "Ballet Studio"), new("Konser Alanı", "Concert Venue"),
-            new("Fotoğraf Stüdyosu", "Photo Studio"), new("Dans Stüdyosu", "Dance Studio"), new("Müzik Stüdyosu", "Recording Studio"),
-            new("Sanat Okulu", "Art School"), new("Kukla Tiyatrosu", "Puppet Theatre"), new("Grafiti Alanı", "Graffiti Wall"),
-        ]),
-        new("shopping", "Alışveriş", "Shopping",
-        [
-            new("AVM", "Shopping Mall"), new("Süpermarket", "Supermarket"), new("Butik", "Boutique"),
-            new("Manav", "Greengrocer"), new("Kuyumcu", "Jeweller"), new("Kitapçı", "Bookshop"),
-            new("Elektronik Mağazası", "Electronics Store"), new("Ayakkabıcı", "Shoe Shop"), new("Pazaryeri", "Street Market"),
-            new("Çiçekçi", "Florist"), new("Oyuncakçı", "Toy Shop"), new("Eczane", "Chemist"),
-            new("Kırtasiye", "Stationery Shop"), new("Giyim Mağazası", "Clothes Shop"), new("Hediyelikçi", "Gift Shop"),
-        ]),
-        new("nature", "Doğa", "Nature",
-        [
-            new("Orman", "Forest"), new("Göl", "Lake"), new("Dağ", "Mountain"),
-            new("Şelale", "Waterfall"), new("Mağara", "Cave"), new("Milli Park", "National Park"),
-            new("Botanik Bahçesi", "Botanical Garden"), new("Çöl", "Desert"), new("Yayla", "Highland Pasture"),
-            new("Vadi", "Valley"), new("Sazlık", "Reed Marsh"), new("Deniz", "Sea"),
-            new("Kanyon", "Canyon"), new("Adacık", "Islet"), new("Fırtına Vadisi", "Fırtına Valley"),
-        ]),
-        new("fun", "Eğlence", "Entertainment",
-        [
-            new("Lunapark", "Funfair"), new("Oyun Salonu", "Arcade"), new("Bowling Salonu", "Bowling Alley"),
-            new("Bilardo Salonu", "Pool Hall"), new("Karaoke Bar", "Karaoke Bar"), new("Disko", "Nightclub"),
-            new("Paintball Alanı", "Paintball Field"), new("Go-Kart Pisti", "Go-Kart Track"), new("Kaçış Odası", "Escape Room"),
-            new("Sanal Gerçeklik Merkezi", "VR Arcade"), new("Trambolin Parkı", "Trampoline Park"), new("Su Parkı", "Water Park"),
-            new("Atlıkarınca", "Carousel"), new("Çocuk Parkı", "Playground"), new("Mini Golf", "Mini Golf"),
+            new("cafe", "Kafe", "Café"), new("botanical-garden", "Botanik Bahçesi", "Botanical Garden"), new("patisserie", "Pastane", "Patisserie"),
+            new("tea-garden", "Çay Bahçesi", "Tea Garden"), new("kebab-house", "Kebapçı", "Kebab House"), new("fish-restaurant", "Balıkçı", "Fish Restaurant"),
+            new("ice-cream-shop", "Dondurmacı", "Ice Cream Shop"), new("shopping-mall", "AVM", "Shopping Mall"), new("boutique", "Butik", "Boutique"),
+            new("greengrocer", "Manav", "Greengrocer"), new("jeweller", "Kuyumcu", "Jeweller"), new("bookshop", "Kitapçı", "Bookshop"),
+            new("street-market", "Pazaryeri", "Street Market"), new("florist", "Çiçekçi", "Florist"), new("toy-shop", "Oyuncakçı", "Toy Shop"),
+            new("arcade", "Oyun Salonu", "Arcade"), new("bowling-alley", "Bowling Salonu", "Bowling Alley"), new("pool-hall", "Bilardo Salonu", "Pool Hall"),
+            new("karaoke-bar", "Karaoke Bar", "Karaoke Bar"), new("escape-room", "Kaçış Odası", "Escape Room"), new("paintball-field", "Paintball Alanı", "Paintball Field"),
+            new("water-park", "Su Parkı", "Water Park"), new("playground", "Çocuk Parkı", "Playground"), new("puppet-theatre", "Kukla Tiyatrosu", "Puppet Theatre"),
+            new("dance-studio", "Dans Stüdyosu", "Dance Studio"),
         ]),
     ];
 
-    private static readonly Dictionary<string, Category> ById = Categories.ToDictionary(c => c.Id);
+    private static readonly Dictionary<string, Word> ById = Groups.SelectMany(g => g.Words).ToDictionary(w => w.Id);
 
-    public static Category? Find(string id) => ById.GetValueOrDefault(id);
+    /// <summary>What a new room starts with before the creator changes anything: the first two groups.</summary>
+    public static IReadOnlyList<string> DefaultPlaceIds { get; } = Groups.Take(2).SelectMany(g => g.Words).Select(w => w.Id).ToList();
+
+    public static Word? Find(string id) => ById.GetValueOrDefault(id);
 
     public static bool Exists(string id) => ById.ContainsKey(id);
 }

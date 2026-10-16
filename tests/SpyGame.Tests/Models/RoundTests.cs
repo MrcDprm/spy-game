@@ -17,21 +17,37 @@ internal sealed class FixedRandom(params int[] values) : IRandomSource
 
 public class WordBankTests
 {
+    private static IEnumerable<Word> All => WordBank.Groups.SelectMany(g => g.Words);
+
     [Fact]
-    public void Ten_categories_of_fifteen_places_in_both_languages()
+    public void Four_numbered_groups_of_places_in_both_languages()
     {
-        Assert.Equal(10, WordBank.Categories.Count);
-        Assert.All(WordBank.Categories, c =>
+        Assert.Equal([1, 2, 3, 4], WordBank.Groups.Select(g => g.Number));
+        Assert.Equal([27, 25, 25, 25], WordBank.Groups.Select(g => g.Words.Count));
+        Assert.All(All, w =>
         {
-            Assert.Equal(15, c.Words.Count);
-            Assert.False(string.IsNullOrWhiteSpace(c.NameTr));
-            Assert.False(string.IsNullOrWhiteSpace(c.NameEn));
-            Assert.All(c.Words, w => Assert.False(string.IsNullOrWhiteSpace(w.Tr) || string.IsNullOrWhiteSpace(w.En)));
-            // The spy picks from this list, so a place must not appear twice in one category.
-            Assert.Equal(c.Words.Count, c.Words.Select(w => w.Tr).Distinct().Count());
-            Assert.Equal(c.Words.Count, c.Words.Select(w => w.En).Distinct().Count());
+            Assert.Matches("^[a-z]+(-[a-z]+)*$", w.Id);
+            Assert.False(string.IsNullOrWhiteSpace(w.Tr) || string.IsNullOrWhiteSpace(w.En));
         });
-        Assert.Equal(WordBank.Categories.Count, WordBank.Categories.Select(c => c.Id).Distinct().Count());
+    }
+
+    [Fact]
+    public void No_place_appears_twice()
+    {
+        // The spy picks from one list of every chosen place, so ids and names must be unique across groups.
+        var count = All.Count();
+        Assert.Equal(count, All.Select(w => w.Id).Distinct().Count());
+        Assert.Equal(count, All.Select(w => w.Tr).Distinct().Count());
+        Assert.Equal(count, All.Select(w => w.En).Distinct().Count());
+    }
+
+    [Fact]
+    public void A_new_room_starts_with_the_first_two_groups()
+    {
+        Assert.Equal(52, WordBank.DefaultPlaceIds.Count);
+        Assert.Null(new RoomSettings { PlaceIds = [.. WordBank.DefaultPlaceIds] }.Problem());
+        Assert.Equal("Kumsal", WordBank.Find("beach")!.Tr);
+        Assert.Null(WordBank.Find("nope"));
     }
 }
 
@@ -59,12 +75,11 @@ public class RoundRulesTests
     [Fact]
     public void A_deal_follows_the_drawn_numbers()
     {
-        // place #17 of [sports, holiday] = holiday #2; spy swap at 0 picks index 3; first asker index 1
-        var deal = RoundRules.Deal(Five, ["sports", "holiday"], 1, new FixedRandom(17, 3, 1));
+        // place #2 of the room = Beach; spy swap at 0 picks index 3; first asker index 1
+        var deal = RoundRules.Deal(Five, TestPlaces.Ten, 1, new FixedRandom(2, 3, 1));
         Assert.Equal(["d"], deal.SpyIds);
-        Assert.Equal("holiday", deal.CategoryId);
-        Assert.Equal(2, deal.WordIndex);
-        Assert.Equal("Kamp Alanı", deal.Word.Tr);
+        Assert.Equal("beach", deal.PlaceId);
+        Assert.Equal("Kumsal", deal.Word.Tr);
         Assert.Equal("b", deal.FirstAskerId);
         Assert.True(deal.IsSpy("d"));
         Assert.False(deal.IsSpy("a"));
@@ -77,11 +92,11 @@ public class RoundRulesTests
         var random = new CryptoRandomSource();
         for (var i = 0; i < 300; i++)
         {
-            var deal = RoundRules.Deal(players, ["art"], 3, random);
+            var deal = RoundRules.Deal(players, TestPlaces.Ten, 3, random);
             Assert.Equal(3, deal.SpyIds.Count);
             Assert.Equal(3, deal.SpyIds.Distinct().Count());
             Assert.All(deal.SpyIds, id => Assert.Contains(id, players));
-            Assert.Equal("art", deal.CategoryId);
+            Assert.Contains(deal.PlaceId, TestPlaces.Ten);
         }
     }
 
@@ -91,7 +106,7 @@ public class RoundRulesTests
         var random = new CryptoRandomSource();
         var times = Five.ToDictionary(p => p, _ => 0);
         const int rounds = 10_000;
-        for (var i = 0; i < rounds; i++) times[RoundRules.Deal(Five, ["fun"], 1, random).SpyIds[0]]++;
+        for (var i = 0; i < rounds; i++) times[RoundRules.Deal(Five, TestPlaces.Ten, 1, random).SpyIds[0]]++;
         // 2000 expected each; a fair draw stays well inside +-15%.
         Assert.All(times.Values, n => Assert.InRange(n, 1700, 2300));
     }
@@ -100,11 +115,11 @@ public class RoundRulesTests
     public void Bad_setups_are_refused()
     {
         var random = new CryptoRandomSource();
-        Assert.Throws<ArgumentException>(() => RoundRules.Deal(["a", "b"], ["fun"], 1, random));
-        Assert.Throws<ArgumentException>(() => RoundRules.Deal(Enumerable.Range(0, 13).Select(i => $"p{i}").ToArray(), ["fun"], 1, random));
-        Assert.Throws<ArgumentException>(() => RoundRules.Deal(["a", "a", "b"], ["fun"], 1, random));
+        Assert.Throws<ArgumentException>(() => RoundRules.Deal(["a", "b"], TestPlaces.Ten, 1, random));
+        Assert.Throws<ArgumentException>(() => RoundRules.Deal(Enumerable.Range(0, 13).Select(i => $"p{i}").ToArray(), TestPlaces.Ten, 1, random));
+        Assert.Throws<ArgumentException>(() => RoundRules.Deal(["a", "a", "b"], TestPlaces.Ten, 1, random));
         Assert.Throws<ArgumentException>(() => RoundRules.Deal(Five, [], 1, random));
-        Assert.Throws<ArgumentException>(() => RoundRules.Deal(Five, ["no-such-category"], 1, random));
+        Assert.Throws<ArgumentException>(() => RoundRules.Deal(Five, ["no-such-place"], 1, random));
     }
 }
 

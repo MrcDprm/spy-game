@@ -9,13 +9,13 @@ public class RoomEngineTests
 
     private static Room NewRoom(int players = 4, int spies = 1, int seconds = 300)
     {
-        var settings = new RoomSettings { CategoryIds = ["sports"], RoundSeconds = seconds, SpyCount = spies };
+        var settings = new RoomSettings { PlaceIds = [.. TestPlaces.Ten], RoundSeconds = seconds, SpyCount = spies };
         var room = RoomEngine.Create("ABC234", "p1", "host", settings, T0);
         for (var i = 2; i <= players; i++) Assert.Null(RoomEngine.Join(room, $"p{i}", $"player{i}", T0.AddSeconds(i)));
         return room;
     }
 
-    /// <summary>Place #wordIndex of "sports"; the spy is player (spySlot + 1); p1 asks first.</summary>
+    /// <summary>Place #wordIndex of the room (4 = Casino, 9 = Day Spa); the spy is player (spySlot + 1); p1 asks first.</summary>
     private static Room Started(int wordIndex = 4, int spySlot = 3, int players = 4)
     {
         var room = NewRoom(players);
@@ -26,13 +26,15 @@ public class RoomEngineTests
     [Fact]
     public void Settings_are_checked()
     {
-        Assert.Null(new RoomSettings { CategoryIds = ["sports", "art"] }.Problem());
-        Assert.Equal("invalid_categories", new RoomSettings { CategoryIds = [] }.Problem());
-        Assert.Equal("invalid_categories", new RoomSettings { CategoryIds = ["nope"] }.Problem());
-        Assert.Equal("invalid_categories", new RoomSettings { CategoryIds = ["art", "art"] }.Problem());
-        Assert.Equal("invalid_round_length", new RoomSettings { CategoryIds = ["art"], RoundSeconds = 30 }.Problem());
-        Assert.Equal("invalid_round_length", new RoomSettings { CategoryIds = ["art"], RoundSeconds = 901 }.Problem());
-        Assert.Equal("invalid_spy_count", new RoomSettings { CategoryIds = ["art"], SpyCount = 4 }.Problem());
+        Assert.Null(new RoomSettings { PlaceIds = [.. TestPlaces.Ten] }.Problem());
+        Assert.Null(new RoomSettings { PlaceIds = TestPlaces.Of(102) }.Problem()); // every place of every dossier
+        Assert.Equal("invalid_places", new RoomSettings { PlaceIds = [] }.Problem());
+        Assert.Equal("invalid_places", new RoomSettings { PlaceIds = TestPlaces.Of(9) }.Problem()); // one short
+        Assert.Equal("invalid_places", new RoomSettings { PlaceIds = [.. TestPlaces.Of(9), "nope"] }.Problem());
+        Assert.Equal("invalid_places", new RoomSettings { PlaceIds = [.. TestPlaces.Of(9), "plane"] }.Problem()); // twice
+        Assert.Equal("invalid_round_length", new RoomSettings { PlaceIds = [.. TestPlaces.Ten], RoundSeconds = 30 }.Problem());
+        Assert.Equal("invalid_round_length", new RoomSettings { PlaceIds = [.. TestPlaces.Ten], RoundSeconds = 901 }.Problem());
+        Assert.Equal("invalid_spy_count", new RoomSettings { PlaceIds = [.. TestPlaces.Ten], SpyCount = 4 }.Problem());
     }
 
     [Fact]
@@ -91,9 +93,9 @@ public class RoomEngineTests
 
         Assert.Equal(Phase.LastGuess, room.Phase);
         Assert.Equal("p4", room.Round!.AccusedId);
-        Assert.Equal("not_the_accused", RoomEngine.Guess(room, "p1", 4, T0.AddMinutes(4)));
-        Assert.Equal("invalid_guess", RoomEngine.Guess(room, "p4", 15, T0.AddMinutes(4)));
-        Assert.Null(RoomEngine.Guess(room, "p4", 0, T0.AddMinutes(4))); // wrong place
+        Assert.Equal("not_the_accused", RoomEngine.Guess(room, "p1", "casino", T0.AddMinutes(4)));
+        Assert.Equal("invalid_guess", RoomEngine.Guess(room, "p4", "zoo", T0.AddMinutes(4))); // not a place of this room
+        Assert.Null(RoomEngine.Guess(room, "p4", "plane", T0.AddMinutes(4))); // wrong place
 
         Assert.Equal(Phase.Results, room.Phase);
         Assert.Equal(Team.Civilians, room.Round.Outcome!.Winner);
@@ -108,9 +110,22 @@ public class RoomEngineTests
         foreach (var id in new[] { "p1", "p2", "p3" }) RoomEngine.ReadyToVote(room, id, T0.AddMinutes(2));
         foreach (var id in new[] { "p1", "p2", "p3" }) RoomEngine.Vote(room, id, "p4", T0.AddMinutes(3));
         RoomEngine.Vote(room, "p4", "p1", T0.AddMinutes(3));
-        Assert.Null(RoomEngine.Guess(room, "p4", 4, T0.AddMinutes(4)));
+        Assert.Null(RoomEngine.Guess(room, "p4", "casino", T0.AddMinutes(4)));
         Assert.Equal(Team.Spies, room.Round!.Outcome!.Winner);
         Assert.Equal(Scoring.SpyWin + Scoring.SpyGuessBonus, room.Find("p4")!.Score);
+        Assert.Equal("Kumarhane", RoomView.For(room, "p1", T0.AddMinutes(4)).Result!.Guess!.Tr);
+    }
+
+    [Fact]
+    public void A_caught_spy_who_names_the_wrong_place_loses()
+    {
+        var room = Started(wordIndex: 4, spySlot: 3);
+        foreach (var id in new[] { "p1", "p2", "p3" }) RoomEngine.ReadyToVote(room, id, T0.AddMinutes(2));
+        foreach (var id in new[] { "p1", "p2", "p3" }) RoomEngine.Vote(room, id, "p4", T0.AddMinutes(3));
+        RoomEngine.Vote(room, "p4", "p1", T0.AddMinutes(3));
+        Assert.Null(RoomEngine.Guess(room, "p4", "beach", T0.AddMinutes(4)));
+        Assert.Equal(Team.Civilians, room.Round!.Outcome!.Winner);
+        Assert.False(room.Round.Outcome.SpyGuessedWord);
     }
 
     [Fact]
@@ -170,7 +185,7 @@ public class RoomEngineTests
     [Fact]
     public void A_spy_sees_exactly_the_same_whatever_the_place_is()
     {
-        // Same room, same spy, two different secret places in the same category.
+        // Same room, same spy, two different secret places.
         var a = Started(wordIndex: 4, spySlot: 3);
         var b = Started(wordIndex: 9, spySlot: 3);
         var now = T0.AddMinutes(2);
@@ -179,7 +194,7 @@ public class RoomEngineTests
         var card = RoomView.For(a, "p4", now).Card!;
         Assert.True(card.IsSpy);
         Assert.Null(card.Place);
-        Assert.Equal(15, card.Places!.Count);
+        Assert.Equal(TestPlaces.Ten, card.Places.Select(w => w.Id)); // the room's places, without groups
     }
 
     [Fact]
@@ -193,8 +208,8 @@ public class RoomEngineTests
 
         var card = RoomView.For(a, "p1", now).Card!;
         Assert.False(card.IsSpy);
-        Assert.Equal("Spor Salonu", card.Place!.Tr);
-        Assert.Null(card.Places);
+        Assert.Equal("Kumarhane", card.Place!.Tr);
+        Assert.Equal(TestPlaces.Ten, card.Places.Select(w => w.Id)); // the same list as the spy's
     }
 
     [Fact]

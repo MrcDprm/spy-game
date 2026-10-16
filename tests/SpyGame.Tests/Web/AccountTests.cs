@@ -1,3 +1,4 @@
+using SpyGame.Tests.Models;
 using System.Net;
 using System.Text.RegularExpressions;
 
@@ -165,10 +166,10 @@ public partial class AccountTests(GameFactory factory) : IClassFixture<GameFacto
         browser.Drop("sg_auth");                       // logged out elsewhere, password reset, cookie expired
         var home = await (await browser.GetAsync("/")).Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         Assert.DoesNotContain($"value=\"{name}\"", home); // the name is no longer filled in
-        var create = await browser.SubmitAsync("/", "/rooms", new()
+        var create = await browser.SubmitAsync("/", "/rooms", new Dictionary<string, string>
         {
-            ["Create.Nickname"] = name, ["Create.CategoryIds[0]"] = "art", ["Create.RoundMinutes"] = "5", ["Create.SpyCount"] = "1",
-        });
+            ["Create.Nickname"] = name, ["Create.RoundMinutes"] = "5", ["Create.SpyCount"] = "1",
+        }.Concat(Browser.PlaceFields(TestPlaces.Ten)).ToDictionary());
         Assert.Equal("nickname_registered", await ErrorOf(create));
     }
 

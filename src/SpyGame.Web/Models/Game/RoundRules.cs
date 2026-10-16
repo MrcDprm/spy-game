@@ -1,10 +1,10 @@
 namespace SpyGame.Web.Models.Game;
 
 /// <summary>What the server decided for one round. Only the server ever holds all of it.</summary>
-public sealed record RoundDeal(IReadOnlyList<string> SpyIds, string CategoryId, int WordIndex, string FirstAskerId)
+public sealed record RoundDeal(IReadOnlyList<string> SpyIds, string PlaceId, string FirstAskerId)
 {
     [System.Text.Json.Serialization.JsonIgnore]
-    public Word Word => WordBank.Find(CategoryId)!.Words[WordIndex];
+    public Word Word => WordBank.Find(PlaceId)!;
 
     public bool IsSpy(string playerId) => SpyIds.Contains(playerId);
 }
@@ -33,24 +33,22 @@ public static class RoundRules
         Math.Clamp(requested, MinSpies, MaxSpiesFor(players));
 
     /// <summary>
-    /// Picks the spies, the place and who asks the first question. The place is drawn from all
-    /// places of the chosen categories, so every place is equally likely.
+    /// Picks the spies, the place and who asks the first question. Every chosen place is equally likely.
     /// </summary>
-    public static RoundDeal Deal(IReadOnlyList<string> playerIds, IReadOnlyCollection<string> categoryIds, int requestedSpies, IRandomSource random)
+    public static RoundDeal Deal(IReadOnlyList<string> playerIds, IReadOnlyCollection<string> placeIds, int requestedSpies, IRandomSource random)
     {
         if (playerIds.Count is < MinPlayers or > MaxPlayers)
             throw new ArgumentException($"A round needs {MinPlayers}-{MaxPlayers} players.", nameof(playerIds));
         if (playerIds.Distinct().Count() != playerIds.Count)
             throw new ArgumentException("Players must be distinct.", nameof(playerIds));
 
-        var places = categoryIds
+        var places = placeIds
             .Distinct()
-            .Select(id => WordBank.Find(id) ?? throw new ArgumentException($"Unknown category '{id}'.", nameof(categoryIds)))
-            .SelectMany(category => category.Words.Select((_, index) => (category.Id, index)))
+            .Select(id => WordBank.Exists(id) ? id : throw new ArgumentException($"Unknown place '{id}'.", nameof(placeIds)))
             .ToList();
-        if (places.Count == 0) throw new ArgumentException("Choose at least one category.", nameof(categoryIds));
+        if (places.Count == 0) throw new ArgumentException("Choose at least one place.", nameof(placeIds));
 
-        var (categoryId, wordIndex) = places[random.Next(places.Count)];
+        var placeId = places[random.Next(places.Count)];
 
         // Partial Fisher-Yates shuffle: the first `spies` slots end up as a fair random pick.
         var order = playerIds.ToArray();
@@ -62,6 +60,6 @@ public static class RoundRules
         }
 
         var firstAsker = playerIds[random.Next(playerIds.Count)];
-        return new RoundDeal(order[..spies], categoryId, wordIndex, firstAsker);
+        return new RoundDeal(order[..spies], placeId, firstAsker);
     }
 }

@@ -6,13 +6,13 @@ namespace SpyGame.Web.Models.ViewModels;
 public sealed class CreateRoomForm
 {
     public string? Nickname { get; set; }
-    public List<string> CategoryIds { get; set; } = [];
+    public List<string> PlaceIds { get; set; } = [];
     public int RoundMinutes { get; set; } = RoomSettings.DefaultRoundSeconds / 60;
     public int SpyCount { get; set; } = 1;
 
     public RoomSettings ToSettings() => new()
     {
-        CategoryIds = CategoryIds,
+        PlaceIds = PlaceIds.Distinct().ToList(),
         RoundSeconds = RoundMinutes * 60,
         SpyCount = SpyCount,
     };

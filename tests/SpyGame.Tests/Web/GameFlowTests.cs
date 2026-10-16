@@ -1,3 +1,4 @@
+using SpyGame.Tests.Models;
 using System.Net;
 using Microsoft.AspNetCore.SignalR.Client;
 using SpyGame.Web.Models.Game;
@@ -66,7 +67,7 @@ public class GameFlowTests : IClassFixture<GameFactory>
             Assert.DoesNotContain("\"place\":{", raw);
         }
 
-        var wrong = guessing.Guess.Places!.ToList().FindIndex(w => w != place);
+        var wrong = guessing.Guess.Places!.First(w => w != place).Id;
         Assert.Null(await spy.InvokeAsync("Guess", wrong));
         foreach (var channel in channels)
         {
@@ -241,10 +242,10 @@ public class RoomPageTests : IClassFixture<GameFactory>
         var statuses = new List<HttpStatusCode>();
         for (var i = 0; i < 11; i++)
         {
-            var response = await browser.SubmitAsync("/", "/rooms", new()
+            var response = await browser.SubmitAsync("/", "/rooms", new Dictionary<string, string>
             {
-                ["Create.Nickname"] = "limit" + i, ["Create.CategoryIds[0]"] = "art", ["Create.RoundMinutes"] = "5", ["Create.SpyCount"] = "1",
-            });
+                ["Create.Nickname"] = "limit" + i, ["Create.RoundMinutes"] = "5", ["Create.SpyCount"] = "1",
+            }.Concat(Browser.PlaceFields(TestPlaces.Ten)).ToDictionary());
             statuses.Add(response.StatusCode);
         }
         Assert.Equal(10, statuses.Count(s => s == HttpStatusCode.Redirect));

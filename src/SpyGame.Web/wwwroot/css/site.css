@@ -177,7 +177,7 @@ input.code-input { font-family: "JetBrains Mono", monospace; font-size: 1.35rem;
 
 .alert { margin: 0.75rem 0 0; padding: 0.75rem 1rem; border: 1.5px solid color-mix(in srgb, var(--accent) 60%, transparent); border-radius: 12px; background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--ink); font-size: 0.92rem; }
 
-/* Category chips: real checkboxes, drawn as tags. */
+/* Place chips: real checkboxes, drawn as tags. */
 .chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
 .chip { position: relative; }
 .chip input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
@@ -187,7 +187,20 @@ input.code-input { font-family: "JetBrains Mono", monospace; font-size: 1.35rem;
 }
 .chip input:checked + span { background: var(--ink); color: var(--bg); border-color: var(--ink); }
 .chip input:focus-visible + span { outline: 3px solid var(--focus); outline-offset: 2px; }
-.chip-actions { display: flex; gap: 1rem; }
+.chip-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem 1rem; }
+
+/* Place groups ("Dossier 1"): open one to pick single places, or tick the box for all of it. */
+.place-group { border: 1.5px solid var(--paper-line); border-radius: 12px; padding: 0.6rem 0.85rem; }
+.place-group summary { display: flex; align-items: center; gap: 0.6rem; cursor: pointer; font-weight: 650; }
+.place-group[open] summary { margin-bottom: 0.75rem; }
+.place-group__toggle { width: 1.15rem; height: 1.15rem; margin: 0; accent-color: var(--paper-ink); color-scheme: light; cursor: pointer; } /* light like the paper, in both themes */
+.place-group__name { flex: 1; }
+.place-group__count { font-size: 0.85rem; color: var(--paper-ink-2); }
+.place-group summary::-webkit-details-marker { display: none; }
+.place-group summary::after { content: ""; width: 0.5rem; height: 0.5rem; border-right: 2px solid var(--paper-ink-2); border-bottom: 2px solid var(--paper-ink-2); transform: rotate(45deg) translateY(-2px); transition: transform 0.15s; }
+.place-group[open] summary::after { transform: rotate(-135deg) translateY(-2px); }
+.place-total { margin-left: auto; font-size: 0.85rem; font-weight: 650; }
+.place-total--low { color: #a52a21; } /* the paper card is light in both themes */
 
 .segmented { display: grid; grid-template-columns: repeat(3, 1fr); border: 1.5px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--bg-2); }
 .segmented label { position: relative; }
@@ -289,8 +302,6 @@ input.code-input { font-family: "JetBrains Mono", monospace; font-size: 1.35rem;
 .places { list-style: none; margin: 0.75rem 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr)); gap: 0.4rem; }
 .place { display: block; width: 100%; padding: 0.5rem 0.7rem; border: 1px solid var(--line); border-radius: 10px; background: var(--bg-2); color: var(--ink-2); font: 600 0.9rem "Archivo", sans-serif; text-align: left; }
 .place--pick { cursor: pointer; color: var(--ink); }
-.places--card { grid-template-columns: repeat(auto-fill, minmax(7.5rem, 1fr)); text-align: left; }
-.places--card .place { background: #fff; border-color: var(--paper-line); color: var(--paper-ink); font-size: 0.82rem; padding: 0.35rem 0.5rem; }
 .place--pick:hover { border-color: var(--accent); color: var(--accent-strong); }
 
 .vote-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr)); gap: 0.5rem; margin: 0.75rem 0; }

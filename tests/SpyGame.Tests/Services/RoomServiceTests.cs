@@ -48,7 +48,7 @@ public class RoomServiceTests
         _service = new RoomService(_store, _store, new FixedRegisteredNames(new() { ["mira"] = "acc-1" }), new CryptoRandomSource(), _clock, _notifier, _recorder, NullLogger<RoomService>.Instance);
     }
 
-    private static readonly RoomSettings Settings = new() { CategoryIds = ["food"], RoundSeconds = 120, SpyCount = 1 };
+    private static readonly RoomSettings Settings = new() { PlaceIds = [.. TestPlaces.Ten], RoundSeconds = 120, SpyCount = 1 };
 
     private async Task<PlayerSession> Player(string id, string nickname)
     {
@@ -128,7 +128,7 @@ public class RoomServiceTests
     {
         Assert.Equal("nickname_required", (await _service.CreateAsync(new PlayerSession("p1", null), Settings)).Error);
         var host = await Player("p1", "host");
-        Assert.Equal("invalid_categories", (await _service.CreateAsync(host, new RoomSettings { CategoryIds = ["x"] })).Error);
+        Assert.Equal("invalid_places", (await _service.CreateAsync(host, new RoomSettings { PlaceIds = ["x"] })).Error);
         var (error, code) = await _service.CreateAsync(host, Settings);
         Assert.Null(error);
         Assert.True(RoomCode.IsValid(code));

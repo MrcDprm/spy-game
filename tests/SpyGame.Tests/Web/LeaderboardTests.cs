@@ -61,7 +61,7 @@ public class LeaderboardTests(GameFactory factory) : IClassFixture<GameFactory>
         var spyChannel = channels[views.FindIndex(v => v.YouId == spy)];
         var guess = await spyChannel.WaitForAsync(v => v.Phase == Phase.LastGuess);
         var place = views.First(v => !v.Card!.IsSpy).Card!.Place;
-        await spyChannel.InvokeAsync("Guess", guess.Guess!.Places!.ToList().FindIndex(w => w != place));
+        await spyChannel.InvokeAsync("Guess", guess.Guess!.Places!.First(w => w != place).Id);
         var result = await channels[0].WaitForAsync(v => v.Phase == Phase.Results);
         foreach (var c in channels) await c.DisposeAsync();
 

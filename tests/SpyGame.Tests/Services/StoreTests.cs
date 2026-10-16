@@ -1,3 +1,4 @@
+using SpyGame.Tests.Models;
 using SpyGame.Web.Models.Game;
 using SpyGame.Web.Services.Storage;
 using StackExchange.Redis;
@@ -24,7 +25,7 @@ public abstract class StoreContract
     private static string NewCode() => RoomCode.Generate(new CryptoRandomSource());
     private static string NewName() => "t" + Guid.NewGuid().ToString("N")[..12];
 
-    private static Room NewRoom(string code) => RoomEngine.Create(code, "host", "host", new RoomSettings { CategoryIds = ["art"] }, DateTimeOffset.UtcNow);
+    private static Room NewRoom(string code) => RoomEngine.Create(code, "host", "host", new RoomSettings { PlaceIds = [.. TestPlaces.Ten] }, DateTimeOffset.UtcNow);
 
     [Fact]
     public async Task A_room_survives_being_saved_and_read_back()

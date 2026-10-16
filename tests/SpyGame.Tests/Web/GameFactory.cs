@@ -1,3 +1,4 @@
+using SpyGame.Tests.Models;
 using System.Net;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -132,16 +133,20 @@ public sealed partial class Browser(GameFactory factory, string ip)
         return response;
     }
 
-    public async Task<string> CreateRoomAsync(string nickname, string categories = "food", int minutes = 1, int spies = 1)
+    public async Task<string> CreateRoomAsync(string nickname, int minutes = 1, int spies = 1)
     {
         var fields = new Dictionary<string, string>
         {
             ["Create.Nickname"] = nickname, ["Create.RoundMinutes"] = $"{minutes}", ["Create.SpyCount"] = $"{spies}",
         };
-        var response = await SubmitAsync("/", "/rooms", fields.Concat(categories.Split(',').Select((c, i) => new KeyValuePair<string, string>($"Create.CategoryIds[{i}]", c))).ToDictionary());
+        var response = await SubmitAsync("/", "/rooms", fields.Concat(PlaceFields(TestPlaces.Ten)).ToDictionary());
         Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
         return response.Headers.Location!.ToString().Split('/').Last();
     }
+
+    /// <summary>The form fields for a list of places, as the browser sends the ticked boxes.</summary>
+    public static IEnumerable<KeyValuePair<string, string>> PlaceFields(IEnumerable<string> placeIds) =>
+        placeIds.Select((id, i) => new KeyValuePair<string, string>($"Create.PlaceIds[{i}]", id));
 
     public async Task JoinRoomAsync(string nickname, string code)
     {

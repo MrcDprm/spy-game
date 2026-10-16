@@ -101,8 +101,8 @@ public sealed class RoomService(
     public Task<string?> VoteAsync(string playerId, string code, string suspectId) =>
         ChangeAsync(code, room => RoomEngine.Vote(room, playerId, suspectId, clock.GetUtcNow()));
 
-    public Task<string?> GuessAsync(string playerId, string code, int wordIndex) =>
-        ChangeAsync(code, room => RoomEngine.Guess(room, playerId, wordIndex, clock.GetUtcNow()));
+    public Task<string?> GuessAsync(string playerId, string code, string placeId) =>
+        ChangeAsync(code, room => RoomEngine.Guess(room, playerId, placeId, clock.GetUtcNow()));
 
     /// <summary>A player's connection opened or closed (a page refresh, a phone going to sleep).</summary>
     public Task<string?> SetConnectedAsync(string playerId, string code, bool connected) =>

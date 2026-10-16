@@ -1,20 +1,16 @@
 namespace SpyGame.Web.Models.Game;
 
 // What one player is allowed to see of a room. The server builds a separate view for every
-// player and sends only that: the place goes to the civilians, the list of possible places to
-// the spies, and nobody learns who the spies are before the round ends.
-
-public sealed record CategoryRef(string Id, string NameTr, string NameEn)
-{
-    public static CategoryRef Of(Category c) => new(c.Id, c.NameTr, c.NameEn);
-}
+// player and sends only that: the place goes to the civilians, and nobody learns who the spies
+// are before the round ends. The room's list of places is the same for everyone, so everyone in
+// the round gets it: it tells no one who the spy is.
 
 public sealed record PlayerView(string Id, string Nickname, bool Connected, int Score, bool IsHost, bool InRound, bool Ready, bool HasVoted);
 
-public sealed record SettingsView(IReadOnlyList<CategoryRef> Categories, int RoundSeconds, int SpyCount);
+public sealed record SettingsView(int PlaceCount, int RoundSeconds, int SpyCount);
 
-/// <summary>A civilian gets the place; a spy gets the list it is hidden in, and the number of spies.</summary>
-public sealed record CardView(bool IsSpy, CategoryRef Category, Word? Place, IReadOnlyList<Word>? Places, int SpyCount);
+/// <summary>A civilian gets the place, a spy does not; both get every place of the room (no groups) and the number of spies.</summary>
+public sealed record CardView(bool IsSpy, Word? Place, IReadOnlyList<Word> Places, int SpyCount);
 
 public sealed record VotingView(string? YourVote, int VotesCast, int Voters);
 
@@ -25,7 +21,6 @@ public sealed record GuessView(string AccusedId, bool YouAreAccused, IReadOnlyLi
 public sealed record ResultView(
     Team Winner,
     IReadOnlyList<string> SpyIds,
-    CategoryRef Category,
     Word Place,
     string? AccusedId,
     bool SpyGuessed,
@@ -54,7 +49,8 @@ public sealed record RoomView(
         var round = room.Round;
         var active = round is not null && room.Phase is Phase.Asking or Phase.Voting or Phase.LastGuess;
         var inRound = active && round!.PlayerIds.Contains(playerId);
-        var category = round is null ? null : WordBank.Find(round.Deal.CategoryId)!;
+        // The room's places in the order they were chosen; the page sorts them for the reader's language.
+        var places = room.Settings.PlaceIds.Select(id => WordBank.Find(id)!).ToList();
 
         var players = room.Players
             .Where(p => !p.Left)
@@ -67,7 +63,7 @@ public sealed record RoomView(
             .ToList();
 
         var settings = new SettingsView(
-            room.Settings.CategoryIds.Select(id => CategoryRef.Of(WordBank.Find(id)!)).ToList(),
+            room.Settings.PlaceIds.Count,
             room.Settings.RoundSeconds,
             room.Settings.SpyCount);
 
@@ -75,8 +71,8 @@ public sealed record RoomView(
         if (inRound)
         {
             card = round!.Deal.IsSpy(playerId)
-                ? new CardView(true, CategoryRef.Of(category!), Place: null, category!.Words, round.Deal.SpyIds.Count)
-                : new CardView(false, CategoryRef.Of(category!), round.Deal.Word, Places: null, round.Deal.SpyIds.Count);
+                ? new CardView(true, Place: null, places, round.Deal.SpyIds.Count)
+                : new CardView(false, round.Deal.Word, places, round.Deal.SpyIds.Count);
         }
 
         VotingView? voting = room.Phase == Phase.Voting && inRound
@@ -84,7 +80,7 @@ public sealed record RoomView(
             : null;
 
         GuessView? guess = room.Phase == Phase.LastGuess
-            ? new GuessView(round!.AccusedId!, round.AccusedId == playerId, round.AccusedId == playerId ? category!.Words : null)
+            ? new GuessView(round!.AccusedId!, round.AccusedId == playerId, round.AccusedId == playerId ? places : null)
             : null;
 
         ResultView? result = null;
@@ -93,11 +89,10 @@ public sealed record RoomView(
             result = new ResultView(
                 outcome.Winner,
                 round.Deal.SpyIds,
-                CategoryRef.Of(category!),
                 round.Deal.Word,
                 outcome.AccusedId,
                 outcome.SpyGuessedWord,
-                round.GuessIndex is { } g ? category!.Words[g] : null,
+                round.GuessPlaceId is { } g ? WordBank.Find(g) : null,
                 round.Votes,
                 round.Points ?? []);
         }

@@ -19,15 +19,16 @@ public sealed class RoomSettings
     public const int MaxRoundSeconds = 900;
     public const int DefaultRoundSeconds = 480;
 
-    public List<string> CategoryIds { get; set; } = [];
+    /// <summary>The places this room plays with (at least <see cref="WordBank.MinPlaces"/>).</summary>
+    public List<string> PlaceIds { get; set; } = [];
     public int RoundSeconds { get; set; } = DefaultRoundSeconds;
     public int SpyCount { get; set; } = 1;
 
     /// <summary>Null when the settings are usable, otherwise an error code.</summary>
     public string? Problem()
     {
-        if (CategoryIds.Count == 0 || CategoryIds.Distinct().Count() != CategoryIds.Count || !CategoryIds.All(WordBank.Exists))
-            return "invalid_categories";
+        if (PlaceIds.Count < WordBank.MinPlaces || PlaceIds.Distinct().Count() != PlaceIds.Count || !PlaceIds.All(WordBank.Exists))
+            return "invalid_places";
         if (RoundSeconds is < MinRoundSeconds or > MaxRoundSeconds) return "invalid_round_length";
         if (SpyCount is < RoundRules.MinSpies or > RoundRules.MaxSpies) return "invalid_spy_count";
         return null;
@@ -58,7 +59,7 @@ public sealed class RoundState
     public Dictionary<string, string> Votes { get; set; } = [];
     public string? AccusedId { get; set; }
     public DateTimeOffset? GuessEndsAt { get; set; }
-    public int? GuessIndex { get; set; }
+    public string? GuessPlaceId { get; set; }
     public RoundOutcome? Outcome { get; set; }
     public Dictionary<string, int>? Points { get; set; }
     public bool Recorded { get; set; } // the points went to the leaderboard (exactly once)

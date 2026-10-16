@@ -49,7 +49,10 @@
   }
 
   function word(w) { return w ? (lang === "en" ? w.en : w.tr) : ""; }
-  function categoryName(c) { return lang === "en" ? c.nameEn : c.nameTr; }
+  // The room's places, alphabetical in the reader's language (the server keeps the chosen order).
+  function sorted(places) {
+    return places.slice().sort(function (a, b) { return word(a).localeCompare(word(b), lang); });
+  }
   function player(id) { return state.players.find(function (p) { return p.id === id; }); }
   function nameOf(id) { var p = player(id); return p ? p.nickname : "?"; }
 
@@ -130,7 +133,7 @@
 
   function settingsSummary() {
     var s = state.settings;
-    return el("p", { className: "muted", text: [s.categories.map(categoryName).join(", "), t("lobby.minutes", s.roundSeconds / 60), t("lobby.spies", s.spyCount)].join(" · ") });
+    return el("p", { className: "muted", text: [t("lobby.places", s.placeCount), t("lobby.minutes", s.roundSeconds / 60), t("lobby.spies", s.spyCount)].join(" · ") });
   }
 
   function hostButton(label) {
@@ -160,17 +163,11 @@
     var face = el("div", { className: "secret__face" });
     if (card.isSpy) {
       face.appendChild(el("p", { className: "stamp", text: t("card.spy") }));
-      face.appendChild(el("p", { className: "secret__label", text: t("card.category") + ": " + categoryName(card.category) }));
       face.appendChild(el("p", { className: "small", text: t("card.spyHint") }));
       if (card.spyCount > 1) face.appendChild(el("p", { className: "small", text: t("card.spies", card.spyCount) }));
-      // The list lives inside the card: anything shown outside it would tell an onlooker who the spy is.
-      var list = el("ul", { className: "places places--card", attrs: { "aria-label": t("card.possible") } });
-      card.places.forEach(function (w) { list.appendChild(el("li", { className: "place", text: word(w) })); });
-      face.appendChild(list);
     } else {
       face.appendChild(el("p", { className: "secret__label", text: t("card.place") }));
       face.appendChild(el("p", { className: "secret__place", text: word(card.place) }));
-      face.appendChild(el("p", { className: "secret__label", text: t("card.category") + ": " + categoryName(card.category) }));
     }
     var cover = el("div", { className: "secret__cover" },
       el("span", { className: "secret__icon", attrs: { "aria-hidden": "true" }, text: "?" }),
@@ -197,20 +194,21 @@
     stage.appendChild(el("div", { className: "stack" },
       holdCard(),
       el("p", { className: "first-asker", text: t("asking.first", nameOf(state.firstAskerId)) }),
+      placesList(state.card.places),
       el("div", { className: "card" }, readyBtn, el("p", { className: "muted small center", text: t("asking.readyCount", ready, inRound.length) }))));
   }
 
-  // The spy's list of possible places; clickable only for the last guess.
+  // The room's places, the same for everyone; clickable only for the spy's last guess.
   function placesList(places, onPick) {
     var list = el("ul", { className: "places" });
-    places.forEach(function (w, i) {
+    sorted(places).forEach(function (w) {
       var item = onPick
-        ? button(word(w), function () { onPick(i); }, "place place--pick")
+        ? button(word(w), function () { onPick(w.id); }, "place place--pick")
         : el("span", { className: "place", text: word(w) });
       list.appendChild(el("li", {}, item));
     });
     return el("details", { className: "card places-box", attrs: onPick ? { open: "" } : {} },
-      el("summary", { text: t("card.possible") }), list);
+      el("summary", { text: t("card.possible", places.length) }), list);
   }
 
   function renderVoting() {
@@ -243,7 +241,7 @@
         el("div", { className: "card card--paper" },
           el("p", { className: "stamp", text: t("guess.youTitle") }),
           el("p", { text: t("guess.youHint") })),
-        placesList(g.places, function (i) { invoke("Guess", i); })));
+        placesList(g.places, function (id) { invoke("Guess", id); })));
     } else {
       stage.appendChild(el("div", { className: "card" },
         el("h1", { className: "stage__title", text: t("guess.othersTitle", nameOf(g.accusedId)) }),

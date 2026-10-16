@@ -68,7 +68,7 @@ public static class RoomEngine
         var players = room.Present.Select(p => p.Id).ToList();
         if (players.Count < RoundRules.MinPlayers) return "not_enough_players";
 
-        var deal = RoundRules.Deal(players, room.Settings.CategoryIds, room.Settings.SpyCount, random);
+        var deal = RoundRules.Deal(players, room.Settings.PlaceIds, room.Settings.SpyCount, random);
         room.Round = new RoundState
         {
             Number = room.RoundsPlayed + 1,
@@ -105,16 +105,15 @@ public static class RoomEngine
         return null;
     }
 
-    /// <summary>Only the accused spy can guess, once, from the places of the round's category.</summary>
-    public static string? Guess(Room room, string playerId, int wordIndex, DateTimeOffset now)
+    /// <summary>Only the accused spy can guess, once, from the places of the room.</summary>
+    public static string? Guess(Room room, string playerId, string placeId, DateTimeOffset now)
     {
         if (room.Phase != Phase.LastGuess) return "wrong_phase";
         var round = room.Round!;
         if (round.AccusedId != playerId) return "not_the_accused";
-        var places = WordBank.Find(round.Deal.CategoryId)!.Words.Count;
-        if (wordIndex < 0 || wordIndex >= places) return "invalid_guess";
-        round.GuessIndex = wordIndex;
-        Finish(room, guessed: wordIndex == round.Deal.WordIndex);
+        if (!room.Settings.PlaceIds.Contains(placeId)) return "invalid_guess";
+        round.GuessPlaceId = placeId;
+        Finish(room, guessed: placeId == round.Deal.PlaceId);
         return null;
     }
 

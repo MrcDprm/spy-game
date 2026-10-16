@@ -84,7 +84,8 @@ internal static class StoreKeys
     public const string Deadlines = "sg:deadlines";
     public static readonly TimeSpan LeaderboardLifetime = TimeSpan.FromDays(21); // this week and the last, with room to spare
     public static string Leaderboard(string week) => $"sg:lb:{week}";
-    public static string Room(string code) => $"sg:room:{code}";
+    // "room2": rooms saved before places replaced categories are left to expire, never read.
+    public static string Room(string code) => $"sg:room2:{code}";
     public static string Session(string token) => $"sg:session:{Hash(token)}";
     public static string Nickname(string name) => $"sg:nick:{name}";
     public static string Counter(string key) => $"sg:count:{Hash(key)}";

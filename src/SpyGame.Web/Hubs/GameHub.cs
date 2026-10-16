@@ -53,7 +53,7 @@ public sealed class GameHub(RoomService rooms, PlayerSessionService sessions, Co
     public Task<string?> Vote(string suspectId) =>
         suspectId is { Length: > 0 and <= 40 } ? rooms.VoteAsync(PlayerId, Code, suspectId) : Task.FromResult<string?>("unknown_player");
 
-    public Task<string?> Guess(int wordIndex) => rooms.GuessAsync(PlayerId, Code, wordIndex);
+    public Task<string?> Guess(string placeId) => rooms.GuessAsync(PlayerId, Code, placeId);
 
     public Task<string?> Leave() => rooms.LeaveAsync(PlayerId, Code);
 }
