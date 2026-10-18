@@ -1,6 +1,7 @@
 @model SpyGame.Web.Models.ViewModels.LeaderboardViewModel
 @{
     ViewData["Title"] = T["board.title"];
+    ViewData["SeoKey"] = "board";
     var culture = System.Globalization.CultureInfo.CurrentUICulture;
     var range = $"{Model.Starts.ToString("d MMMM", culture)} – {Model.Starts.AddDays(6).ToString("d MMMM yyyy", culture)}";
 }

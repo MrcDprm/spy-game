@@ -1,15 +1,79 @@
 @{
     var english = Culture.IsEnglish;
-    var path = Context.Request.Path + Context.Request.QueryString;
+    // The language link returns to the same page without ?lang, so the cookie decides.
+    var path = Seo.WithoutLang(Context.Request.Path, Context.Request.Query);
     var title = ViewData["Title"]?.ToString();
+    // Pages listed in Seo.Pages set SeoKey; rooms, accounts and errors stay out of search.
+    var seoKey = ViewData["SeoKey"] as string;
+    var fullTitle = seoKey != null
+        ? T[$"seo.{seoKey}.title"].Value
+        : string.IsNullOrEmpty(title) ? "Casus" : title + " · Casus";
+    var description = seoKey == "board" ? T["seo.board.description"].Value : T["meta.description"].Value;
+    var pagePath = Context.Request.Path.Value is { Length: > 1 } p ? p.TrimEnd('/') : "/";
+    var urlTr = Seo.PageUrl(pagePath, english: false);
+    var urlEn = Seo.PageUrl(pagePath, english: true);
+    var author = new Dictionary<string, object> { ["@type"] = "Person", ["name"] = "Miraç Deprem", ["url"] = "https://www.miracdeprem.com" };
+    var jsonLd = seoKey switch
+    {
+        "home" => Seo.JsonLd(new Dictionary<string, object>
+        {
+            ["@context"] = "https://schema.org",
+            ["@type"] = "VideoGame",
+            ["name"] = "Casus",
+            ["url"] = english ? urlEn : urlTr,
+            ["description"] = description,
+            ["inLanguage"] = english ? "en" : "tr",
+            ["genre"] = english ? "Party game" : "Parti oyunu",
+            ["gamePlatform"] = "Web browser",
+            ["playMode"] = "MultiPlayer",
+            ["isAccessibleForFree"] = true,
+            ["offers"] = new Dictionary<string, object> { ["@type"] = "Offer", ["price"] = "0", ["priceCurrency"] = "USD" },
+            ["author"] = author,
+        }),
+        null => null,
+        _ => Seo.JsonLd(new Dictionary<string, object>
+        {
+            ["@context"] = "https://schema.org",
+            ["@type"] = "WebPage",
+            ["name"] = fullTitle,
+            ["url"] = english ? urlEn : urlTr,
+            ["description"] = description,
+            ["inLanguage"] = english ? "en" : "tr",
+            ["author"] = author,
+        }),
+    };
 }
 <!DOCTYPE html>
 <html lang="@(english ? "en" : "tr")">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>@(string.IsNullOrEmpty(title) ? "Casus" : title + " · Casus")</title>
-    <meta name="description" content="@T["meta.description"]" />
+    <title>@fullTitle</title>
+    <meta name="description" content="@description" />
+    @if (seoKey == null)
+    {
+        <meta name="robots" content="noindex" />
+    }
+    else
+    {
+        <link rel="canonical" href="@(english ? urlEn : urlTr)" />
+        <link rel="alternate" hreflang="tr" href="@urlTr" />
+        <link rel="alternate" hreflang="en" href="@urlEn" />
+        <link rel="alternate" hreflang="x-default" href="@urlTr" />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="Casus" />
+        <meta property="og:title" content="@fullTitle" />
+        <meta property="og:description" content="@description" />
+        <meta property="og:url" content="@(english ? urlEn : urlTr)" />
+        <meta property="og:image" content="@Seo.Image" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:locale" content="@(english ? "en_US" : "tr_TR")" />
+        <meta property="og:locale:alternate" content="@(english ? "tr_TR" : "en_US")" />
+        <meta name="twitter:card" content="summary_large_image" />
+        @* "!" keeps the script tag helper from encoding the + in the type *@
+        <!script type="application/ld+json">@Html.Raw(jsonLd)</!script>
+    }
     <meta name="color-scheme" content="dark light" />
     <link rel="icon" href="~/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="~/apple-touch-icon.png" />

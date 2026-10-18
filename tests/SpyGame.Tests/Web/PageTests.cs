@@ -19,7 +19,7 @@ public class PageTests(GameFactory factory) : IClassFixture<GameFactory>
 
         var html = await response.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
         // Every <script> must load a file; an inline one would be blocked by the policy anyway.
-        var inline = System.Text.RegularExpressions.Regex.Match(html, @"<script(?![^>]*\bsrc=)(?![^>]*application/json)[^>]*>");
+        var inline = System.Text.RegularExpressions.Regex.Match(html, @"<script(?![^>]*\bsrc=)(?![^>]*application/(ld\+)?json)[^>]*>");
         Assert.False(inline.Success, $"inline script: {inline.Value}");
     }
 

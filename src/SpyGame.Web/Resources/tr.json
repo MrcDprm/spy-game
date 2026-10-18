@@ -1,5 +1,8 @@
 {
   "meta.description": "Arkadaşlarınla telefondan oynanan casus oyunu: herkes aynı mekânı bilir, casus bilmez. Oda kur, kodu paylaş, aranızdaki casusu bul.",
+  "seo.home.title": "Casus oyunu online: arkadaşlarınla telefondan oyna (Spyfall)",
+  "seo.board.title": "Haftanın casusları: Casus oyunu haftalık sıralama",
+  "seo.board.description": "Casus oyununda bu hafta en çok puan toplayan oyuncular. Sıralama her pazartesi sıfırlanır; doğrulanmış hesabıyla oynayan herkes girebilir.",
   "nav.skip": "İçeriğe geç",
   "nav.language": "Switch to English",
   "nav.theme": "Temayı değiştir",
