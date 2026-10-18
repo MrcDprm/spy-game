@@ -33,7 +33,14 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
     options.DefaultRequestCulture = new RequestCulture("tr");
     options.SupportedCultures = cultures;
     options.SupportedUICultures = cultures;
-    options.RequestCultureProviders = [new CookieRequestCultureProvider(), new AcceptLanguageHeaderRequestCultureProvider()];
+    // ?lang=en gives every page an English address that search engines can index;
+    // without it the cookie, then the browser language decides.
+    options.RequestCultureProviders =
+    [
+        new QueryStringRequestCultureProvider { QueryStringKey = "lang", UIQueryStringKey = "lang" },
+        new CookieRequestCultureProvider(),
+        new AcceptLanguageHeaderRequestCultureProvider(),
+    ];
 });
 // Razor encodes everything outside Basic Latin by default ("ı" becomes &#x131;); <, >, & and quotes stay encoded.
 builder.Services.Configure<WebEncoderOptions>(options => options.TextEncoderSettings = new TextEncoderSettings(UnicodeRanges.All));
