@@ -7,11 +7,11 @@ public static class SecurityHeaders
     // Trusted Types make HTML-string sinks such as innerHTML throw in browsers that support them.
     private static string Csp(HttpContext http) =>
         "default-src 'none'; " +
-        "script-src 'self'; " +
+        "script-src 'self' https://nabiz.miracdeprem.com; " +
         "style-src 'self'; " +
         "font-src 'self'; " +
         "img-src 'self' data:; " +
-        $"connect-src 'self' {(http.Request.IsHttps ? "wss" : "ws")}://{http.Request.Host}; " +
+        $"connect-src 'self' {(http.Request.IsHttps ? "wss" : "ws")}://{http.Request.Host} https://nabiz.miracdeprem.com; " +
         "manifest-src 'self'; " +
         "form-action 'self'; " +
         "frame-ancestors 'none'; base-uri 'none'; object-src 'none'; " +

@@ -81,6 +81,8 @@
     <script src="~/js/theme.js" asp-append-version="true"></script>
     <script src="~/js/site.js" asp-append-version="true" defer></script>
     @await RenderSectionAsync("Head", required: false)
+    @* Room codes are masked so the public dashboard never shows a joinable code. *@
+    <script defer src="https://nabiz.miracdeprem.com/js/nabiz.js" data-site="spygame.miracdeprem.com" data-mask="/r/:code /join/:code"></script>
 </head>
 <body>
     <a class="skip-link" href="#main">@T["nav.skip"]</a>
