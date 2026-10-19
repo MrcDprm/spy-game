@@ -11,8 +11,9 @@ public class PageTests(GameFactory factory) : IClassFixture<GameFactory>
     {
         var response = await Client().GetAsync("/", TestContext.Current.CancellationToken);
         var csp = response.Headers.GetValues("Content-Security-Policy").Single();
-        Assert.Contains("script-src 'self';", csp);
-        Assert.Contains("connect-src 'self' wss://localhost;", csp); // only the game channel back home
+        Assert.Contains("script-src 'self' https://nabiz.miracdeprem.com;", csp);
+        // Only the game channel back home, plus the visitor counter.
+        Assert.Contains("connect-src 'self' wss://localhost https://nabiz.miracdeprem.com;", csp);
         Assert.Contains("frame-ancestors 'none'", csp);
         Assert.Contains("require-trusted-types-for 'script'", csp);
         Assert.Equal("nosniff", response.Headers.GetValues("X-Content-Type-Options").Single());
