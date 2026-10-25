@@ -142,13 +142,6 @@ tests/SpyGame.Tests/    Model, servis ve uçtan uca testler
 - **"Adil değil gibi" hissini ölçmek.** Bir arkadaşın sürekli ilk soran olduğu bir akşamdan sonra gerçek oyun motoruyla 100.000 tur oynattım: casus ve ilk soran herkes için %20 çıktı; kod adildi, o akşam sadece küçük bir örneklemdi. Casus tamamen rastgele kalıyor, ama ilk soru artık son iki turun ilk soranlarını atlıyor; aynı ölçüm bunun da herkes için eşit kaldığını gösteriyor.
 - **Bütünü test etmek.** Uçtan uca testler gerçek uygulamayı bellekte çalıştırıyor ve birkaç "tarayıcı" ile gerçek SignalR bağlantıları üzerinden turlar oynuyor; her birine gelen ham JSON'u kontrol ediyor.
 
-## Gelecek Planları
-
-- Odaya özel kelime listeleri
-- Seyirci modu
-- Birbirini tanıyan casuslar gibi farklı oyun modları
-- Uzaktan oynayan küçük gruplar için sesli sohbet (WebRTC)
-
 ## Katkılar
 
 - Yazı tipleri: [Archivo](https://github.com/Omnibus-Type/Archivo) ve [JetBrains Mono](https://github.com/JetBrains/JetBrainsMono) (SIL Open Font License), sitenin kendisinden sunulur
