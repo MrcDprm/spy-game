@@ -142,13 +142,6 @@ tests/SpyGame.Tests/    Model, service and end-to-end tests
 - **Measuring "it feels unfair".** After a game where one friend kept asking first, I played 100,000 rounds through the real engine: spies and first askers came out at 20% each, so the code was fair and the evening was just a small sample. The spy stays purely random, but the first question now skips the last two first askers, which the same measurement shows is still even for everyone.
 - **Testing the whole thing.** The end-to-end tests run the real app in memory and play rounds with several "browsers" over real SignalR connections, checking the raw JSON each one receives.
 
-## Future Plans
-
-- Custom word lists per room
-- A spectator mode
-- Other game modes, such as spies who know each other
-- Voice chat for small groups playing apart (WebRTC)
-
 ## Credits
 
 - Fonts: [Archivo](https://github.com/Omnibus-Type/Archivo) and [JetBrains Mono](https://github.com/JetBrains/JetBrainsMono) (SIL Open Font License), served from the site itself
