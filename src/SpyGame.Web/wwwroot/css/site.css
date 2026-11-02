@@ -401,6 +401,9 @@ input.code-input { font-family: "JetBrains Mono", monospace; font-size: 1.35rem;
 .footer-projects a:hover, .footer-meta a:hover { color: var(--accent-strong); text-decoration: underline; }
 .footer-projects a[aria-current="page"] { color: var(--ink); font-weight: 700; pointer-events: none; }
 .footer-meta { color: var(--ink-3); }
+.footer-social { display: inline-flex; align-items: center; gap: 0.4rem; }
+.footer-social svg { width: 1.15em; height: 1.15em; fill: none; stroke: currentColor; stroke-width: 1.8; }
+.footer-social .ig-dot { fill: currentColor; stroke: none; }
 
 @media (min-width: 640px) {
   .field-row { grid-template-columns: 1fr 1fr; }
