@@ -1,0 +1,41 @@
+# Casus (Oracle Cloud Always Free, Ubuntu). Caddy is in front; the app listens only on 127.0.0.1:8091.
+# Install as /etc/systemd/system/spygame.service, details in deploy/README.md.
+[Unit]
+Description=Casus party game
+After=network-online.target valkey-server.service
+Wants=network-online.target
+Requires=valkey-server.service
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/spygame
+ExecStart=/opt/spygame/SpyGame.Web
+Restart=always
+RestartSec=5
+
+# Secrets (DATABASE_URL, REDIS_URL, RESEND_API_KEY...) are in a file only root can read; not in the repo.
+EnvironmentFile=/etc/spygame/spygame.env
+Environment=ASPNETCORE_ENVIRONMENT=Production
+Environment=ASPNETCORE_URLS=http://127.0.0.1:8091
+Environment=DOTNET_gcServer=0
+Environment=DOTNET_NOLOGO=1
+
+# Hardening: a temporary user on every start, a read-only file system, no home folders or other processes.
+# Data protection keys and scores are in Neon, live rooms in Valkey; the app writes nothing to disk.
+DynamicUser=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+NoNewPrivileges=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+RestrictNamespaces=yes
+LockPersonality=yes
+CapabilityBoundingSet=
+# MemoryDenyWriteExecute stays off: the .NET JIT writes code at run time.
+
+[Install]
+WantedBy=multi-user.target

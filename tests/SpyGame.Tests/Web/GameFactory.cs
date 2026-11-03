@@ -2,7 +2,9 @@ using SpyGame.Tests.Models;
 using System.Net;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Http.Connections;
@@ -86,6 +88,7 @@ public sealed class GameFactory : WebApplicationFactory<Program>
             services.AddDbContext<AppDbContext>(o => o.UseSqlite(ConnectionString));
             services.RemoveAll<IEmailSender>();
             services.AddSingleton<IEmailSender>(Emails);
+            services.AddSingleton<IStartupFilter, TestAddressFilter>();
         });
     }
 
@@ -100,6 +103,27 @@ public sealed class GameFactory : WebApplicationFactory<Program>
     }
 
     public Browser NewBrowser(string ip) => new(this, ip);
+}
+
+/// <summary>
+/// The in-memory test server has no connection address. Before anything else in the pipeline, the
+/// address a test browser gives in <see cref="Header"/> becomes the connection address, as if the
+/// visitor had connected from there through Caddy.
+/// </summary>
+public sealed class TestAddressFilter : IStartupFilter
+{
+    public const string Header = "X-Test-Remote-Address";
+
+    public Action<IApplicationBuilder> Configure(Action<IApplicationBuilder> next) => app =>
+    {
+        app.Use((context, nextMiddleware) =>
+        {
+            if (IPAddress.TryParse(context.Request.Headers[Header].ToString(), out var address))
+                context.Connection.RemoteIpAddress = address;
+            return nextMiddleware(context);
+        });
+        next(app);
+    };
 }
 
 /// <summary>
@@ -183,7 +207,7 @@ public sealed partial class Browser(GameFactory factory, string ip)
         var request = new HttpRequestMessage(method, path);
         foreach (var (name, value) in Headers) request.Headers.TryAddWithoutValidation(name, value);
         if (_cookies.Count > 0) request.Headers.Add("Cookie", CookieHeader);
-        request.Headers.Add("CF-Connecting-IP", ip);
+        request.Headers.Add(TestAddressFilter.Header, ip);
         return request;
     }
 
