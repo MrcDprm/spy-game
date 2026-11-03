@@ -1,0 +1,9 @@
+# Site block added to /etc/caddy/Caddyfile (the same Caddy serves the other sites on the server).
+# Caddy gets the HTTPS certificate itself, ignores any X-Forwarded-For the visitor sends and writes the
+# address it sees; the app reads that for its rate limits. SignalR's WebSocket passes through as is.
+spygame.miracdeprem.com {
+	encode zstd gzip
+	# No header saying a proxy is in front (Caddy adds it while writing the response, so the removal is deferred).
+	header -Via
+	reverse_proxy 127.0.0.1:8091
+}

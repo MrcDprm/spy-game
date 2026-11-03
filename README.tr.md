@@ -62,12 +62,12 @@ Bu, 2025'te ASP.NET Core MVC ile ilk kez yazdığım bir oyunun yeniden yazımı
 
 - **Web:** ASP.NET Core MVC (Model, View, Controller), Razor görünümler, .NET 10
 - **Canlı güncellemeler:** SignalR. Hub sadece mesajları iletir; oyunun kuralları model katmanındadır.
-- **Canlı veri:** Redis (yerelde Upstash, canlıda Render Key Value): odalar, oturumlar, takma adlar, süreler ve haftalık sıralı kümeler
+- **Canlı veri:** Redis (yerelde Upstash, canlıda sunucudaki Valkey): odalar, oturumlar, takma adlar, süreler ve haftalık sıralı kümeler
 - **Kalıcı veri:** PostgreSQL (Neon) ve Entity Framework Core: hesaplar, puan geçmişi ve veri koruma anahtarları
 - **Hesaplar:** ASP.NET Core Identity, e-posta Resend ile
 - **Diğer kütüphaneler:** davet QR kodu için QRCoder ve SignalR'ın tarayıcı istemcisi
 - **Testler:** xUnit, 177 test; gerçek SignalR bağlantılarıyla oynanan tam turlar dahil
-- **Yayın:** Render üzerinde Docker
+- **Yayın:** Oracle Cloud sunucusu, önde Caddy, systemd servisi ([deploy/README.md](deploy/README.md))
 
 ## Kurulum ve Çalıştırma
 
@@ -120,7 +120,7 @@ tests/SpyGame.Tests/    Model, servis ve uçtan uca testler
 - **Kim kimdir:** oyuncunun kimliği bağlantı açılırken HttpOnly oturum çerezinden alınır, sayfanın sonradan gönderdiği hiçbir şeyden alınmaz. Kimse başkası adına oy veremez ya da tahmin yapamaz.
 - **Çerezler:** Redis'te oturumun sadece çerezin hash'i olarak saklanır.
 - **Oyun kanalı:** sadece bu sitenin sayfaları açabilir. Tarayıcılar WebSocket bağlantılarında da çerez gönderir ve CORS bunları kapsamaz.
-- **Sınırlar:** oda kurma, oda kodu deneme, hesap formları ve hub çağrıları sınırlıdır. Ziyaretçinin adresi Cloudflare'in `CF-Connecting-IP` başlığından alınır.
+- **Sınırlar:** oda kurma, oda kodu deneme, hesap formları ve hub çağrıları sınırlıdır. Ziyaretçinin adresi Caddy'nin gördüğü adrestir; iletilen başlıklara yalnızca aynı makinedeki Caddy'den gelince inanılır, bir test sahte başlıkların sınırı sıfırlamadığını denetler.
 - **Hesaplar:**
   - Şifreler hash'lenir; giriş için doğrulanmış e-posta gerekir; 5 yanlış şifreden sonra hesap kilitlenir.
   - Kayıt ve şifre sıfırlama, bir adresin kayıtlı olup olmadığını asla belli etmez.

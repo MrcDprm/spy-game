@@ -62,12 +62,12 @@ This is a rewrite of a game I first built in 2025 with ASP.NET Core MVC. That ve
 
 - **Web:** ASP.NET Core MVC (Models, Views, Controllers) with Razor views, on .NET 10
 - **Live updates:** SignalR. The hub only passes messages on; the game rules live in the model layer.
-- **Live data:** Redis (Upstash locally, Render Key Value in production) for rooms, sessions, nicknames, deadlines and the weekly sorted sets
+- **Live data:** Redis (Upstash locally, Valkey on the server in production) for rooms, sessions, nicknames, deadlines and the weekly sorted sets
 - **Lasting data:** PostgreSQL (Neon) with Entity Framework Core, for accounts, score history and data protection keys
 - **Accounts:** ASP.NET Core Identity, with e-mail through Resend
 - **Other libraries:** QRCoder for the invite QR code, and the SignalR browser client
 - **Tests:** xUnit, 177 tests, including whole rounds played over real SignalR connections
-- **Hosting:** Docker on Render
+- **Hosting:** Oracle Cloud server, Caddy in front, systemd service ([deploy/README.md](deploy/README.md))
 
 ## Installation
 
@@ -120,7 +120,7 @@ tests/SpyGame.Tests/    Model, service and end-to-end tests
 - **Who is who:** a player's identity comes from an HttpOnly session cookie when the connection opens, never from what the page sends, so nobody can vote or guess for someone else.
 - **Cookies:** sessions are stored in Redis only as a hash of the cookie.
 - **The game channel:** only pages of this site may open it. Browsers send cookies with WebSocket connections too, and CORS does not cover them.
-- **Limits:** creating rooms, trying room codes, account forms and hub calls are rate-limited. The visitor's address comes from Cloudflare's `CF-Connecting-IP` header.
+- **Limits:** creating rooms, trying room codes, account forms and hub calls are rate-limited. The visitor's address is the one Caddy sees; forwarded headers are believed only from Caddy on the same machine, and a test checks that forged ones do not reset the limit.
 - **Accounts:**
   - Hashed passwords, confirmed e-mail before logging in, and a lockout after 5 wrong passwords.
   - Sign-up and password reset never reveal whether an address is registered.

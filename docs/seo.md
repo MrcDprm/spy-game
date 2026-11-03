@@ -22,4 +22,4 @@ Only the home page and the weekly leaderboard are for search. Rooms, joining, ac
 
 ## Google Search Console
 
-The `miracdeprem.com` domain property covers this subdomain. Submit `https://spygame.miracdeprem.com/sitemap.xml` while the site is awake (Render free plan).
+The `miracdeprem.com` domain property covers this subdomain. Submit `https://spygame.miracdeprem.com/sitemap.xml`.
