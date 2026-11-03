@@ -251,4 +251,23 @@ public class RoomPageTests : IClassFixture<GameFactory>
         Assert.Equal(10, statuses.Count(s => s == HttpStatusCode.Redirect));
         Assert.Equal(HttpStatusCode.TooManyRequests, statuses[^1]);
     }
+
+    [Fact]
+    public async Task Forged_address_headers_do_not_reset_the_limit()
+    {
+        // Only Caddy on the same machine may set the visitor's address; a visitor elsewhere cannot.
+        var browser = _factory.NewBrowser("192.0.2.88");
+        var statuses = new List<HttpStatusCode>();
+        for (var i = 0; i < 11; i++)
+        {
+            browser.Headers["CF-Connecting-IP"] = $"203.0.113.{i + 1}";
+            browser.Headers["X-Forwarded-For"] = $"198.51.100.{i + 1}";
+            var response = await browser.SubmitAsync("/", "/rooms", new Dictionary<string, string>
+            {
+                ["Create.Nickname"] = "forge" + i, ["Create.RoundMinutes"] = "5", ["Create.SpyCount"] = "1",
+            }.Concat(Browser.PlaceFields(TestPlaces.Ten)).ToDictionary());
+            statuses.Add(response.StatusCode);
+        }
+        Assert.Equal(HttpStatusCode.TooManyRequests, statuses[^1]);
+    }
 }

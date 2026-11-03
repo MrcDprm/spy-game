@@ -159,14 +159,13 @@ builder.Services.AddRateLimiter(o =>
         _ => new FixedWindowRateLimiterOptions { PermitLimit = 30, Window = TimeSpan.FromMinutes(10) }));
 });
 
+// Caddy on the same machine terminates TLS and forwards plain HTTP. The forwarded headers are believed
+// only from the default known proxy, 127.0.0.1 (deploy/README.md).
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
-{
-    // Render terminates TLS at its proxy and forwards plain HTTP.
-    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
-    options.KnownIPNetworks.Clear();
-    options.KnownProxies.Clear();
-});
-builder.Services.AddHttpsRedirection(options => options.HttpsPort = 443); // behind Render's proxy
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto);
+builder.Services.AddHttpsRedirection(options => options.HttpsPort = 443); // behind Caddy
+// Responses do not say "Server: Kestrel".
+builder.WebHost.ConfigureKestrel(options => options.AddServerHeader = false);
 builder.Services.AddHsts(options => options.MaxAge = TimeSpan.FromDays(365));
 builder.Services.AddHealthChecks();
 
@@ -191,7 +190,7 @@ if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
     app.UseHsts();
-    // Render's health check calls the container over plain HTTP; a redirect would mark it down.
+    // A health check on the server itself calls plain HTTP; a redirect would mark it down.
     app.UseWhen(context => !context.Request.Path.StartsWithSegments("/healthz"), branch => branch.UseHttpsRedirection());
 }
 app.UseStatusCodePagesWithReExecute("/Error/{0}");
