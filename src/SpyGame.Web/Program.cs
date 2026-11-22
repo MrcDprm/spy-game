@@ -178,6 +178,9 @@ if (runtime < new Version(10, 0, 13))
 else
     app.Logger.LogInformation("ASP.NET Core runtime {Runtime}", runtime);
 
+// Read and check places.json now: a broken file stops the start, not the first page or round.
+app.Logger.LogInformation("{Places} places in {Groups} dossiers", WordBank.Groups.Sum(g => g.Words.Count), WordBank.Groups.Count);
+
 // Bring the database schema up to date at start-up (Postgres only; the tests build theirs).
 using (var scope = app.Services.CreateScope())
 {
