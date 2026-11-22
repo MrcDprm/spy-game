@@ -27,7 +27,7 @@ public class RoomEngineTests
     public void Settings_are_checked()
     {
         Assert.Null(new RoomSettings { PlaceIds = [.. TestPlaces.Ten] }.Problem());
-        Assert.Null(new RoomSettings { PlaceIds = TestPlaces.Of(102) }.Problem()); // every place of every dossier
+        Assert.Null(new RoomSettings { PlaceIds = TestPlaces.Of(202) }.Problem()); // every place of every dossier
         Assert.Equal("invalid_places", new RoomSettings { PlaceIds = [] }.Problem());
         Assert.Equal("invalid_places", new RoomSettings { PlaceIds = TestPlaces.Of(9) }.Problem()); // one short
         Assert.Equal("invalid_places", new RoomSettings { PlaceIds = [.. TestPlaces.Of(9), "nope"] }.Problem());
@@ -319,5 +319,117 @@ public class RoomEngineTests
         var after = RoomView.For(room, "p2", T0.AddHours(1));
         Assert.Equal(["p4"], after.Result!.SpyIds);
         Assert.Equal("p4", after.Result.Votes["p1"]);
+    }
+
+    [Fact]
+    public void A_civilian_sees_their_own_role_and_the_spy_sees_none()
+    {
+        var room = Started(spySlot: 3); // p4 is the spy, the place is Casino
+        var now = T0.AddMinutes(2);
+        var roles = Enumerable.Range(1, 3).Select(i => RoomView.For(room, $"p{i}", now).Card!.Role).ToList();
+        Assert.All(roles, r => Assert.Contains(r!, WordBank.RolesOf("casino")));
+        Assert.Equal(3, roles.Distinct().Count()); // four seats, seven roles: no two civilians share one
+        Assert.Null(RoomView.For(room, "p4", now).Card!.Role);
+        Assert.DoesNotContain(roles[1]!.En, Json(RoomView.For(room, "p1", now))); // p1 does not get p2's role
+    }
+
+    [Fact]
+    public void The_results_show_every_civilians_role_and_none_for_the_spy()
+    {
+        var room = Started(spySlot: 3);
+        var card = RoomView.For(room, "p2", T0.AddMinutes(2)).Card!;
+        RoomEngine.Tick(room, T0.AddHours(1));
+        var result = RoomView.For(room, "p1", T0.AddHours(1)).Result!;
+        Assert.Equal(["p1", "p2", "p3"], result.Roles.Keys.Order());
+        Assert.Equal(card.Role, result.Roles["p2"]);
+    }
+
+    // --- A spy naming the place during the questions ---
+
+    [Fact]
+    public void A_spy_can_stop_the_questions_and_name_the_place()
+    {
+        var room = Started(wordIndex: 4, spySlot: 3); // p4 is the spy, the place is Casino
+        Assert.Equal("not_a_spy", RoomEngine.RevealGuess(room, "p1", "casino", T0.AddMinutes(2)));
+        Assert.Equal("invalid_guess", RoomEngine.RevealGuess(room, "p4", "zoo", T0.AddMinutes(2))); // not a place of this room
+        Assert.Equal(Phase.Asking, room.Phase); // refused: nothing changed
+
+        Assert.Null(RoomEngine.RevealGuess(room, "p4", "casino", T0.AddMinutes(2)));
+        Assert.Equal(Phase.Results, room.Phase);
+        var outcome = room.Round!.Outcome!;
+        Assert.Equal(Team.Spies, outcome.Winner);
+        Assert.Equal("p4", outcome.RevealedId);
+        Assert.Null(outcome.AccusedId);
+        Assert.Equal([0, 0, 0, Scoring.SpyWin + Scoring.SpyGuessBonus], room.Players.Select(p => p.Score));
+
+        var result = RoomView.For(room, "p1", T0.AddMinutes(2)).Result!;
+        Assert.Equal("p4", result.RevealedId);
+        Assert.True(result.SpyGuessed);
+        Assert.Equal("casino", result.Guess!.Id);
+        Assert.Empty(result.Votes);
+    }
+
+    [Fact]
+    public void A_spy_who_names_the_wrong_place_hands_the_round_to_the_civilians()
+    {
+        var room = Started(wordIndex: 4, spySlot: 3);
+        Assert.Null(RoomEngine.RevealGuess(room, "p4", "beach", T0.AddMinutes(2)));
+        Assert.Equal(Team.Civilians, room.Round!.Outcome!.Winner);
+        Assert.False(room.Round.Outcome.SpyGuessedWord);
+        Assert.Equal([1, 1, 1, 0], room.Players.Select(p => p.Score));
+        Assert.Equal("wrong_phase", RoomEngine.RevealGuess(room, "p4", "casino", T0.AddMinutes(3))); // only once
+    }
+
+    [Fact]
+    public void The_place_can_be_named_only_during_the_questions_and_only_by_someone_in_the_round()
+    {
+        Assert.Equal("wrong_phase", RoomEngine.RevealGuess(NewRoom(), "p1", "casino", T0)); // lobby
+
+        var late = Started(spySlot: 3);
+        Assert.Null(RoomEngine.Join(late, "p5", "late", T0.AddMinutes(2)));
+        Assert.Equal("not_in_round", RoomEngine.RevealGuess(late, "p5", "casino", T0.AddMinutes(2)));
+
+        var voting = Started(spySlot: 3);
+        RoomEngine.Tick(voting, T0.AddMinutes(6)); // the questions are over
+        Assert.Equal(Phase.Voting, voting.Phase);
+        Assert.Equal("wrong_phase", RoomEngine.RevealGuess(voting, "p4", "casino", T0.AddMinutes(6)));
+    }
+
+    [Fact]
+    public void With_two_spies_either_can_name_the_place_and_both_win()
+    {
+        var room = NewRoom(players: 6, spies: 2);
+        // Spy draws: slot 0 swaps with 5 (p6), slot 1 swaps with 1 + 3 = 4 (p5).
+        Assert.Null(RoomEngine.StartRound(room, "p1", T0.AddMinutes(1), new FixedRandom(4, 5, 3, 0)));
+        Assert.Equal(["p6", "p5"], room.Round!.Deal.SpyIds);
+        Assert.Null(RoomEngine.RevealGuess(room, "p5", "casino", T0.AddMinutes(2)));
+        var points = room.Round.Points!;
+        Assert.Equal(Scoring.SpyWin + Scoring.SpyGuessBonus, points["p5"]);
+        Assert.Equal(Scoring.SpyWin, points["p6"]);
+        Assert.All(new[] { "p1", "p2", "p3", "p4" }, id => Assert.Equal(0, points[id]));
+    }
+
+    // --- How often each player has been the spy ---
+
+    [Fact]
+    public void Spy_counts_go_up_only_when_a_round_ends()
+    {
+        var room = Started(spySlot: 3); // p4 is the spy
+        var during = RoomView.For(room, "p1", T0.AddMinutes(2));
+        Assert.All(during.Players, p => Assert.Equal((0, 0), (p.Rounds, p.SpyRounds))); // nothing to read during the round
+
+        RoomEngine.Tick(room, T0.AddHours(1));
+        var after = RoomView.For(room, "p1", T0.AddHours(1)).Players.ToDictionary(p => p.Id);
+        Assert.Equal((1, 1), (after["p4"].Rounds, after["p4"].SpyRounds));
+        Assert.Equal((1, 0), (after["p1"].Rounds, after["p1"].SpyRounds));
+
+        // A newcomer starts from zero and counts only the rounds they play.
+        Assert.Null(RoomEngine.Join(room, "p5", "late", T0.AddHours(1)));
+        Assert.Null(RoomEngine.StartRound(room, "p1", T0.AddHours(2), new FixedRandom(0, 4, 0))); // p5 is the spy
+        RoomEngine.Tick(room, T0.AddHours(3));
+        var later = room.Players.ToDictionary(p => p.Id);
+        Assert.Equal((1, 1), (later["p5"].Rounds, later["p5"].SpyRounds));
+        Assert.Equal((2, 1), (later["p4"].Rounds, later["p4"].SpyRounds));
+        Assert.Equal((2, 0), (later["p1"].Rounds, later["p1"].SpyRounds));
     }
 }

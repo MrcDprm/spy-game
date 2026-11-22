@@ -9,12 +9,12 @@ Only the home page and the weekly leaderboard are for search. Rooms, joining, ac
 | Type | Turkish | English |
 |---|---|---|
 | General | casus oyunu, online parti oyunu, arkadaşlarla oynanacak oyunlar | spy game, online party game, games to play with friends |
-| Specific | casus oyunu online, spyfall Türkçe, casus kim oyunu, telefondan oynanan grup oyunu | spyfall online, who is the spy game, party game on phones, spy word game |
+| Specific | casus oyunu online, spyfall Türkçe, casus kim oyunu, telefondan oynanan grup oyunu, rollü casus oyunu, casus oyunu mekanları | spyfall online, who is the spy game, party game on phones, spy word game, spy game with roles, spyfall locations |
 | Long | arkadaşlarla telefondan oynanan ücretsiz oyun, kalabalık grup oyunu online | free party game to play with friends on phones |
 
 ## Where they are used
 
-- `<title>` "Casus oyunu online: arkadaşlarınla telefondan oyna (Spyfall)" and the leaderboard title; meta description per page
+- `<title>` "Casus oyunu online: arkadaşlarınla telefondan oyna (Spyfall)" and the leaderboard title; meta description per page. Since the roles update the home page description also names the roles and the 202 places.
 - Canonical + `hreflang` (tr, en, x-default); `?lang=en` wins over the cookie
 - Open Graph and Twitter card with `/og-image.png`
 - JSON-LD `VideoGame` (party game, multiplayer, free) on the home page, `WebPage` on the leaderboard

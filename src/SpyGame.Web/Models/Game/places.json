@@ -1,0 +1,1860 @@
+[
+  {
+    "group": 1,
+    "places": [
+      { "id": "plane", "tr": "Uçak", "en": "Plane", "roles": [
+        ["Pilot", "Pilot"],
+        ["Kabin memuru", "Flight attendant"],
+        ["Cam kenarı yolcusu", "Window seat passenger"],
+        ["Bebekli yolcu", "Passenger with a baby"],
+        ["İş insanı", "Business traveller"],
+        ["İlk kez uçan yolcu", "First-time flyer"],
+        ["Koltuğunu geri yatıran yolcu", "Passenger who reclines their seat"]
+      ] },
+      { "id": "bank", "tr": "Banka", "en": "Bank", "roles": [
+        ["Veznedar", "Bank teller"],
+        ["Şube müdürü", "Branch manager"],
+        ["Kredi isteyen müşteri", "Customer asking for a loan"],
+        ["Maaş çeken emekli", "Pensioner collecting their pension"],
+        ["Güvenlik görevlisi", "Security guard"],
+        ["Sıra numarası bekleyen öğrenci", "Student waiting for their number"],
+        ["Para nakil görevlisi", "Cash transport guard"]
+      ] },
+      { "id": "beach", "tr": "Kumsal", "en": "Beach", "roles": [
+        ["Cankurtaran", "Lifeguard"],
+        ["Güneşlenen turist", "Sunbathing tourist"],
+        ["Mısır satan seyyar", "Corn seller"],
+        ["Kumdan kale yapan çocuk", "Child building a sandcastle"],
+        ["Plaj voleybolcusu", "Beach volleyball player"],
+        ["Şezlong görevlisi", "Sunbed attendant"],
+        ["Şemsiyesini unutan aile", "Family who forgot the umbrella"]
+      ] },
+      { "id": "theatre", "tr": "Tiyatro", "en": "Theatre", "roles": [
+        ["Başrol oyuncusu", "Lead actor"],
+        ["Suflör", "Prompter"],
+        ["Yönetmen", "Director"],
+        ["Işıkçı", "Lighting technician"],
+        ["Ön sıradaki seyirci", "Front-row spectator"],
+        ["Yer gösterici", "Usher"],
+        ["Kostümcü", "Costume designer"]
+      ] },
+      { "id": "casino", "tr": "Kumarhane", "en": "Casino", "roles": [
+        ["Krupiye", "Croupier"],
+        ["Kart sayan oyuncu", "Card counter"],
+        ["Güvenlik şefi", "Head of security"],
+        ["Şansını deneyen turist", "Tourist trying their luck"],
+        ["Slot makinesi müdavimi", "Slot machine regular"],
+        ["Barmen", "Bartender"],
+        ["Kasiyer", "Cashier"]
+      ] },
+      { "id": "cathedral", "tr": "Katedral", "en": "Cathedral", "roles": [
+        ["Rahip", "Priest"],
+        ["Koro şarkıcısı", "Choir singer"],
+        ["Turist rehberi", "Tour guide"],
+        ["Fotoğraf çeken turist", "Tourist taking photos"],
+        ["Org çalan müzisyen", "Organist"],
+        ["Restorasyon ustası", "Restoration craftsman"],
+        ["Mum yakan ziyaretçi", "Visitor lighting a candle"]
+      ] },
+      { "id": "circus-tent", "tr": "Sirk Çadırı", "en": "Circus Tent", "roles": [
+        ["Palyaço", "Clown"],
+        ["Akrobat", "Acrobat"],
+        ["Hokkabaz", "Juggler"],
+        ["Aslan terbiyecisi", "Lion tamer"],
+        ["Sunucu", "Ringmaster"],
+        ["Pamuk şekerci", "Candy floss seller"],
+        ["Ön sıradaki çocuk", "Child in the front row"]
+      ] },
+      { "id": "office-party", "tr": "İş Partisi", "en": "Office Party", "roles": [
+        ["Genel müdür", "Managing director"],
+        ["Stajyer", "Intern"],
+        ["Muhasebeci", "Accountant"],
+        ["Karaoke yapan çalışan", "Employee doing karaoke"],
+        ["Yeni işe başlayan", "New starter"],
+        ["Organizasyoncu", "Event planner"],
+        ["Garson", "Waiter"]
+      ] },
+      { "id": "crusader-army", "tr": "Haçlı Ordusu", "en": "Crusader Army", "roles": [
+        ["Şövalye", "Knight"],
+        ["Okçu", "Archer"],
+        ["Silahtar", "Squire"],
+        ["Kamp aşçısı", "Camp cook"],
+        ["Demirci", "Blacksmith"],
+        ["Haberci", "Messenger"],
+        ["Seyyar tüccar", "Travelling merchant"]
+      ] },
+      { "id": "day-spa", "tr": "Spa", "en": "Day Spa", "roles": [
+        ["Masör", "Massage therapist"],
+        ["Cilt bakım uzmanı", "Beautician"],
+        ["Resepsiyonist", "Receptionist"],
+        ["Bornozlu müşteri", "Guest in a bathrobe"],
+        ["Saunada terleyen", "Person sweating in the sauna"],
+        ["Manikürcü", "Manicurist"],
+        ["Bitki çayı ikram eden", "Herbal tea server"]
+      ] },
+      { "id": "embassy", "tr": "Büyükelçilik", "en": "Embassy", "roles": [
+        ["Büyükelçi", "Ambassador"],
+        ["Konsolos", "Consul"],
+        ["Vize başvurusu yapan", "Visa applicant"],
+        ["Tercüman", "Interpreter"],
+        ["Güvenlik görevlisi", "Security guard"],
+        ["Diplomat", "Diplomat"],
+        ["Pasaportunu kaybeden turist", "Tourist who lost their passport"]
+      ] },
+      { "id": "hospital", "tr": "Hastane", "en": "Hospital", "roles": [
+        ["Doktor", "Doctor"],
+        ["Hemşire", "Nurse"],
+        ["Hasta", "Patient"],
+        ["Hasta yakını", "Patient's relative"],
+        ["Stajyer doktor", "Junior doctor"],
+        ["Güvenlik görevlisi", "Security guard"],
+        ["Temizlik görevlisi", "Cleaner"]
+      ] },
+      { "id": "hotel", "tr": "Otel", "en": "Hotel", "roles": [
+        ["Resepsiyonist", "Receptionist"],
+        ["Kat görevlisi", "Housekeeper"],
+        ["Bellboy", "Bellhop"],
+        ["Balayı çifti", "Honeymoon couple"],
+        ["Otel müdürü", "Hotel manager"],
+        ["Şikayetçi müşteri", "Guest with a complaint"],
+        ["Aşçı", "Chef"]
+      ] },
+      { "id": "military-base", "tr": "Askeri Üs", "en": "Military Base", "roles": [
+        ["Komutan", "Commander"],
+        ["Er", "Private"],
+        ["Nöbetçi", "Sentry"],
+        ["Aşçı er", "Army cook"],
+        ["Pilot", "Pilot"],
+        ["Telsizci", "Radio operator"],
+        ["Revir doktoru", "Base doctor"]
+      ] },
+      { "id": "film-studio", "tr": "Film Stüdyosu", "en": "Film Studio", "roles": [
+        ["Yönetmen", "Director"],
+        ["Başrol oyuncusu", "Lead actor"],
+        ["Dublör", "Stunt double"],
+        ["Kameraman", "Camera operator"],
+        ["Makyöz", "Make-up artist"],
+        ["Figüran", "Extra"],
+        ["Senarist", "Screenwriter"]
+      ] },
+      { "id": "ocean-liner", "tr": "Yolcu Gemisi", "en": "Ocean Liner", "roles": [
+        ["Kaptan", "Captain"],
+        ["Garson", "Waiter"],
+        ["Gezi rehberi", "Excursion guide"],
+        ["Emekli turist", "Retired tourist"],
+        ["Gemi doktoru", "Ship's doctor"],
+        ["Animatör", "Entertainer"],
+        ["Makine dairesi çalışanı", "Engine room worker"]
+      ] },
+      { "id": "passenger-train", "tr": "Yolcu Treni", "en": "Passenger Train", "roles": [
+        ["Makinist", "Train driver"],
+        ["Kondüktör", "Conductor"],
+        ["Yemekli vagon garsonu", "Dining car waiter"],
+        ["Yataklı vagon yolcusu", "Sleeper car passenger"],
+        ["Manzara izleyen yolcu", "Passenger watching the view"],
+        ["Bavulunu arayan yolcu", "Passenger looking for their suitcase"],
+        ["Öğrenci", "Student"]
+      ] },
+      { "id": "pirate-ship", "tr": "Korsan Gemisi", "en": "Pirate Ship", "roles": [
+        ["Korsan kaptan", "Pirate captain"],
+        ["Tayfa", "Deckhand"],
+        ["Gözcü", "Lookout"],
+        ["Topçu", "Gunner"],
+        ["Esir", "Prisoner"],
+        ["Gemi aşçısı", "Ship's cook"],
+        ["Hazine haritası çizen", "Treasure map maker"]
+      ] },
+      { "id": "polar-station", "tr": "Kutup Araştırma Merkezi", "en": "Polar Research Station", "roles": [
+        ["Buzul bilimci", "Glaciologist"],
+        ["Meteorolog", "Meteorologist"],
+        ["İstasyon şefi", "Station chief"],
+        ["Aşçı", "Cook"],
+        ["Kızak köpeği bakıcısı", "Sled dog handler"],
+        ["Telsizci", "Radio operator"],
+        ["Belgesel çekimcisi", "Documentary maker"]
+      ] },
+      { "id": "police-station", "tr": "Polis Merkezi", "en": "Police Station", "roles": [
+        ["Komiser", "Inspector"],
+        ["Devriye polisi", "Patrol officer"],
+        ["Şikayetçi vatandaş", "Citizen making a complaint"],
+        ["Şüpheli", "Suspect"],
+        ["Avukat", "Lawyer"],
+        ["Nöbetçi memur", "Desk officer"],
+        ["Kayıp kedisini arayan", "Person looking for their lost cat"]
+      ] },
+      { "id": "restaurant", "tr": "Restoran", "en": "Restaurant", "roles": [
+        ["Şef", "Head chef"],
+        ["Garson", "Waiter"],
+        ["Bulaşıkçı", "Dishwasher"],
+        ["Rezervasyonlu çift", "Couple with a booking"],
+        ["Yemek eleştirmeni", "Food critic"],
+        ["Doğum günü kutlayan", "Person celebrating a birthday"],
+        ["Kasiyer", "Cashier"]
+      ] },
+      { "id": "school", "tr": "Okul", "en": "School", "roles": [
+        ["Öğretmen", "Teacher"],
+        ["Müdür", "Headteacher"],
+        ["Öğrenci", "Pupil"],
+        ["Kantinci", "Canteen keeper"],
+        ["Hademe", "Caretaker"],
+        ["Veli", "Parent"],
+        ["Nöbetçi öğrenci", "Pupil on duty"]
+      ] },
+      { "id": "car-repair-shop", "tr": "Araba Tamircisi", "en": "Car Repair Shop", "roles": [
+        ["Usta", "Master mechanic"],
+        ["Çırak", "Apprentice"],
+        ["Arabası bozulan müşteri", "Customer whose car broke down"],
+        ["Kaportacı", "Panel beater"],
+        ["Boyacı", "Car painter"],
+        ["Yedek parçacı", "Spare parts dealer"],
+        ["Çaycı", "Tea server"]
+      ] },
+      { "id": "space-station", "tr": "Uzay İstasyonu", "en": "Space Station", "roles": [
+        ["Komutan", "Commander"],
+        ["Mühendis", "Engineer"],
+        ["Uzay turisti", "Space tourist"],
+        ["Biyolog", "Biologist"],
+        ["Doktor", "Doctor"],
+        ["Robot kol operatörü", "Robotic arm operator"],
+        ["Uzay yürüyüşçüsü", "Spacewalker"]
+      ] },
+      { "id": "submarine", "tr": "Denizaltı", "en": "Submarine", "roles": [
+        ["Kaptan", "Captain"],
+        ["Sonar operatörü", "Sonar operator"],
+        ["Torpido subayı", "Torpedo officer"],
+        ["Aşçı", "Cook"],
+        ["Makine subayı", "Engineering officer"],
+        ["Periskop nöbetçisi", "Periscope watch"],
+        ["Acemi denizci", "New sailor"]
+      ] },
+      { "id": "supermarket", "tr": "Süpermarket", "en": "Supermarket", "roles": [
+        ["Kasiyer", "Cashier"],
+        ["Reyon görevlisi", "Shelf stacker"],
+        ["Market müdürü", "Store manager"],
+        ["İndirim avcısı", "Bargain hunter"],
+        ["Tadım standı görevlisi", "Free sample host"],
+        ["Annesini kaybeden çocuk", "Child who lost their mum"],
+        ["Güvenlik görevlisi", "Security guard"]
+      ] },
+      { "id": "university", "tr": "Üniversite", "en": "University", "roles": [
+        ["Profesör", "Professor"],
+        ["Araştırma görevlisi", "Research assistant"],
+        ["Birinci sınıf öğrencisi", "First-year student"],
+        ["Mezun olamayan öğrenci", "Student who keeps failing to graduate"],
+        ["Kütüphaneci", "Librarian"],
+        ["Dekan", "Dean"],
+        ["Kantin işletmecisi", "Cafeteria owner"]
+      ] }
+    ]
+  },
+  {
+    "group": 2,
+    "places": [
+      { "id": "amusement-park", "tr": "Lunapark", "en": "Amusement Park", "roles": [
+        ["Gişe görevlisi", "Ticket seller"],
+        ["Hız treni operatörü", "Roller coaster operator"],
+        ["Pamuk şekerci", "Candy floss seller"],
+        ["Ödül kazanmaya çalışan genç", "Teenager trying to win a prize"],
+        ["Korkan çocuk", "Scared child"],
+        ["Bakım teknisyeni", "Maintenance technician"],
+        ["Kostümlü maskot", "Costumed mascot"]
+      ] },
+      { "id": "art-museum", "tr": "Sanat Müzesi", "en": "Art Museum", "roles": [
+        ["Küratör", "Curator"],
+        ["Müze rehberi", "Museum guide"],
+        ["Güvenlik görevlisi", "Security guard"],
+        ["Resim öğrencisi", "Art student"],
+        ["Restoratör", "Restorer"],
+        ["Sanat eleştirmeni", "Art critic"],
+        ["Okul gezisindeki çocuk", "Child on a school trip"]
+      ] },
+      { "id": "sweet-factory", "tr": "Şeker Fabrikası", "en": "Sweet Factory", "roles": [
+        ["Fabrika sahibi", "Factory owner"],
+        ["Bant işçisi", "Conveyor belt worker"],
+        ["Tadımcı", "Taster"],
+        ["Kalite kontrolcü", "Quality inspector"],
+        ["Paketleme işçisi", "Packer"],
+        ["Fabrika turundaki çocuk", "Child on a factory tour"],
+        ["Forklift şoförü", "Forklift driver"]
+      ] },
+      { "id": "cat-show", "tr": "Kedi Şovu", "en": "Cat Show", "roles": [
+        ["Jüri üyesi", "Judge"],
+        ["Kedi sahibi", "Cat owner"],
+        ["Kedi kuaförü", "Cat groomer"],
+        ["Veteriner", "Vet"],
+        ["Sunucu", "Host"],
+        ["Mama firması temsilcisi", "Pet food rep"],
+        ["Kedi alerjisi olan ziyaretçi", "Visitor allergic to cats"]
+      ] },
+      { "id": "cemetery", "tr": "Mezarlık", "en": "Cemetery", "roles": [
+        ["Mezarlık bekçisi", "Cemetery keeper"],
+        ["Mezar kazıcı", "Gravedigger"],
+        ["Ziyaretçi", "Visitor"],
+        ["Taş ustası", "Stonemason"],
+        ["Cenaze görevlisi", "Funeral director"],
+        ["Çiçek satıcısı", "Flower seller"],
+        ["Bahçıvan", "Gardener"]
+      ] },
+      { "id": "coal-mine", "tr": "Kömür Madeni", "en": "Coal Mine", "roles": [
+        ["Maden mühendisi", "Mining engineer"],
+        ["Madenci", "Miner"],
+        ["Vardiya amiri", "Shift supervisor"],
+        ["İş güvenliği uzmanı", "Safety officer"],
+        ["Asansör operatörü", "Lift operator"],
+        ["Kurtarma ekibi üyesi", "Rescue team member"],
+        ["Stajyer mühendis", "Trainee engineer"]
+      ] },
+      { "id": "building-site", "tr": "İnşaat Alanı", "en": "Building Site", "roles": [
+        ["Şantiye şefi", "Site manager"],
+        ["Vinç operatörü", "Crane operator"],
+        ["Duvar ustası", "Bricklayer"],
+        ["Mimar", "Architect"],
+        ["Kalfa", "Labourer"],
+        ["Belediye denetçisi", "Council inspector"],
+        ["Çaycı", "Tea server"]
+      ] },
+      { "id": "gaming-convention", "tr": "Oyun Fuarı", "en": "Gaming Convention", "roles": [
+        ["Oyun geliştirici", "Game developer"],
+        ["Yayıncı", "Streamer"],
+        ["Kostümlü hayran", "Cosplayer"],
+        ["Turnuva oyuncusu", "Tournament player"],
+        ["Stand görevlisi", "Booth staff"],
+        ["Oyun gazetecisi", "Games journalist"],
+        ["Sırada bekleyen çocuk", "Kid waiting in line"]
+      ] },
+      { "id": "petrol-station", "tr": "Benzin İstasyonu", "en": "Petrol Station", "roles": [
+        ["Pompacı", "Pump attendant"],
+        ["Kasiyer", "Cashier"],
+        ["Kamyon şoförü", "Lorry driver"],
+        ["Yol soran turist", "Tourist asking for directions"],
+        ["Market görevlisi", "Shop assistant"],
+        ["Araç yıkayan", "Car washer"],
+        ["Motosikletli kurye", "Motorbike courier"]
+      ] },
+      { "id": "harbour", "tr": "Liman", "en": "Harbour", "roles": [
+        ["Liman başkanı", "Harbour master"],
+        ["Vinç operatörü", "Crane operator"],
+        ["Gümrük memuru", "Customs officer"],
+        ["Ağ tamir eden balıkçı", "Fisherman mending nets"],
+        ["Kaptan", "Ship captain"],
+        ["Liman işçisi", "Dock worker"],
+        ["Konteyner sayan memur", "Clerk counting containers"]
+      ] },
+      { "id": "ice-hockey-arena", "tr": "Buz Hokeyi Stadı", "en": "Ice Hockey Arena", "roles": [
+        ["Kaleci", "Goalkeeper"],
+        ["Hakem", "Referee"],
+        ["Antrenör", "Coach"],
+        ["Buz temizleme aracı sürücüsü", "Ice resurfacer driver"],
+        ["Taraftar", "Fan"],
+        ["Maskot", "Mascot"],
+        ["Spor muhabiri", "Sports reporter"]
+      ] },
+      { "id": "prison", "tr": "Hapishane", "en": "Prison", "roles": [
+        ["Gardiyan", "Prison guard"],
+        ["Cezaevi müdürü", "Prison governor"],
+        ["Mahkum", "Inmate"],
+        ["Avukat", "Lawyer"],
+        ["Ziyaretçi", "Visitor"],
+        ["Revir doktoru", "Prison doctor"],
+        ["Kaçış planlayan mahkum", "Inmate planning an escape"]
+      ] },
+      { "id": "jazz-club", "tr": "Caz Kulübü", "en": "Jazz Club", "roles": [
+        ["Saksofoncu", "Saxophonist"],
+        ["Şarkıcı", "Singer"],
+        ["Barmen", "Bartender"],
+        ["Kulüp sahibi", "Club owner"],
+        ["Müzik eleştirmeni", "Music critic"],
+        ["Kapı görevlisi", "Doorman"],
+        ["Sahneye çıkmak isteyen amatör", "Amateur hoping to get on stage"]
+      ] },
+      { "id": "library", "tr": "Kütüphane", "en": "Library", "roles": [
+        ["Kütüphaneci", "Librarian"],
+        ["Sınava çalışan öğrenci", "Student revising for an exam"],
+        ["Gazete okuyan emekli", "Pensioner reading the paper"],
+        ["Araştırmacı", "Researcher"],
+        ["Masal saatindeki çocuk", "Child at story time"],
+        ["Gecikmiş kitabı getiren", "Person returning an overdue book"],
+        ["Sessizlik isteyen görevli", "Staff member asking for silence"]
+      ] },
+      { "id": "nightclub", "tr": "Gece Kulübü", "en": "Nightclub", "roles": [
+        ["DJ", "DJ"],
+        ["Kapı görevlisi", "Bouncer"],
+        ["Barmen", "Bartender"],
+        ["Dans eden genç", "Young dancer"],
+        ["Doğum günü kutlayan", "Birthday guest"],
+        ["Vestiyerci", "Cloakroom attendant"],
+        ["Işık operatörü", "Lighting operator"]
+      ] },
+      { "id": "race-track", "tr": "Yarış Pisti", "en": "Race Track", "roles": [
+        ["Yarış pilotu", "Racing driver"],
+        ["Pit ekibi üyesi", "Pit crew member"],
+        ["Takım patronu", "Team boss"],
+        ["Spiker", "Commentator"],
+        ["Bayrak görevlisi", "Flag marshal"],
+        ["Tribündeki seyirci", "Spectator in the stands"],
+        ["Lastik mühendisi", "Tyre engineer"]
+      ] },
+      { "id": "retirement-home", "tr": "Huzurevi", "en": "Retirement Home", "roles": [
+        ["Hemşire", "Nurse"],
+        ["Bakıcı", "Carer"],
+        ["Tavla oynayan dede", "Grandad playing backgammon"],
+        ["Örgü ören nine", "Gran knitting"],
+        ["Ziyarete gelen torun", "Visiting grandchild"],
+        ["Fizyoterapist", "Physiotherapist"],
+        ["Müdür", "Manager"]
+      ] },
+      { "id": "rock-concert", "tr": "Rock Konseri", "en": "Rock Concert", "roles": [
+        ["Solist", "Lead singer"],
+        ["Gitarist", "Guitarist"],
+        ["Davulcu", "Drummer"],
+        ["Ses teknisyeni", "Sound technician"],
+        ["Ön sıradaki hayran", "Fan in the front row"],
+        ["Güvenlik görevlisi", "Security guard"],
+        ["Tişört satıcısı", "T-shirt seller"]
+      ] },
+      { "id": "sightseeing-bus", "tr": "Gezi Otobüsü", "en": "Sightseeing Bus", "roles": [
+        ["Rehber", "Tour guide"],
+        ["Şoför", "Driver"],
+        ["Fotoğraf çeken turist", "Tourist taking photos"],
+        ["Haritaya bakan çift", "Couple reading a map"],
+        ["Uyuyakalan yolcu", "Passenger who fell asleep"],
+        ["Sınıfıyla gezen öğretmen", "Teacher with a class"],
+        ["Kulaklıkla dinleyen yolcu", "Passenger listening on headphones"]
+      ] },
+      { "id": "stadium", "tr": "Stadyum", "en": "Stadium", "roles": [
+        ["Futbolcu", "Footballer"],
+        ["Teknik direktör", "Manager"],
+        ["Hakem", "Referee"],
+        ["Taraftar", "Fan"],
+        ["Çekirdekçi", "Sunflower seed seller"],
+        ["Spiker", "Commentator"],
+        ["Saha görevlisi", "Groundsman"]
+      ] },
+      { "id": "underground", "tr": "Metro", "en": "Underground", "roles": [
+        ["Vatman", "Train driver"],
+        ["Güvenlik görevlisi", "Security guard"],
+        ["İşe yetişmeye çalışan", "Commuter running late"],
+        ["Sokak müzisyeni", "Busker"],
+        ["Turnike görevlisi", "Ticket gate attendant"],
+        ["Kitap okuyan yolcu", "Passenger reading a book"],
+        ["Turist", "Tourist"]
+      ] },
+      { "id": "united-nations", "tr": "B.M.", "en": "The UN", "roles": [
+        ["Genel sekreter", "Secretary-General"],
+        ["Delege", "Delegate"],
+        ["Simultane tercüman", "Simultaneous interpreter"],
+        ["Muhabir", "Reporter"],
+        ["Güvenlik görevlisi", "Security guard"],
+        ["Stajyer", "Intern"],
+        ["İyi niyet elçisi", "Goodwill ambassador"]
+      ] },
+      { "id": "vineyard", "tr": "Üzüm Bağı", "en": "Vineyard", "roles": [
+        ["Bağ sahibi", "Vineyard owner"],
+        ["Üzüm toplayıcı", "Grape picker"],
+        ["Şarap uzmanı", "Wine expert"],
+        ["Tadım turundaki turist", "Tourist on a tasting tour"],
+        ["Traktör şoförü", "Tractor driver"],
+        ["Fıçı ustası", "Cooper"],
+        ["Bağ bekçisi", "Vineyard watchman"]
+      ] },
+      { "id": "wedding", "tr": "Düğün", "en": "Wedding", "roles": [
+        ["Gelin", "Bride"],
+        ["Damat", "Groom"],
+        ["Nikah memuru", "Registrar"],
+        ["Takı takan akraba", "Relative pinning gold on the couple"],
+        ["Orkestra şefi", "Band leader"],
+        ["Fotoğrafçı", "Photographer"],
+        ["Halay başı", "Head of the halay line"]
+      ] },
+      { "id": "zoo", "tr": "Hayvanat Bahçesi", "en": "Zoo", "roles": [
+        ["Bakıcı", "Zookeeper"],
+        ["Veteriner", "Vet"],
+        ["Okul gezisindeki çocuk", "Child on a school trip"],
+        ["Fotoğrafçı", "Photographer"],
+        ["Bilet görevlisi", "Ticket seller"],
+        ["Hayvan davranış uzmanı", "Animal behaviourist"],
+        ["Maymunlara yem atan ziyaretçi", "Visitor feeding the monkeys"]
+      ] }
+    ]
+  },
+  {
+    "group": 3,
+    "places": [
+      { "id": "swimming-pool", "tr": "Yüzme Havuzu", "en": "Swimming Pool", "roles": [
+        ["Cankurtaran", "Lifeguard"],
+        ["Yüzme antrenörü", "Swimming coach"],
+        ["Yüzme öğrenen çocuk", "Child learning to swim"],
+        ["Atlama kulesindeki sporcu", "Diver on the high board"],
+        ["Havlu dağıtan görevli", "Towel attendant"],
+        ["Kulvar sporcusu", "Lane swimmer"],
+        ["Bonesini unutan yüzücü", "Swimmer who forgot their cap"]
+      ] },
+      { "id": "gym", "tr": "Spor Salonu", "en": "Gym", "roles": [
+        ["Kişisel antrenör", "Personal trainer"],
+        ["Vücut geliştirici", "Bodybuilder"],
+        ["Yeni üye", "New member"],
+        ["Resepsiyonist", "Receptionist"],
+        ["Pilates hocası", "Pilates instructor"],
+        ["Aynada fotoğraf çeken", "Person taking mirror selfies"],
+        ["Temizlik görevlisi", "Cleaner"]
+      ] },
+      { "id": "ski-resort", "tr": "Kayak Merkezi", "en": "Ski Resort", "roles": [
+        ["Kayak hocası", "Ski instructor"],
+        ["Telesiyej görevlisi", "Ski lift attendant"],
+        ["Snowboardcu", "Snowboarder"],
+        ["İlk kez kayan", "First-time skier"],
+        ["Dağ kurtarma görevlisi", "Mountain rescuer"],
+        ["Sıcak çikolata satıcısı", "Hot chocolate seller"],
+        ["Ekipman kiralayan görevli", "Equipment rental clerk"]
+      ] },
+      { "id": "golf-course", "tr": "Golf Sahası", "en": "Golf Course", "roles": [
+        ["Golfçü", "Golfer"],
+        ["Caddie", "Caddie"],
+        ["Golf hocası", "Golf coach"],
+        ["Saha bakımcısı", "Greenkeeper"],
+        ["Kulüp müdürü", "Club manager"],
+        ["Golf arabası şoförü", "Golf cart driver"],
+        ["Topunu kaybeden oyuncu", "Player who lost their ball"]
+      ] },
+      { "id": "boxing-gym", "tr": "Boks Salonu", "en": "Boxing Gym", "roles": [
+        ["Boksör", "Boxer"],
+        ["Antrenör", "Trainer"],
+        ["Sparring partneri", "Sparring partner"],
+        ["Menajer", "Manager"],
+        ["Masör", "Masseur"],
+        ["Yeni başlayan genç", "Teenage beginner"],
+        ["Spor doktoru", "Sports doctor"]
+      ] },
+      { "id": "campsite", "tr": "Kamp Alanı", "en": "Campsite", "roles": [
+        ["Kamp görevlisi", "Campsite warden"],
+        ["Çadır kuran aile", "Family pitching a tent"],
+        ["İzci lideri", "Scout leader"],
+        ["Gitar çalan genç", "Teenager playing guitar"],
+        ["Ateş yakan kampçı", "Camper lighting a fire"],
+        ["Doğa fotoğrafçısı", "Nature photographer"],
+        ["Sivrisinekten şikayet eden", "Camper complaining about mosquitoes"]
+      ] },
+      { "id": "holiday-resort", "tr": "Tatil Köyü", "en": "Holiday Resort", "roles": [
+        ["Animatör", "Entertainer"],
+        ["Resepsiyonist", "Receptionist"],
+        ["Barmen", "Bartender"],
+        ["Her şey dahil misafir", "All-inclusive guest"],
+        ["Çocuk kulübü görevlisi", "Kids' club host"],
+        ["Havuz başı garsonu", "Poolside waiter"],
+        ["Şezlongu havluyla kapan turist", "Tourist who saves a sunbed with a towel"]
+      ] },
+      { "id": "caravan", "tr": "Karavan", "en": "Caravan", "roles": [
+        ["Karavan sahibi", "Caravan owner"],
+        ["Yol arkadaşı", "Travel companion"],
+        ["Dijital göçebe", "Digital nomad"],
+        ["Otostopçu", "Hitchhiker"],
+        ["Yol kenarındaki tamirci", "Roadside mechanic"],
+        ["Kamp alanı görevlisi", "Campsite attendant"],
+        ["Haritayı okuyan", "Navigator"]
+      ] },
+      { "id": "yacht", "tr": "Yat", "en": "Yacht", "roles": [
+        ["Yat sahibi", "Yacht owner"],
+        ["Kaptan", "Skipper"],
+        ["Tayfa", "Deckhand"],
+        ["Özel aşçı", "Private chef"],
+        ["Davetli ünlü", "Celebrity guest"],
+        ["Dalgıç", "Diver"],
+        ["Deniz tutan misafir", "Seasick guest"]
+      ] },
+      { "id": "mountain-cabin", "tr": "Dağ Evi", "en": "Mountain Cabin", "roles": [
+        ["Ev sahibi", "Host"],
+        ["Kayakçı", "Skier"],
+        ["Dağcı", "Mountaineer"],
+        ["Odun kıran", "Woodcutter"],
+        ["Şömine başında kitap okuyan", "Reader by the fireplace"],
+        ["Kar yüzünden mahsur kalan", "Guest snowed in"],
+        ["Çoban", "Shepherd"]
+      ] },
+      { "id": "tutoring-centre", "tr": "Dershane", "en": "Tutoring Centre", "roles": [
+        ["Matematik hocası", "Maths teacher"],
+        ["Rehber öğretmen", "Guidance counsellor"],
+        ["Sınava hazırlanan öğrenci", "Student preparing for an exam"],
+        ["Dershane müdürü", "Director"],
+        ["Veli", "Parent"],
+        ["Deneme sınavı gözetmeni", "Mock exam invigilator"],
+        ["Kantinci", "Snack bar keeper"]
+      ] },
+      { "id": "laboratory", "tr": "Laboratuvar", "en": "Laboratory", "roles": [
+        ["Bilim insanı", "Scientist"],
+        ["Laborant", "Lab technician"],
+        ["Stajyer", "Intern"],
+        ["Proje yöneticisi", "Project lead"],
+        ["Gönüllü denek", "Test volunteer"],
+        ["Güvenlik sorumlusu", "Safety officer"],
+        ["Mikroskoba bakan doktora öğrencisi", "PhD student at the microscope"]
+      ] },
+      { "id": "student-dormitory", "tr": "Öğrenci Yurdu", "en": "Student Dormitory", "roles": [
+        ["Yurt müdürü", "Dorm manager"],
+        ["Oda arkadaşı", "Roommate"],
+        ["Yeni gelen öğrenci", "Newly arrived student"],
+        ["Gece sınava çalışan", "Student cramming at night"],
+        ["Kapı görevlisi", "Porter"],
+        ["Mutfakta yemek yapan", "Student cooking in the kitchen"],
+        ["Temizlik görevlisi", "Cleaner"]
+      ] },
+      { "id": "conference-hall", "tr": "Konferans Salonu", "en": "Conference Hall", "roles": [
+        ["Konuşmacı", "Speaker"],
+        ["Moderatör", "Moderator"],
+        ["Katılımcı", "Attendee"],
+        ["Teknik sorumlu", "AV technician"],
+        ["Simultane tercüman", "Interpreter"],
+        ["Kayıt masası görevlisi", "Registration desk staff"],
+        ["Soru soran katılımcı", "Attendee asking a question"]
+      ] },
+      { "id": "pharmacy", "tr": "Eczane", "en": "Chemist", "roles": [
+        ["Eczacı", "Pharmacist"],
+        ["Eczacı kalfası", "Pharmacy assistant"],
+        ["Reçeteli hasta", "Patient with a prescription"],
+        ["Vitamin soran müşteri", "Customer asking about vitamins"],
+        ["İlaç firması temsilcisi", "Drug company rep"],
+        ["Nöbetçi eczane arayan", "Person looking for the duty chemist"],
+        ["Stajyer eczacı", "Trainee pharmacist"]
+      ] },
+      { "id": "dentist", "tr": "Dişçi", "en": "Dentist", "roles": [
+        ["Diş hekimi", "Dentist"],
+        ["Asistan", "Dental assistant"],
+        ["Korkan hasta", "Nervous patient"],
+        ["Ortodontist", "Orthodontist"],
+        ["Sekreter", "Receptionist"],
+        ["Diş teli takılan genç", "Teenager getting braces"],
+        ["Dişi ağrıyan hasta", "Patient with toothache"]
+      ] },
+      { "id": "ambulance", "tr": "Ambulans", "en": "Ambulance", "roles": [
+        ["Paramedik", "Paramedic"],
+        ["Ambulans şoförü", "Ambulance driver"],
+        ["Hasta", "Patient"],
+        ["Hasta yakını", "Relative"],
+        ["Acil tıp teknisyeni", "Emergency technician"],
+        ["Telsiz operatörü", "Dispatcher"],
+        ["Stajyer sağlıkçı", "Trainee medic"]
+      ] },
+      { "id": "operating-room", "tr": "Ameliyathane", "en": "Operating Theatre", "roles": [
+        ["Cerrah", "Surgeon"],
+        ["Anestezi uzmanı", "Anaesthetist"],
+        ["Ameliyat hemşiresi", "Theatre nurse"],
+        ["Hasta", "Patient"],
+        ["Asistan doktor", "Junior doctor"],
+        ["Sterilizasyon görevlisi", "Sterilisation technician"],
+        ["Tıp öğrencisi", "Medical student"]
+      ] },
+      { "id": "airport", "tr": "Havalimanı", "en": "Airport", "roles": [
+        ["Pasaport polisi", "Passport officer"],
+        ["Check-in görevlisi", "Check-in agent"],
+        ["Bavulu kaybolan yolcu", "Passenger whose bag got lost"],
+        ["Duty free satıcısı", "Duty free seller"],
+        ["Bagaj görevlisi", "Baggage handler"],
+        ["Uçağını kaçıran yolcu", "Passenger who missed the flight"],
+        ["Karşılamaya gelen akraba", "Relative waiting at arrivals"]
+      ] },
+      { "id": "bus-terminal", "tr": "Otobüs Terminali", "en": "Bus Terminal", "roles": [
+        ["Otobüs şoförü", "Coach driver"],
+        ["Muavin", "Coach steward"],
+        ["Yazıhane görevlisi", "Ticket office clerk"],
+        ["Yolcu", "Passenger"],
+        ["Simitçi", "Simit seller"],
+        ["Hamal", "Porter"],
+        ["Uğurlamaya gelen anne", "Mother seeing someone off"]
+      ] },
+      { "id": "taxi-rank", "tr": "Taksi Durağı", "en": "Taxi Rank", "roles": [
+        ["Taksici", "Taxi driver"],
+        ["Durak sahibi", "Rank owner"],
+        ["Acelesi olan müşteri", "Customer in a hurry"],
+        ["Turist", "Tourist"],
+        ["Tavla oynayan şoför", "Driver playing backgammon"],
+        ["Telefona bakan durakçı", "Dispatcher answering the phone"],
+        ["Gece vardiyası şoförü", "Night-shift driver"]
+      ] },
+      { "id": "car-park", "tr": "Otopark", "en": "Car Park", "roles": [
+        ["Otopark görevlisi", "Car park attendant"],
+        ["Arabasını bulamayan sürücü", "Driver who cannot find their car"],
+        ["Vale", "Valet"],
+        ["Gece bekçisi", "Night watchman"],
+        ["Ödeme makinesi tamircisi", "Ticket machine repairer"],
+        ["Yer arayan sürücü", "Driver looking for a space"],
+        ["Güvenlik görevlisi", "Security guard"]
+      ] },
+      { "id": "cinema", "tr": "Sinema", "en": "Cinema", "roles": [
+        ["Bilet satıcısı", "Ticket seller"],
+        ["Makinist", "Projectionist"],
+        ["Patlamış mısırcı", "Popcorn seller"],
+        ["Film eleştirmeni", "Film critic"],
+        ["İlk buluşmadaki çift", "Couple on a first date"],
+        ["Telefonla konuşan seyirci", "Viewer talking on the phone"],
+        ["Yer gösterici", "Usher"]
+      ] },
+      { "id": "opera-house", "tr": "Opera", "en": "Opera House", "roles": [
+        ["Soprano", "Soprano"],
+        ["Tenor", "Tenor"],
+        ["Orkestra şefi", "Conductor"],
+        ["Sahne amiri", "Stage manager"],
+        ["Loca seyircisi", "Spectator in a box"],
+        ["Kostüm ustası", "Costume maker"],
+        ["Program satan görevli", "Programme seller"]
+      ] },
+      { "id": "photo-studio", "tr": "Fotoğraf Stüdyosu", "en": "Photo Studio", "roles": [
+        ["Fotoğrafçı", "Photographer"],
+        ["Asistan", "Assistant"],
+        ["Vesikalık çektiren", "Customer getting passport photos"],
+        ["Model", "Model"],
+        ["Makyöz", "Make-up artist"],
+        ["Düğün fotoğrafı çektiren çift", "Couple having wedding photos taken"],
+        ["Rötuşçu", "Photo retoucher"]
+      ] }
+    ]
+  },
+  {
+    "group": 4,
+    "places": [
+      { "id": "cafe", "tr": "Kafe", "en": "Café", "roles": [
+        ["Barista", "Barista"],
+        ["Garson", "Waiter"],
+        ["Laptopla çalışan", "Person working on a laptop"],
+        ["Randevusunu bekleyen", "Person waiting for a date"],
+        ["Kafe sahibi", "Café owner"],
+        ["Kitap okuyan müdavim", "Regular reading a book"],
+        ["Tatlı seçemeyen müşteri", "Customer who cannot choose a dessert"]
+      ] },
+      { "id": "botanical-garden", "tr": "Botanik Bahçesi", "en": "Botanical Garden", "roles": [
+        ["Botanikçi", "Botanist"],
+        ["Bahçıvan", "Gardener"],
+        ["Rehber", "Guide"],
+        ["Okul gezisindeki öğrenci", "Pupil on a school trip"],
+        ["Doğa fotoğrafçısı", "Nature photographer"],
+        ["Bilet görevlisi", "Ticket seller"],
+        ["Arıcı", "Beekeeper"]
+      ] },
+      { "id": "patisserie", "tr": "Pastane", "en": "Patisserie", "roles": [
+        ["Pastacı", "Pastry chef"],
+        ["Tezgahtar", "Shop assistant"],
+        ["Doğum günü pastası ısmarlayan", "Customer ordering a birthday cake"],
+        ["Kurabiye seven çocuk", "Child who loves biscuits"],
+        ["Çırak", "Apprentice"],
+        ["Kurye", "Delivery rider"],
+        ["Diyetteki müşteri", "Customer on a diet"]
+      ] },
+      { "id": "tea-garden", "tr": "Çay Bahçesi", "en": "Tea Garden", "roles": [
+        ["Çaycı", "Tea server"],
+        ["Okey oynayan dayı", "Uncle playing okey"],
+        ["Gazete okuyan emekli", "Pensioner reading the paper"],
+        ["Simit satan çocuk", "Kid selling simit"],
+        ["Manzara izleyen çift", "Couple enjoying the view"],
+        ["İşletmeci", "Owner"],
+        ["Kuruyemişçi", "Nut seller"]
+      ] },
+      { "id": "kebab-house", "tr": "Kebapçı", "en": "Kebab House", "roles": [
+        ["Kebap ustası", "Kebab master"],
+        ["Garson", "Waiter"],
+        ["Lahmacun açan", "Lahmacun maker"],
+        ["Paket servis kuryesi", "Delivery rider"],
+        ["Acı sos isteyen müşteri", "Customer asking for hot sauce"],
+        ["Ayrancı", "Ayran server"],
+        ["Kasiyer", "Cashier"]
+      ] },
+      { "id": "fish-restaurant", "tr": "Balıkçı", "en": "Fish Restaurant", "roles": [
+        ["Balıkçı reis", "Old fisherman"],
+        ["Garson", "Waiter"],
+        ["Meze ustası", "Meze maker"],
+        ["Rakı sofrasındaki müşteri", "Diner at the raki table"],
+        ["Kedilere balık veren", "Person feeding fish to the cats"],
+        ["Izgara ustası", "Grill master"],
+        ["Fasıl müzisyeni", "Fasıl musician"]
+      ] },
+      { "id": "ice-cream-shop", "tr": "Dondurmacı", "en": "Ice Cream Shop", "roles": [
+        ["Maraş dondurmacısı", "Maraş ice cream showman"],
+        ["Kasiyer", "Cashier"],
+        ["Külah bekleyen çocuk", "Child waiting for a cone"],
+        ["Tadım isteyen müşteri", "Customer asking for a taste"],
+        ["Turist", "Tourist"],
+        ["Dükkan sahibi", "Shop owner"],
+        ["Dondurma ustası", "Ice cream maker"]
+      ] },
+      { "id": "shopping-mall", "tr": "AVM", "en": "Shopping Mall", "roles": [
+        ["Güvenlik görevlisi", "Security guard"],
+        ["Mağaza çalışanı", "Shop assistant"],
+        ["Vitrin gezen genç", "Teen window-shopping"],
+        ["Yemek katındaki aile", "Family at the food court"],
+        ["Temizlik görevlisi", "Cleaner"],
+        ["Bilgi masası görevlisi", "Information desk staff"],
+        ["Otoparkta yer arayan", "Driver looking for parking"]
+      ] },
+      { "id": "boutique", "tr": "Butik", "en": "Boutique", "roles": [
+        ["Butik sahibi", "Boutique owner"],
+        ["Satış danışmanı", "Sales assistant"],
+        ["Prova kabinindeki müşteri", "Customer in the fitting room"],
+        ["Moda blogcusu", "Fashion blogger"],
+        ["Terzi", "Tailor"],
+        ["İndirim bekleyen müşteri", "Customer waiting for the sale"],
+        ["Hediye arayan eş", "Partner looking for a present"]
+      ] },
+      { "id": "greengrocer", "tr": "Manav", "en": "Greengrocer", "roles": [
+        ["Manav", "Greengrocer"],
+        ["Çırak", "Apprentice"],
+        ["Domatesleri tek tek seçen teyze", "Auntie picking tomatoes one by one"],
+        ["Toptancı", "Wholesaler"],
+        ["Kamyon şoförü", "Lorry driver"],
+        ["Kasiyer", "Cashier"],
+        ["Fiyat soran müşteri", "Customer asking the price"]
+      ] },
+      { "id": "jeweller", "tr": "Kuyumcu", "en": "Jeweller", "roles": [
+        ["Kuyumcu", "Jeweller"],
+        ["Çırak", "Apprentice"],
+        ["Nişan yüzüğü alan çift", "Couple buying an engagement ring"],
+        ["Altın bozduran teyze", "Auntie trading in gold"],
+        ["Güvenlik görevlisi", "Security guard"],
+        ["Saat tamircisi", "Watch repairer"],
+        ["Gram altın alan yatırımcı", "Investor buying gold"]
+      ] },
+      { "id": "bookshop", "tr": "Kitapçı", "en": "Bookshop", "roles": [
+        ["Kitapçı", "Bookseller"],
+        ["Yazar", "Author"],
+        ["İmza bekleyen okur", "Reader queueing for a signature"],
+        ["Ders kitabı arayan öğrenci", "Student looking for a textbook"],
+        ["Kitap kurdu", "Bookworm"],
+        ["Kasiyer", "Cashier"],
+        ["Raf düzenleyen görevli", "Staff member tidying the shelves"]
+      ] },
+      { "id": "street-market", "tr": "Pazaryeri", "en": "Street Market", "roles": [
+        ["Bağıran pazarcı", "Shouting stallholder"],
+        ["Zabıta", "Market inspector"],
+        ["Pazarlık yapan teyze", "Auntie haggling"],
+        ["Hamal", "Porter"],
+        ["Poşet satan çocuk", "Kid selling bags"],
+        ["Peynirci", "Cheese seller"],
+        ["Tadımlık isteyen müşteri", "Customer asking for a taste"]
+      ] },
+      { "id": "florist", "tr": "Çiçekçi", "en": "Florist", "roles": [
+        ["Çiçekçi", "Florist"],
+        ["Buket hazırlayan", "Bouquet maker"],
+        ["Sevgilisine çiçek alan", "Person buying flowers for their partner"],
+        ["Kurye", "Delivery rider"],
+        ["Düğün süslemecisi", "Wedding decorator"],
+        ["Sera sahibi", "Greenhouse owner"],
+        ["Özür çiçeği alan", "Person buying sorry flowers"]
+      ] },
+      { "id": "toy-shop", "tr": "Oyuncakçı", "en": "Toy Shop", "roles": [
+        ["Oyuncakçı", "Toy seller"],
+        ["Ağlayan çocuk", "Crying child"],
+        ["Hediye arayan dede", "Grandad looking for a present"],
+        ["Koleksiyoncu", "Collector"],
+        ["Kasiyer", "Cashier"],
+        ["Oyuncak deneyen çalışan", "Staff member demonstrating toys"],
+        ["Paketleme görevlisi", "Gift wrapper"]
+      ] },
+      { "id": "arcade", "tr": "Oyun Salonu", "en": "Arcade", "roles": [
+        ["Salon sahibi", "Arcade owner"],
+        ["Jeton satan görevli", "Token seller"],
+        ["Rekor kıran genç", "Teenager breaking a record"],
+        ["Pinball ustası", "Pinball wizard"],
+        ["Okulu asan öğrenci", "Pupil skipping school"],
+        ["Teknisyen", "Technician"],
+        ["Pençe makinesinden oyuncak çıkarmaya çalışan", "Player trying the claw machine"]
+      ] },
+      { "id": "bowling-alley", "tr": "Bowling Salonu", "en": "Bowling Alley", "roles": [
+        ["Salon görevlisi", "Lane attendant"],
+        ["Ayakkabı veren görevli", "Shoe rental clerk"],
+        ["Strike yapan oyuncu", "Player who just bowled a strike"],
+        ["Takım kaptanı", "Team captain"],
+        ["Ofis takımı oyuncusu", "Office team player"],
+        ["Barmen", "Bartender"],
+        ["İlk kez oynayan", "First-time bowler"]
+      ] },
+      { "id": "pool-hall", "tr": "Bilardo Salonu", "en": "Pool Hall", "roles": [
+        ["Salon sahibi", "Hall owner"],
+        ["Bilardo hocası", "Pool coach"],
+        ["Bahse giren oyuncu", "Player betting on the game"],
+        ["İzleyici", "Spectator"],
+        ["Çaycı", "Tea server"],
+        ["Turnuva oyuncusu", "Tournament player"],
+        ["Istaka tamircisi", "Cue repairer"]
+      ] },
+      { "id": "karaoke-bar", "tr": "Karaoke Bar", "en": "Karaoke Bar", "roles": [
+        ["Sunucu", "Host"],
+        ["Barmen", "Bartender"],
+        ["Sahneye çıkan çekingen müşteri", "Shy customer on stage"],
+        ["Mikrofonu bırakmayan", "Person who will not let go of the mic"],
+        ["Doğum günü grubundan biri", "Member of a birthday group"],
+        ["Ses teknisyeni", "Sound technician"],
+        ["Garson", "Waiter"]
+      ] },
+      { "id": "escape-room", "tr": "Kaçış Odası", "en": "Escape Room", "roles": [
+        ["Oyun yöneticisi", "Game master"],
+        ["Kamera izleyen görevli", "Staff watching the cameras"],
+        ["Bulmaca çözen oyuncu", "Puzzle solver"],
+        ["Panik yapan oyuncu", "Panicking player"],
+        ["İpucu isteyen grup lideri", "Group leader asking for hints"],
+        ["Oda tasarımcısı", "Room designer"],
+        ["Kostümlü oyuncu", "Costumed actor"]
+      ] },
+      { "id": "paintball-field", "tr": "Paintball Alanı", "en": "Paintball Field", "roles": [
+        ["Hakem", "Referee"],
+        ["Takım kaptanı", "Team captain"],
+        ["Keskin nişancı", "Sharpshooter"],
+        ["Acemi oyuncu", "Rookie"],
+        ["Ekipman görevlisi", "Equipment staff"],
+        ["Şirket gezisindeki çalışan", "Employee on a team-building day"],
+        ["Varilin arkasına saklanan", "Player hiding behind a barrel"]
+      ] },
+      { "id": "water-park", "tr": "Su Parkı", "en": "Water Park", "roles": [
+        ["Cankurtaran", "Lifeguard"],
+        ["Kaydırak görevlisi", "Slide attendant"],
+        ["Dalga havuzundaki çocuk", "Child in the wave pool"],
+        ["Simit kiralayan görevli", "Rubber ring rental clerk"],
+        ["Güneş kremi süren baba", "Dad applying sun cream"],
+        ["Dondurmacı", "Ice cream seller"],
+        ["Sırada bekleyen genç", "Teenager waiting in line"]
+      ] },
+      { "id": "playground", "tr": "Çocuk Parkı", "en": "Playground", "roles": [
+        ["Salıncaktaki çocuk", "Child on the swing"],
+        ["Bankta oturan anne", "Mother on the bench"],
+        ["Torununu getiren dede", "Grandad with his grandchild"],
+        ["Kaydıraktan kayan çocuk", "Child on the slide"],
+        ["Belediye bahçıvanı", "Council gardener"],
+        ["Kum havuzundaki bebek", "Toddler in the sandpit"],
+        ["Dondurmacı", "Ice cream seller"]
+      ] },
+      { "id": "puppet-theatre", "tr": "Kukla Tiyatrosu", "en": "Puppet Theatre", "roles": [
+        ["Kuklacı", "Puppeteer"],
+        ["Seslendirmen", "Voice actor"],
+        ["Ön sıradaki çocuk", "Child in the front row"],
+        ["Öğretmen", "Teacher"],
+        ["Dekorcu", "Set builder"],
+        ["Bilet satan görevli", "Ticket seller"],
+        ["Kukla ustası", "Puppet maker"]
+      ] },
+      { "id": "dance-studio", "tr": "Dans Stüdyosu", "en": "Dance Studio", "roles": [
+        ["Dans hocası", "Dance teacher"],
+        ["Bale öğrencisi", "Ballet student"],
+        ["Düğün dansı çalışan çift", "Couple practising their wedding dance"],
+        ["Hip hop dansçısı", "Hip hop dancer"],
+        ["Piyanist", "Pianist"],
+        ["Koreograf", "Choreographer"],
+        ["Resepsiyonist", "Receptionist"]
+      ] }
+    ]
+  },
+  {
+    "group": 5,
+    "places": [
+      { "id": "turkish-bath", "tr": "Hamam", "en": "Turkish Bath", "roles": [
+        ["Tellak", "Bath attendant"],
+        ["Natır", "Female bath attendant"],
+        ["Kese yaptıran turist", "Tourist getting a scrub"],
+        ["Göbek taşında yatan", "Person lying on the heated marble"],
+        ["Peştamal dağıtan görevli", "Towel attendant"],
+        ["Kahveci", "Coffee server"],
+        ["Gelin hamamındaki kadın", "Woman at a bride's bath party"]
+      ] },
+      { "id": "barber", "tr": "Berber", "en": "Barber's", "roles": [
+        ["Berber", "Barber"],
+        ["Çırak", "Apprentice"],
+        ["Sakal tıraşı olan müşteri", "Customer getting a shave"],
+        ["Sırasını bekleyen", "Customer waiting their turn"],
+        ["İlk kez saçını kestiren çocuk", "Child getting their first haircut"],
+        ["Futbol konuşan müdavim", "Regular talking football"],
+        ["Çay getiren komşu esnaf", "Neighbouring shopkeeper bringing tea"]
+      ] },
+      { "id": "hair-salon", "tr": "Kuaför", "en": "Hair Salon", "roles": [
+        ["Kuaför", "Hairdresser"],
+        ["Fön çeken kalfa", "Assistant doing blow-dries"],
+        ["Gelin", "Bride"],
+        ["Saçını boyatan müşteri", "Customer getting a colour"],
+        ["Manikürcü", "Manicurist"],
+        ["Dedikodu yapan müdavim", "Regular catching up on gossip"],
+        ["Kapıda bekleyen eş", "Partner waiting at the door"]
+      ] },
+      { "id": "ferry", "tr": "Vapur", "en": "Ferry", "roles": [
+        ["Kaptan", "Captain"],
+        ["Çaycı", "Tea server"],
+        ["Martılara simit atan yolcu", "Passenger throwing simit to the gulls"],
+        ["İşe giden yolcu", "Commuter"],
+        ["Turist", "Tourist"],
+        ["Halat atan gemici", "Deckhand throwing the rope"],
+        ["Gazete okuyan amca", "Older man reading the paper"]
+      ] },
+      { "id": "dolmus", "tr": "Dolmuş", "en": "Shared Minibus", "roles": [
+        ["Şoför", "Driver"],
+        ["Parayı öne uzatan yolcu", "Passenger passing the fare forward"],
+        ["İnecek var diyen yolcu", "Passenger calling for a stop"],
+        ["Ayakta kalan öğrenci", "Student left standing"],
+        ["Durakta bekleyen teyze", "Auntie at the stop"],
+        ["Bozuk para arayan yolcu", "Passenger looking for change"],
+        ["Cam kenarında uyuyan", "Passenger asleep by the window"]
+      ] },
+      { "id": "five-a-side-pitch", "tr": "Halı Saha", "en": "Five-a-side Pitch", "roles": [
+        ["Kaleci", "Goalkeeper"],
+        ["Takım kaptanı", "Captain"],
+        ["Saha sahibi", "Pitch owner"],
+        ["Yedekte bekleyen", "Sub waiting on the bench"],
+        ["Maçı çeken arkadaş", "Friend filming the match"],
+        ["Her pozisyona ofsayt diyen", "Player who calls offside every time"],
+        ["İçecekleri ısmarlayan kaybeden", "Loser buying the drinks"]
+      ] },
+      { "id": "coffeehouse", "tr": "Kahvehane", "en": "Coffeehouse", "roles": [
+        ["Ocakçı", "Coffeehouse cook"],
+        ["Okey oynayan emekli", "Pensioner playing okey"],
+        ["Batak oynayan", "Card player"],
+        ["Maç izleyen", "Football watcher"],
+        ["Kahvehane sahibi", "Owner"],
+        ["Gazete okuyan", "Newspaper reader"],
+        ["Siyaset konuşan dayı", "Uncle talking politics"]
+      ] },
+      { "id": "bakery", "tr": "Fırın", "en": "Bakery", "roles": [
+        ["Fırıncı", "Baker"],
+        ["Hamurcu", "Dough maker"],
+        ["Sabah ekmek alan", "Early bread buyer"],
+        ["Kasiyer", "Cashier"],
+        ["Poğaça seven öğrenci", "Student who loves poğaça"],
+        ["Servis şoförü", "Delivery van driver"],
+        ["Çırak", "Apprentice"]
+      ] },
+      { "id": "butcher", "tr": "Kasap", "en": "Butcher's", "roles": [
+        ["Kasap", "Butcher"],
+        ["Çırak", "Apprentice"],
+        ["Kıyma isteyen müşteri", "Customer asking for mince"],
+        ["Mangal için et alan", "Person buying meat for a barbecue"],
+        ["Dükkanın kedisi", "The shop cat"],
+        ["Hijyen denetçisi", "Hygiene inspector"],
+        ["Kasiyer", "Cashier"]
+      ] },
+      { "id": "corner-shop", "tr": "Bakkal", "en": "Corner Shop", "roles": [
+        ["Bakkal amca", "Shopkeeper"],
+        ["Veresiye yazdıran komşu", "Neighbour buying on tab"],
+        ["Ekmeğe gönderilen çocuk", "Kid sent for bread"],
+        ["Çikolata seçen çocuk", "Child picking a chocolate"],
+        ["Damacana getiren sucu", "Water delivery man"],
+        ["Kapı önünde oturan emekli", "Pensioner sitting by the door"],
+        ["Para üstü bekleyen müşteri", "Customer waiting for change"]
+      ] },
+      { "id": "courthouse", "tr": "Adliye", "en": "Courthouse", "roles": [
+        ["Hakim", "Judge"],
+        ["Savcı", "Prosecutor"],
+        ["Avukat", "Lawyer"],
+        ["Tanık", "Witness"],
+        ["Zabıt katibi", "Court clerk"],
+        ["Mübaşir", "Usher"],
+        ["Davası ertelenen vatandaş", "Citizen whose case got postponed"]
+      ] },
+      { "id": "town-hall", "tr": "Belediye", "en": "Town Hall", "roles": [
+        ["Belediye başkanı", "Mayor"],
+        ["Zabıta", "Municipal officer"],
+        ["Dilekçe veren vatandaş", "Citizen handing in a petition"],
+        ["İmar müdürü", "Planning officer"],
+        ["Nikah memuru", "Registrar"],
+        ["Danışma görevlisi", "Information clerk"],
+        ["Çay ocağı görevlisi", "Tea kitchen staff"]
+      ] },
+      { "id": "post-office", "tr": "Postane", "en": "Post Office", "roles": [
+        ["Gişe memuru", "Counter clerk"],
+        ["Postacı", "Postman"],
+        ["Kargo gönderen", "Person sending a parcel"],
+        ["Fatura ödeyen emekli", "Pensioner paying bills"],
+        ["Pul koleksiyoncusu", "Stamp collector"],
+        ["Sıra bekleyen", "Person in the queue"],
+        ["Paket ayıran görevli", "Sorting clerk"]
+      ] },
+      { "id": "vet", "tr": "Veteriner", "en": "Vet's", "roles": [
+        ["Veteriner", "Vet"],
+        ["Veteriner teknikeri", "Vet nurse"],
+        ["Köpeğini getiren sahip", "Dog owner"],
+        ["Kedisini aşıya getiren", "Cat owner at a vaccination"],
+        ["Konuşan papağanın sahibi", "Owner of a talking parrot"],
+        ["Sokak hayvanı getiren gönüllü", "Volunteer bringing in a stray"],
+        ["Sekreter", "Receptionist"]
+      ] },
+      { "id": "car-wash", "tr": "Oto Yıkama", "en": "Car Wash", "roles": [
+        ["Yıkamacı", "Car washer"],
+        ["Kasiyer", "Cashier"],
+        ["Arabasını gözünden ayırmayan sahip", "Owner watching their car closely"],
+        ["İç temizlikçi", "Interior cleaner"],
+        ["Cilacı", "Polisher"],
+        ["Taksici", "Taxi driver"],
+        ["Köpük makinesi tamircisi", "Foam machine repairer"]
+      ] },
+      { "id": "driving-school", "tr": "Sürücü Kursu", "en": "Driving School", "roles": [
+        ["Direksiyon hocası", "Driving instructor"],
+        ["Kursiyer", "Learner driver"],
+        ["Sınavdan üçüncü kez kalan", "Learner failing for the third time"],
+        ["Sınav görevlisi", "Examiner"],
+        ["Kurs sahibi", "School owner"],
+        ["Sekreter", "Receptionist"],
+        ["Trafik dersi hocası", "Theory teacher"]
+      ] },
+      { "id": "internet-cafe", "tr": "İnternet Kafe", "en": "Internet Café", "roles": [
+        ["Kafe sahibi", "Owner"],
+        ["Turnuva oyuncusu", "Tournament player"],
+        ["Ödev çıktısı alan öğrenci", "Student printing homework"],
+        ["Süre ekleten genç", "Teen buying more time"],
+        ["Bilgisayar teknisyeni", "Computer technician"],
+        ["Tost yapan görevli", "Staff member making toasties"],
+        ["Okulu asan öğrenci", "Pupil skipping school"]
+      ] },
+      { "id": "picnic-area", "tr": "Piknik Alanı", "en": "Picnic Area", "roles": [
+        ["Mangal yakan baba", "Dad lighting the barbecue"],
+        ["Semaver başındaki anne", "Mum at the samovar"],
+        ["Top oynayan çocuk", "Child playing ball"],
+        ["Hamakta uyuyan", "Person asleep in a hammock"],
+        ["Orman bekçisi", "Forest ranger"],
+        ["Çöp toplayan gönüllü", "Volunteer picking up litter"],
+        ["Gitar çalan genç", "Teen playing guitar"]
+      ] },
+      { "id": "village-house", "tr": "Köy Evi", "en": "Village House", "roles": [
+        ["Nine", "Gran"],
+        ["Dede", "Grandad"],
+        ["Şehirden gelen torun", "Grandchild from the city"],
+        ["Muhtar", "Village headman"],
+        ["İnek sağan teyze", "Auntie milking the cow"],
+        ["Tandırda ekmek yapan", "Bread baker at the tandır"],
+        ["Bahçedeki köpek", "The yard dog"]
+      ] },
+      { "id": "highland-pasture", "tr": "Yayla", "en": "Highland Pasture", "roles": [
+        ["Çoban", "Shepherd"],
+        ["Yayla evi sahibi", "Highland house owner"],
+        ["Şenlik müzisyeni", "Festival musician"],
+        ["Kamp yapan gezgin", "Camping traveller"],
+        ["Arıcı", "Beekeeper"],
+        ["Peynir yapan teyze", "Auntie making cheese"],
+        ["Fotoğraf çeken turist", "Tourist taking photos"]
+      ] },
+      { "id": "tailor", "tr": "Terzi", "en": "Tailor's", "roles": [
+        ["Terzi", "Tailor"],
+        ["Çırak", "Apprentice"],
+        ["Paça kısalttıran müşteri", "Customer getting trousers taken up"],
+        ["Damatlık diktiren", "Groom getting a suit made"],
+        ["Fermuarı bozulan müşteri", "Customer with a broken zip"],
+        ["Prova yapan gelin", "Bride at a fitting"],
+        ["Kumaşçı", "Fabric seller"]
+      ] },
+      { "id": "hardware-store", "tr": "Nalbur", "en": "Hardware Store", "roles": [
+        ["Nalbur", "Hardware dealer"],
+        ["Çırak", "Apprentice"],
+        ["Evini kendi tamir eden", "DIY homeowner"],
+        ["Usta", "Builder"],
+        ["Musluk arayan müşteri", "Customer looking for a tap"],
+        ["Boya karıştıran görevli", "Paint mixer"],
+        ["Teslimat şoförü", "Delivery driver"]
+      ] },
+      { "id": "stationery-shop", "tr": "Kırtasiye", "en": "Stationery Shop", "roles": [
+        ["Kırtasiyeci", "Stationer"],
+        ["Fotokopi görevlisi", "Photocopy clerk"],
+        ["Okul alışverişindeki veli", "Parent doing back-to-school shopping"],
+        ["Defter seçen çocuk", "Child choosing a notebook"],
+        ["Proje ödevi yapan öğrenci", "Student doing a project"],
+        ["Kalem koleksiyoncusu", "Pen collector"],
+        ["Kartuş arayan öğretmen", "Teacher looking for an ink cartridge"]
+      ] },
+      { "id": "optician", "tr": "Optik", "en": "Optician's", "roles": [
+        ["Optisyen", "Optician"],
+        ["Göz doktoru", "Eye doctor"],
+        ["İlk gözlüğünü alan çocuk", "Child getting their first glasses"],
+        ["Güneş gözlüğü deneyen", "Customer trying sunglasses"],
+        ["Lens kullanan müşteri", "Contact lens wearer"],
+        ["Gözlüğünü kıran müşteri", "Customer with broken glasses"],
+        ["Kasiyer", "Cashier"]
+      ] },
+      { "id": "notary", "tr": "Noter", "en": "Notary's Office", "roles": [
+        ["Noter", "Notary"],
+        ["Katip", "Clerk"],
+        ["Araba satan vatandaş", "Citizen selling a car"],
+        ["Vekalet veren", "Person giving power of attorney"],
+        ["Yeminli tercüman", "Sworn translator"],
+        ["Sırasını bekleyen", "Person waiting their turn"],
+        ["İmza atmayı unutan", "Person who forgot to sign"]
+      ] }
+    ]
+  },
+  {
+    "group": 6,
+    "places": [
+      { "id": "motorway-services", "tr": "Dinlenme Tesisi", "en": "Motorway Services", "roles": [
+        ["Garson", "Waiter"],
+        ["Otobüs yolcusu", "Coach passenger"],
+        ["Gözleme yapan teyze", "Auntie making gözleme"],
+        ["Tır şoförü", "Lorry driver"],
+        ["Tuvalet görevlisi", "Toilet attendant"],
+        ["Hediyelik eşya satıcısı", "Souvenir seller"],
+        ["Molayı uzatan yolcu", "Passenger who overstays the break"]
+      ] },
+      { "id": "border-crossing", "tr": "Gümrük Kapısı", "en": "Border Crossing", "roles": [
+        ["Gümrük memuru", "Customs officer"],
+        ["Pasaport polisi", "Passport officer"],
+        ["Tır şoförü", "Lorry driver"],
+        ["Gurbetçi aile", "Family coming home from abroad"],
+        ["Narkotik köpeği eğitmeni", "Sniffer dog handler"],
+        ["Duty free satıcısı", "Duty free seller"],
+        ["Bagajı aranan yolcu", "Traveller whose boot is searched"]
+      ] },
+      { "id": "lighthouse", "tr": "Deniz Feneri", "en": "Lighthouse", "roles": [
+        ["Fener bekçisi", "Lighthouse keeper"],
+        ["Kaptan", "Ship captain"],
+        ["Martı", "Seagull"],
+        ["Ziyaretçi", "Visitor"],
+        ["Lamba tamircisi", "Lamp technician"],
+        ["Manzara ressamı", "Landscape painter"],
+        ["Fırtınadan kaçan balıkçı", "Fisherman escaping the storm"]
+      ] },
+      { "id": "cave", "tr": "Mağara", "en": "Cave", "roles": [
+        ["Mağara bilimci", "Cave scientist"],
+        ["Rehber", "Guide"],
+        ["Yarasa", "Bat"],
+        ["Kaybolan turist", "Lost tourist"],
+        ["Hazine avcısı", "Treasure hunter"],
+        ["Fotoğrafçı", "Photographer"],
+        ["Arkeolog", "Archaeologist"]
+      ] },
+      { "id": "desert-island", "tr": "Issız Ada", "en": "Desert Island", "roles": [
+        ["Kazazede", "Castaway"],
+        ["Sal yapan", "Raft builder"],
+        ["Hindistan cevizi toplayan", "Coconut gatherer"],
+        ["Şişeye mektup yazan", "Person writing a message in a bottle"],
+        ["Ateş bekçisi", "Fire keeper"],
+        ["Papağan", "Parrot"],
+        ["Yengeç avcısı", "Crab catcher"]
+      ] },
+      { "id": "hot-air-balloon", "tr": "Sıcak Hava Balonu", "en": "Hot-air Balloon", "roles": [
+        ["Balon pilotu", "Balloon pilot"],
+        ["Evlenme teklif edecek yolcu", "Passenger about to propose"],
+        ["Yükseklikten korkan yolcu", "Passenger afraid of heights"],
+        ["Fotoğrafçı", "Photographer"],
+        ["Yer ekibi", "Ground crew"],
+        ["Balayı çifti", "Honeymoon couple"],
+        ["Hava durumu uzmanı", "Weather forecaster"]
+      ] },
+      { "id": "cable-car", "tr": "Teleferik", "en": "Cable Car", "roles": [
+        ["Teleferik operatörü", "Cable car operator"],
+        ["Kayakçı", "Skier"],
+        ["Turist", "Tourist"],
+        ["Kabinde mahsur kalan", "Passenger stuck in the cabin"],
+        ["Bakım teknisyeni", "Maintenance technician"],
+        ["Manzara fotoğrafçısı", "Landscape photographer"],
+        ["Bilet görevlisi", "Ticket seller"]
+      ] },
+      { "id": "mountain-summit", "tr": "Dağ Zirvesi", "en": "Mountain Summit", "roles": [
+        ["Dağcı", "Mountaineer"],
+        ["Rehber", "Guide"],
+        ["Bayrak diken", "Person planting a flag"],
+        ["Nefes nefese kalan", "Breathless climber"],
+        ["Yük taşıyıcı", "Porter"],
+        ["Kartal", "Eagle"],
+        ["Zirvede selfie çeken", "Climber taking a summit selfie"]
+      ] },
+      { "id": "waterfall", "tr": "Şelale", "en": "Waterfall", "roles": [
+        ["Rehber", "Guide"],
+        ["Kanocu", "Kayaker"],
+        ["Piknikçi", "Picnicker"],
+        ["Fotoğrafçı", "Photographer"],
+        ["Alabalık tutan", "Trout fisher"],
+        ["Dilek tutan çift", "Couple making a wish"],
+        ["Kaygan taşta düşen", "Person who slipped on a rock"]
+      ] },
+      { "id": "safari", "tr": "Safari", "en": "Safari", "roles": [
+        ["Safari rehberi", "Safari guide"],
+        ["Cip şoförü", "Jeep driver"],
+        ["Vahşi yaşam fotoğrafçısı", "Wildlife photographer"],
+        ["Zürafa", "Giraffe"],
+        ["Turist", "Tourist"],
+        ["Korucu", "Ranger"],
+        ["Dürbünlü gözcü", "Spotter with binoculars"]
+      ] },
+      { "id": "farm", "tr": "Çiftlik", "en": "Farm", "roles": [
+        ["Çiftçi", "Farmer"],
+        ["Traktör sürücüsü", "Tractor driver"],
+        ["İnek", "Cow"],
+        ["Yumurta toplayan çocuk", "Child collecting eggs"],
+        ["Veteriner", "Vet"],
+        ["Mevsimlik işçi", "Seasonal worker"],
+        ["Korkuluk", "Scarecrow"]
+      ] },
+      { "id": "hazelnut-orchard", "tr": "Fındık Bahçesi", "en": "Hazelnut Orchard", "roles": [
+        ["Bahçe sahibi", "Orchard owner"],
+        ["Fındık toplayan işçi", "Hazelnut picker"],
+        ["Patoz şoförü", "Thresher driver"],
+        ["Çay getiren teyze", "Auntie bringing tea"],
+        ["Tüccar", "Trader"],
+        ["Ağaca tırmanan çocuk", "Child climbing a tree"],
+        ["Fındık kurdu", "Hazelnut weevil"]
+      ] },
+      { "id": "olive-grove", "tr": "Zeytinlik", "en": "Olive Grove", "roles": [
+        ["Zeytin üreticisi", "Olive grower"],
+        ["Hasat işçisi", "Harvest worker"],
+        ["Zeytinyağı tadımcısı", "Olive oil taster"],
+        ["Sıkımhane sahibi", "Olive press owner"],
+        ["Yürüyüşçü", "Hiker"],
+        ["Budama ustası", "Pruner"],
+        ["Keçi", "Goat"]
+      ] },
+      { "id": "stables", "tr": "At Çiftliği", "en": "Riding Stables", "roles": [
+        ["Seyis", "Stable hand"],
+        ["Binicilik hocası", "Riding instructor"],
+        ["Jokey", "Jockey"],
+        ["Nalbant", "Farrier"],
+        ["İlk kez ata binen", "First-time rider"],
+        ["At", "Horse"],
+        ["Veteriner", "Vet"]
+      ] },
+      { "id": "animal-shelter", "tr": "Hayvan Barınağı", "en": "Animal Shelter", "roles": [
+        ["Gönüllü", "Volunteer"],
+        ["Veteriner", "Vet"],
+        ["Sahiplenmeye gelen aile", "Family coming to adopt"],
+        ["Mama bağışlayan", "Person donating pet food"],
+        ["Barınak müdürü", "Shelter manager"],
+        ["Köpek", "Dog"],
+        ["Sahiplendirme fotoğrafçısı", "Adoption photographer"]
+      ] },
+      { "id": "camel-wrestling", "tr": "Deve Güreşi", "en": "Camel Wrestling", "roles": [
+        ["Deveci", "Camel owner"],
+        ["Cazgır", "Announcer"],
+        ["Hakem", "Referee"],
+        ["Pehlivan deve", "Wrestling camel"],
+        ["Davulcu", "Drummer"],
+        ["Sucuk ekmek satan", "Sausage sandwich seller"],
+        ["Turist", "Tourist"]
+      ] },
+      { "id": "oil-wrestling", "tr": "Yağlı Güreş", "en": "Oil Wrestling", "roles": [
+        ["Pehlivan", "Wrestler"],
+        ["Cazgır", "Announcer"],
+        ["Hakem", "Referee"],
+        ["Zurnacı", "Zurna player"],
+        ["Ağa", "Patron"],
+        ["Yağcı", "Oil pourer"],
+        ["Tribündeki seyirci", "Spectator"]
+      ] },
+      { "id": "henna-night", "tr": "Kına Gecesi", "en": "Henna Night", "roles": [
+        ["Gelin", "Bride"],
+        ["Kayınvalide", "Mother-in-law"],
+        ["Kına yakan teyze", "Auntie applying the henna"],
+        ["Türkü söyleyen kuzen", "Cousin singing folk songs"],
+        ["Darbukacı", "Darbuka player"],
+        ["Gelinin en yakın arkadaşı", "Bride's best friend"],
+        ["Damat", "Groom"]
+      ] },
+      { "id": "birthday-party", "tr": "Doğum Günü Partisi", "en": "Birthday Party", "roles": [
+        ["Doğum günü çocuğu", "Birthday child"],
+        ["Palyaço", "Clown"],
+        ["Pastayı getiren anne", "Mum bringing the cake"],
+        ["Hediye açan", "Present opener"],
+        ["Balon şişiren baba", "Dad blowing up balloons"],
+        ["Davetsiz misafir", "Uninvited guest"],
+        ["Mumları ilk üfleyen kardeş", "Sibling who blows out the candles first"]
+      ] },
+      { "id": "graduation-ball", "tr": "Mezuniyet Balosu", "en": "Graduation Ball", "roles": [
+        ["Mezun", "Graduate"],
+        ["Okul müdürü", "Headteacher"],
+        ["Sunucu", "Host"],
+        ["DJ", "DJ"],
+        ["Dans partneri arayan", "Person looking for a dance partner"],
+        ["Fotoğrafçı", "Photographer"],
+        ["Gözü yaşlı veli", "Tearful parent"]
+      ] },
+      { "id": "exam-hall", "tr": "Sınav Salonu", "en": "Exam Hall", "roles": [
+        ["Gözetmen", "Invigilator"],
+        ["Salon başkanı", "Head invigilator"],
+        ["Aday", "Candidate"],
+        ["Kalemini unutan aday", "Candidate who forgot a pencil"],
+        ["Dışarıda bekleyen veli", "Parent waiting outside"],
+        ["Kopya çekmeye çalışan", "Candidate trying to cheat"],
+        ["Güvenlik görevlisi", "Security guard"]
+      ] },
+      { "id": "residents-meeting", "tr": "Apartman Toplantısı", "en": "Residents' Meeting", "roles": [
+        ["Yönetici", "Building manager"],
+        ["Aidatı ödemeyen komşu", "Neighbour behind on the fees"],
+        ["Kapıcı", "Caretaker"],
+        ["Gürültüden şikayet eden", "Neighbour complaining about noise"],
+        ["Yeni taşınan kiracı", "New tenant"],
+        ["Tutanak tutan", "Minute taker"],
+        ["Asansör tamiri isteyen", "Resident demanding a lift repair"]
+      ] },
+      { "id": "lift", "tr": "Asansör", "en": "Lift", "roles": [
+        ["Asansör tamircisi", "Lift engineer"],
+        ["Mahsur kalan komşu", "Neighbour stuck inside"],
+        ["Kurye", "Courier"],
+        ["Kapıcı", "Caretaker"],
+        ["Bebek arabalı anne", "Mum with a pram"],
+        ["Merdiveni hiç kullanmayan", "Person who never takes the stairs"],
+        ["Telefonda konuşan", "Person on the phone"]
+      ] },
+      { "id": "removal-van", "tr": "Nakliye Kamyonu", "en": "Removal Van", "roles": [
+        ["Şoför", "Driver"],
+        ["Hamal", "Mover"],
+        ["Ev sahibi", "Homeowner"],
+        ["Kolilere isim yazan", "Person labelling boxes"],
+        ["Kırık eşyayı fark eden", "Person who spots a broken item"],
+        ["Yardıma gelen arkadaş", "Friend helping out"],
+        ["Kolide saklanan kedi", "Cat hiding in a box"]
+      ] },
+      { "id": "traffic-jam", "tr": "Trafik Sıkışıklığı", "en": "Traffic Jam", "roles": [
+        ["Taksici", "Taxi driver"],
+        ["Korna çalan sürücü", "Driver leaning on the horn"],
+        ["Su satan çocuk", "Kid selling water"],
+        ["Trafik polisi", "Traffic officer"],
+        ["Motorlu kurye", "Motorbike courier"],
+        ["Yol vermeyen sürücü", "Driver who will not let anyone in"],
+        ["Radyo dinleyen sürücü", "Driver listening to the radio"]
+      ] }
+    ]
+  },
+  {
+    "group": 7,
+    "places": [
+      { "id": "mars-colony", "tr": "Mars Kolonisi", "en": "Mars Colony", "roles": [
+        ["Koloni lideri", "Colony leader"],
+        ["Sera mühendisi", "Greenhouse engineer"],
+        ["Uzay doktoru", "Space doctor"],
+        ["Yardımcı robot", "Helper robot"],
+        ["Kaya örneği toplayan", "Rock sample collector"],
+        ["Dünya'yı özleyen kolonici", "Colonist missing Earth"],
+        ["Oksijen teknisyeni", "Oxygen technician"]
+      ] },
+      { "id": "alien-spaceship", "tr": "Uzaylı Gemisi", "en": "Alien Spaceship", "roles": [
+        ["Uzaylı kaptan", "Alien captain"],
+        ["Kaçırılan çiftçi", "Abducted farmer"],
+        ["Işınlama operatörü", "Beam operator"],
+        ["Tercüman robot", "Translator robot"],
+        ["Uzaylı bilim insanı", "Alien scientist"],
+        ["Gizlice binen gazeteci", "Journalist who sneaked aboard"],
+        ["Uzaylı çocuk", "Alien kid"]
+      ] },
+      { "id": "time-machine", "tr": "Zaman Makinesi", "en": "Time Machine", "roles": [
+        ["Mucit", "Inventor"],
+        ["Geleceğe giden turist", "Tourist heading to the future"],
+        ["Geçmişten gelen şövalye", "Knight from the past"],
+        ["Zaman polisi", "Time police officer"],
+        ["Dedesinin gençliğine rastlayan", "Person who meets their grandad as a young man"],
+        ["Kafası karışan yolcu", "Confused passenger"],
+        ["Tamirci", "Mechanic"]
+      ] },
+      { "id": "dragons-lair", "tr": "Ejderha İni", "en": "Dragon's Lair", "roles": [
+        ["Ejderha", "Dragon"],
+        ["Şövalye", "Knight"],
+        ["Hazine sayan cüce", "Dwarf counting the treasure"],
+        ["Kaçırılan prens", "Kidnapped prince"],
+        ["Büyücü", "Wizard"],
+        ["Yumurta hırsızı", "Egg thief"],
+        ["Ozan", "Bard"]
+      ] },
+      { "id": "magic-school", "tr": "Büyü Okulu", "en": "Magic School", "roles": [
+        ["Büyü hocası", "Spell teacher"],
+        ["İksir öğrencisi", "Potions student"],
+        ["Uçan süpürge hocası", "Broomstick instructor"],
+        ["Konuşan kedi", "Talking cat"],
+        ["Okul müdürü", "Headmaster"],
+        ["Büyüsü ters giden öğrenci", "Student whose spell backfired"],
+        ["Kütüphane hayaleti", "Library ghost"]
+      ] },
+      { "id": "haunted-house", "tr": "Perili Ev", "en": "Haunted House", "roles": [
+        ["Hayalet", "Ghost"],
+        ["Hayalet avcısı", "Ghost hunter"],
+        ["Medyum", "Medium"],
+        ["Yeni taşınan aile", "Family who just moved in"],
+        ["Emlakçı", "Estate agent"],
+        ["Hiç korkmayan çocuk", "Child who is not scared at all"],
+        ["Gıcırdayan merdiven", "Creaky staircase"]
+      ] },
+      { "id": "zombie-shelter", "tr": "Zombi Sığınağı", "en": "Zombie Shelter", "roles": [
+        ["Sığınak lideri", "Shelter leader"],
+        ["Konserve sayan", "Person counting the tins"],
+        ["Isırığını saklayan", "Person hiding a bite"],
+        ["Doktor", "Doctor"],
+        ["Telsizci", "Radio operator"],
+        ["Barikat kuran", "Barricade builder"],
+        ["Kapıyı yoklayan zombi", "Zombie at the door"]
+      ] },
+      { "id": "dinosaur-park", "tr": "Dinozor Parkı", "en": "Dinosaur Park", "roles": [
+        ["Dinozor bakıcısı", "Dinosaur keeper"],
+        ["Paleontolog", "Palaeontologist"],
+        ["Kaçan dinozor", "Escaped dinosaur"],
+        ["Park müdürü", "Park director"],
+        ["Cip rehberi", "Jeep guide"],
+        ["Kuluçka uzmanı", "Hatchery technician"],
+        ["Kaçmaya çalışan turist", "Tourist running for it"]
+      ] },
+      { "id": "mermaid-palace", "tr": "Denizkızı Sarayı", "en": "Mermaid Palace", "roles": [
+        ["Denizkızı prenses", "Mermaid princess"],
+        ["Deniz kralı", "Sea king"],
+        ["Yengeç uşak", "Crab butler"],
+        ["İstiridye kuyumcu", "Oyster jeweller"],
+        ["Köpekbalığı muhafız", "Shark guard"],
+        ["Kaybolan dalgıç", "Lost diver"],
+        ["Ahtapot aşçı", "Octopus chef"]
+      ] },
+      { "id": "santas-workshop", "tr": "Noel Baba Atölyesi", "en": "Santa's Workshop", "roles": [
+        ["Noel Baba", "Father Christmas"],
+        ["Elf", "Elf"],
+        ["Ren geyiği", "Reindeer"],
+        ["Mektup okuyan elf", "Elf reading the letters"],
+        ["Oyuncak ustası", "Toymaker"],
+        ["Paketçi", "Gift wrapper"],
+        ["Bacadan inmeyi deneyen stajyer", "Intern practising chimney landings"]
+      ] },
+      { "id": "robot-factory", "tr": "Robot Fabrikası", "en": "Robot Factory", "roles": [
+        ["Mühendis", "Engineer"],
+        ["Montaj robotu", "Assembly robot"],
+        ["Kalite kontrolcü", "Quality inspector"],
+        ["Bozuk robot", "Faulty robot"],
+        ["Yazılımcı", "Programmer"],
+        ["Fabrika müdürü", "Factory manager"],
+        ["Robotlardan korkan bekçi", "Night guard afraid of robots"]
+      ] },
+      { "id": "superhero-hq", "tr": "Süper Kahraman Karargahı", "en": "Superhero HQ", "roles": [
+        ["Süper kahraman", "Superhero"],
+        ["Yardımcı kahraman", "Sidekick"],
+        ["Kostüm tasarımcısı", "Costume designer"],
+        ["Teknoloji uzmanı", "Gadget expert"],
+        ["Uçamayan kahraman", "Hero who cannot fly"],
+        ["Kahramanın annesi", "The hero's mum"],
+        ["Gizli kimliği ortaya çıkan", "Hero whose secret identity just leaked"]
+      ] },
+      { "id": "villains-lair", "tr": "Kötü Adam Sığınağı", "en": "Villain's Lair", "roles": [
+        ["Kötü dahi", "Evil genius"],
+        ["Uşak", "Henchman"],
+        ["Köpekbalığı bakıcısı", "Shark keeper"],
+        ["Esir ajan", "Captured agent"],
+        ["Çılgın bilim insanı", "Mad scientist"],
+        ["Kötü adamın kedisi", "The villain's cat"],
+        ["Kötülüğün muhasebecisi", "Evil's accountant"]
+      ] },
+      { "id": "fairytale-castle", "tr": "Masal Şatosu", "en": "Fairy-tale Castle", "roles": [
+        ["Kral", "King"],
+        ["Kraliçe", "Queen"],
+        ["Prenses", "Princess"],
+        ["Saray soytarısı", "Court jester"],
+        ["Kurbağa prens", "Frog prince"],
+        ["Cadı", "Witch"],
+        ["Muhafız", "Guard"]
+      ] },
+      { "id": "viking-ship", "tr": "Viking Gemisi", "en": "Viking Longship", "roles": [
+        ["Viking reis", "Viking chief"],
+        ["Kürekçi", "Rower"],
+        ["Kalkan ustası", "Shield maker"],
+        ["Ozan", "Skald"],
+        ["Rota bulan", "Navigator"],
+        ["Deniz tutan Viking", "Seasick Viking"],
+        ["Kuzgun", "Raven"]
+      ] },
+      { "id": "pyramid", "tr": "Piramit", "en": "Pyramid", "roles": [
+        ["Firavun", "Pharaoh"],
+        ["Mumya", "Mummy"],
+        ["Arkeolog", "Archaeologist"],
+        ["Mezar hırsızı", "Grave robber"],
+        ["Kahin", "Priest"],
+        ["Taş taşıyan işçi", "Stone hauler"],
+        ["Kaybolan turist", "Lost tourist"]
+      ] },
+      { "id": "gladiator-arena", "tr": "Gladyatör Arenası", "en": "Gladiator Arena", "roles": [
+        ["Gladyatör", "Gladiator"],
+        ["İmparator", "Emperor"],
+        ["Aslan", "Lion"],
+        ["Tribündeki seyirci", "Spectator"],
+        ["Silah ustası", "Weaponsmith"],
+        ["Tellal", "Herald"],
+        ["Gladyatör hocası", "Gladiator trainer"]
+      ] },
+      { "id": "wild-west-town", "tr": "Vahşi Batı Kasabası", "en": "Wild West Town", "roles": [
+        ["Şerif", "Sheriff"],
+        ["Kovboy", "Cowboy"],
+        ["Meyhaneci", "Saloon owner"],
+        ["Banka soyguncusu", "Bank robber"],
+        ["Altın arayıcısı", "Gold prospector"],
+        ["Demirci", "Blacksmith"],
+        ["Piyanist", "Saloon pianist"]
+      ] },
+      { "id": "ninja-school", "tr": "Ninja Okulu", "en": "Ninja School", "roles": [
+        ["Usta ninja", "Ninja master"],
+        ["Çırak ninja", "Apprentice ninja"],
+        ["Kılıç ustası", "Swordsmith"],
+        ["Saklanamayan öğrenci", "Student who cannot hide"],
+        ["Duvar tırmanma hocası", "Wall-climbing teacher"],
+        ["Çay ustası", "Tea master"],
+        ["Sessiz bekçi", "Silent guard"]
+      ] },
+      { "id": "flying-carpet", "tr": "Uçan Halı", "en": "Flying Carpet", "roles": [
+        ["Halı pilotu", "Carpet pilot"],
+        ["Lamba cini", "Genie of the lamp"],
+        ["Sultan", "Sultan"],
+        ["Düşmekten korkan yolcu", "Passenger afraid of falling off"],
+        ["Halı tamircisi", "Carpet mender"],
+        ["Çarşı tüccarı", "Bazaar merchant"],
+        ["Kaçak yolcu", "Stowaway"]
+      ] },
+      { "id": "enchanted-forest", "tr": "Sihirli Orman", "en": "Enchanted Forest", "roles": [
+        ["Konuşan ağaç", "Talking tree"],
+        ["Peri", "Fairy"],
+        ["Kaybolan çocuk", "Lost child"],
+        ["Oduncu", "Woodcutter"],
+        ["Tek boynuzlu at", "Unicorn"],
+        ["Cadı", "Witch"],
+        ["Mantar toplayan cüce", "Dwarf picking mushrooms"]
+      ] },
+      { "id": "giants-kitchen", "tr": "Devin Mutfağı", "en": "Giant's Kitchen", "roles": [
+        ["Dev aşçı", "Giant cook"],
+        ["Tencerede saklanan minik adam", "Tiny man hiding in a pot"],
+        ["Fasulye sırığından tırmanan çocuk", "Child who climbed the beanstalk"],
+        ["Konuşan kaşık", "Talking spoon"],
+        ["Devin kedisi", "The giant's cat"],
+        ["Peynir arayan fare", "Mouse looking for cheese"],
+        ["Altın yumurtlayan tavuk", "Hen that lays golden eggs"]
+      ] },
+      { "id": "jungle-temple", "tr": "Orman Tapınağı", "en": "Jungle Temple", "roles": [
+        ["Arkeolog", "Archaeologist"],
+        ["Rehber", "Guide"],
+        ["Yılan", "Snake"],
+        ["Tuzak ustası", "Trap maker"],
+        ["Hazine avcısı", "Treasure hunter"],
+        ["Maymun", "Monkey"],
+        ["Kaybolan fotoğrafçı", "Lost photographer"]
+      ] },
+      { "id": "secret-service-hq", "tr": "Gizli Servis Karargahı", "en": "Secret Service HQ", "roles": [
+        ["Ajan", "Agent"],
+        ["Şifre çözücü", "Codebreaker"],
+        ["Teknik uzman", "Gadget maker"],
+        ["Servis şefi", "Spymaster"],
+        ["Kılık değiştirme uzmanı", "Disguise artist"],
+        ["Çift taraflı ajan", "Double agent"],
+        ["Kahve getiren stajyer", "Intern bringing coffee"]
+      ] },
+      { "id": "detective-agency", "tr": "Dedektif Bürosu", "en": "Detective Agency", "roles": [
+        ["Dedektif", "Detective"],
+        ["Asistan", "Assistant"],
+        ["Müşteri", "Client"],
+        ["Şüpheli", "Suspect"],
+        ["Parmak izi uzmanı", "Fingerprint expert"],
+        ["Muhbir", "Informant"],
+        ["Emekli dedektif", "Retired detective"]
+      ] }
+    ]
+  },
+  {
+    "group": 8,
+    "places": [
+      { "id": "inside-the-fridge", "tr": "Buzdolabının İçi", "en": "Inside the Fridge", "roles": [
+        ["Son yumurta", "The last egg"],
+        ["Bayat ekmek", "Stale bread"],
+        ["Unutulan yoğurt", "Forgotten yoghurt"],
+        ["Turşu kavanozu", "Pickle jar"],
+        ["Buzluktaki dondurma", "Ice cream in the freezer"],
+        ["Tarihi geçmiş süt", "Out-of-date milk"],
+        ["Buzdolabı ışığı", "The fridge light"]
+      ] },
+      { "id": "human-body", "tr": "İnsan Vücudu", "en": "Inside the Human Body", "roles": [
+        ["Alyuvar", "Red blood cell"],
+        ["Akyuvar", "White blood cell"],
+        ["Virüs", "Virus"],
+        ["Kalp kası", "Heart muscle"],
+        ["Mide asidi", "Stomach acid"],
+        ["Beyin hücresi", "Brain cell"],
+        ["Gelmek üzere olan hapşırık", "A sneeze on its way"]
+      ] },
+      { "id": "inside-a-computer", "tr": "Bilgisayarın İçi", "en": "Inside a Computer", "roles": [
+        ["İşlemci", "Processor"],
+        ["Soğutma fanı", "Cooling fan"],
+        ["Bilgisayar virüsü", "Computer virus"],
+        ["Silinen dosya", "Deleted file"],
+        ["Sabit disk", "Hard drive"],
+        ["Fare imleci", "Mouse cursor"],
+        ["Güncelleme bekleyen program", "Program waiting for an update"]
+      ] },
+      { "id": "snow-globe", "tr": "Kar Küresi", "en": "Snow Globe", "roles": [
+        ["Minik kardan adam", "Tiny snowman"],
+        ["Kızak çeken çocuk", "Child pulling a sled"],
+        ["Küreyi sallayan el", "The hand that shakes the globe"],
+        ["Kar tanesi", "Snowflake"],
+        ["Raftaki hediyelikçi", "Souvenir shop owner"],
+        ["Minik evin sakini", "Resident of the tiny house"],
+        ["Çam ağacı", "Pine tree"]
+      ] },
+      { "id": "ant-nest", "tr": "Karınca Yuvası", "en": "Ant Nest", "roles": [
+        ["Kraliçe karınca", "Queen ant"],
+        ["İşçi karınca", "Worker ant"],
+        ["Asker karınca", "Soldier ant"],
+        ["Şeker taşıyan karınca", "Ant carrying sugar"],
+        ["Yolunu kaybeden karınca", "Lost ant"],
+        ["Yumurta bakıcısı", "Egg nurse"],
+        ["Büyüteçli çocuk", "Child with a magnifying glass"]
+      ] },
+      { "id": "penguin-colony", "tr": "Penguen Kolonisi", "en": "Penguin Colony", "roles": [
+        ["Baba penguen", "Father penguin"],
+        ["Yavru penguen", "Penguin chick"],
+        ["Balık avlayan penguen", "Fishing penguin"],
+        ["Fok", "Seal"],
+        ["Belgesel çekimcisi", "Documentary maker"],
+        ["Karnının üstünde kayan penguen", "Penguin sliding on its belly"],
+        ["Kayıp penguen", "Lost penguin"]
+      ] },
+      { "id": "treehouse", "tr": "Ağaç Ev", "en": "Treehouse", "roles": [
+        ["Kulüp başkanı", "Club president"],
+        ["Şifre soran kapıcı", "Doorkeeper asking for the password"],
+        ["Merdiveni tutan arkadaş", "Friend holding the ladder"],
+        ["Sincap", "Squirrel"],
+        ["Yukarı çıkamayan baba", "Dad who cannot climb up"],
+        ["Dürbünlü gözcü", "Lookout with binoculars"],
+        ["Çivi çakan marangoz", "Carpenter"]
+      ] },
+      { "id": "sandcastle", "tr": "Kumdan Kale", "en": "Sandcastle", "roles": [
+        ["Kale mimarı", "Castle architect"],
+        ["Kova taşıyan", "Bucket carrier"],
+        ["Hendek kazan", "Moat digger"],
+        ["Yengeç", "Crab"],
+        ["Kaleyi yıkmak isteyen dalga", "The wave that wants to knock it down"],
+        ["Bayrak diken çocuk", "Child placing the flag"],
+        ["Kıskanç komşu çocuk", "Jealous kid next door"]
+      ] },
+      { "id": "game-show", "tr": "Yarışma Programı", "en": "TV Game Show", "roles": [
+        ["Sunucu", "Host"],
+        ["Yarışmacı", "Contestant"],
+        ["Seyirciye soran yarışmacı", "Contestant asking the audience"],
+        ["Alkışçı seyirci", "Clapping audience member"],
+        ["Kameraman", "Camera operator"],
+        ["Soru yazarı", "Question writer"],
+        ["Telefon jokeri dayı", "Uncle on the phone-a-friend line"]
+      ] },
+      { "id": "news-studio", "tr": "Haber Stüdyosu", "en": "TV News Studio", "roles": [
+        ["Spiker", "News anchor"],
+        ["Hava durumu sunucusu", "Weather presenter"],
+        ["Muhabir", "Reporter"],
+        ["Reji ekibi", "Control room crew"],
+        ["Makyöz", "Make-up artist"],
+        ["Prompter operatörü", "Autocue operator"],
+        ["Canlı yayına giren kedi", "Cat that walks into the live broadcast"]
+      ] },
+      { "id": "cooking-contest", "tr": "Yemek Yarışması", "en": "Cooking Contest", "roles": [
+        ["Jüri şefi", "Judge chef"],
+        ["Yarışmacı", "Contestant"],
+        ["Süre tutan sunucu", "Host keeping time"],
+        ["Tadım yapan jüri", "Tasting judge"],
+        ["Yemeği yanan yarışmacı", "Contestant who burned the dish"],
+        ["Kameraman", "Camera operator"],
+        ["Mutfak asistanı", "Kitchen assistant"]
+      ] },
+      { "id": "reality-show-house", "tr": "Yarışma Evi", "en": "Reality Show House", "roles": [
+        ["Yarışmacı", "Housemate"],
+        ["Günlük odası", "The diary room"],
+        ["Yapımcı", "Producer"],
+        ["Elenen yarışmacı", "Evicted housemate"],
+        ["Sunucu", "Host"],
+        ["Sürekli ağlayan yarışmacı", "Housemate who keeps crying"],
+        ["İttifak kuran", "Housemate forming an alliance"]
+      ] },
+      { "id": "fashion-week", "tr": "Moda Haftası", "en": "Fashion Week", "roles": [
+        ["Manken", "Model"],
+        ["Modacı", "Fashion designer"],
+        ["Ön sıradaki ünlü", "Celebrity in the front row"],
+        ["Fotoğrafçı", "Photographer"],
+        ["Kuliste dikiş yapan", "Seamstress backstage"],
+        ["Moda eleştirmeni", "Fashion critic"],
+        ["Podyumda tökezleyen manken", "Model who stumbles on the runway"]
+      ] },
+      { "id": "science-fair", "tr": "Bilim Fuarı", "en": "Science Fair", "roles": [
+        ["Yanardağ maketi yapan öğrenci", "Student with a volcano model"],
+        ["Jüri öğretmen", "Judging teacher"],
+        ["Robot yapan öğrenci", "Student who built a robot"],
+        ["Gururlu veli", "Proud parent"],
+        ["Patlayan deney", "Experiment that went bang"],
+        ["Okul müdürü", "Headteacher"],
+        ["Ödül kazanan öğrenci", "Prize winner"]
+      ] },
+      { "id": "olympic-village", "tr": "Olimpiyat Köyü", "en": "Olympic Village", "roles": [
+        ["Halterci", "Weightlifter"],
+        ["Yüzücü", "Swimmer"],
+        ["Antrenör", "Coach"],
+        ["Doping kontrolcüsü", "Doping control officer"],
+        ["Bayrak taşıyıcı", "Flag bearer"],
+        ["Gönüllü", "Volunteer"],
+        ["Madalyasını ısıran sporcu", "Athlete biting their medal"]
+      ] },
+      { "id": "magic-show", "tr": "Sihirbaz Gösterisi", "en": "Magic Show", "roles": [
+        ["Sihirbaz", "Magician"],
+        ["Asistan", "Assistant"],
+        ["Sahneye çağrılan seyirci", "Audience volunteer"],
+        ["Şapkadaki tavşan", "Rabbit in the hat"],
+        ["Hileyi çözmeye çalışan", "Spectator trying to work out the trick"],
+        ["Işıkçı", "Lighting operator"],
+        ["İkiye bölünen gönüllü", "Volunteer being sawn in half"]
+      ] },
+      { "id": "halloween-party", "tr": "Cadılar Bayramı Partisi", "en": "Halloween Party", "roles": [
+        ["Vampir kostümlü misafir", "Guest dressed as a vampire"],
+        ["Cadı kostümlü misafir", "Guest dressed as a witch"],
+        ["Ev sahibi", "Host"],
+        ["Şeker toplayan çocuk", "Trick-or-treater"],
+        ["Balkabağı oyan", "Pumpkin carver"],
+        ["Kostüm giymeyen misafir", "Guest who did not dress up"],
+        ["DJ", "DJ"]
+      ] },
+      { "id": "new-years-eve", "tr": "Yılbaşı Partisi", "en": "New Year's Eve Party", "roles": [
+        ["Ev sahibi", "Host"],
+        ["Piyango biletine bakan", "Person checking their lottery ticket"],
+        ["Geri sayımı yapan", "Person leading the countdown"],
+        ["Noel Baba kılığındaki dayı", "Uncle dressed as Father Christmas"],
+        ["Tombala çeken teyze", "Auntie calling the bingo numbers"],
+        ["Uyuyakalan misafir", "Guest who fell asleep"],
+        ["Havai fişek izleyen", "Person watching the fireworks"]
+      ] },
+      { "id": "sleepover", "tr": "Pijama Partisi", "en": "Sleepover", "roles": [
+        ["Ev sahibi çocuk", "Host kid"],
+        ["Korku hikayesi anlatan", "Kid telling ghost stories"],
+        ["İlk uyuyan", "First one to fall asleep"],
+        ["Yastık savaşı başlatan", "Kid who starts the pillow fight"],
+        ["Gece atıştırmalığı çalan", "Midnight snack thief"],
+        ["Uyuyun diyen anne", "Mum saying go to sleep"],
+        ["Evini özleyen çocuk", "Homesick kid"]
+      ] },
+      { "id": "lost-property-office", "tr": "Kayıp Eşya Bürosu", "en": "Lost Property Office", "roles": [
+        ["Büro memuru", "Clerk"],
+        ["Şemsiyesini arayan", "Person looking for their umbrella"],
+        ["Takma dişini kaybeden", "Person who lost their false teeth"],
+        ["Eşya kaydeden görevli", "Staff member logging items"],
+        ["Bulduğu cüzdanı getiren", "Person handing in a found wallet"],
+        ["Sahipsiz bavul", "Unclaimed suitcase"],
+        ["Hiçbir şey bulamayan turist", "Tourist who finds nothing"]
+      ] },
+      { "id": "wax-museum", "tr": "Balmumu Müzesi", "en": "Wax Museum", "roles": [
+        ["Heykeltıraş", "Sculptor"],
+        ["Gece bekçisi", "Night guard"],
+        ["Heykel sanılan turist", "Tourist mistaken for a statue"],
+        ["Rehber", "Guide"],
+        ["Eriyen heykel", "Melting statue"],
+        ["Fotoğraf çektiren hayran", "Fan posing for a photo"],
+        ["Bilet satıcısı", "Ticket seller"]
+      ] },
+      { "id": "hall-of-mirrors", "tr": "Aynalı Labirent", "en": "Hall of Mirrors", "roles": [
+        ["Kaybolan çocuk", "Lost child"],
+        ["Gülmekten kırılan aile", "Family in fits of laughter"],
+        ["Bilet görevlisi", "Ticket attendant"],
+        ["Aynaya çarpan", "Person who walked into a mirror"],
+        ["Cam silen görevli", "Glass cleaner"],
+        ["İnsanı geniş gösteren ayna", "The mirror that makes you look wide"],
+        ["Çıkışı bulan", "Person who found the exit"]
+      ] },
+      { "id": "blind-date", "tr": "Kör Randevu", "en": "Blind Date", "roles": [
+        ["Heyecanlı aday", "Nervous date"],
+        ["Garson", "Waiter"],
+        ["Randevuyu ayarlayan arkadaş", "Friend who set it up"],
+        ["Yan masadan izleyen", "Friend spying from the next table"],
+        ["Hiç gelmeyen kişi", "The one who never showed up"],
+        ["Gül satan", "Rose seller"],
+        ["Hesabı ödemekte ısrar eden", "Person insisting on paying"]
+      ] },
+      { "id": "volcano", "tr": "Yanardağ", "en": "Volcano", "roles": [
+        ["Yanardağ bilimci", "Volcanologist"],
+        ["Turist", "Tourist"],
+        ["Helikopter pilotu", "Helicopter pilot"],
+        ["Kükürt madencisi", "Sulphur miner"],
+        ["Belgeselci", "Documentary maker"],
+        ["Lav akıntısı", "Lava flow"],
+        ["Eteklerinde yaşayan köylü", "Villager living on its slopes"]
+      ] },
+      { "id": "toy-box", "tr": "Oyuncak Kutusu", "en": "The Toy Box", "roles": [
+        ["Kurmalı asker", "Wind-up soldier"],
+        ["Pelüş ayı", "Teddy bear"],
+        ["Pili biten robot", "Robot with a flat battery"],
+        ["Bez bebek", "Rag doll"],
+        ["Topaç", "Spinning top"],
+        ["Raftan düşen dinozor", "Dinosaur that fell off the shelf"],
+        ["Kutunun sahibi çocuk", "The child who owns the box"]
+      ] }
+    ]
+  }
+]

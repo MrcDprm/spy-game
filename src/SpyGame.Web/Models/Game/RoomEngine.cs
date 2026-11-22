@@ -1,7 +1,8 @@
 namespace SpyGame.Web.Models.Game;
 
 /// <summary>
-/// The rules of a room as a state machine: Lobby → Asking → Voting → (LastGuess) → Results.
+/// The rules of a room as a state machine: Lobby → Asking → Voting → (LastGuess) → Results, where a
+/// spy who names the place during Asking goes straight to Results.
 /// Every action returns null when it was applied, or an error code when it was not allowed;
 /// a refused action leaves the room unchanged. Time is passed in, so tests control the clock.
 /// </summary>
@@ -152,6 +153,24 @@ public static class RoomEngine
     }
 
     /// <summary>
+    /// During the questions a spy can stop the round at any moment: they give themselves away and name
+    /// a place, once. Right, and the spies win; wrong, and the civilians win. This is what keeps the
+    /// civilians careful: a question or an answer that gives the place away lets the spy win at once.
+    /// </summary>
+    public static string? RevealGuess(Room room, string playerId, string placeId, DateTimeOffset now)
+    {
+        if (room.Phase != Phase.Asking) return "wrong_phase";
+        if (!room.InRound(playerId)) return "not_in_round";
+        var round = room.Round!;
+        if (!round.Deal.IsSpy(playerId)) return "not_a_spy";
+        if (!room.Settings.ActivePlaceIds.Contains(placeId)) return "invalid_guess";
+        round.RevealedId = playerId;
+        round.GuessPlaceId = placeId;
+        Finish(room, guessed: placeId == round.Deal.PlaceId);
+        return null;
+    }
+
+    /// <summary>
     /// Moves the room on when a deadline has passed. Returns true if anything changed.
     /// The next phase starts at the deadline, not at "now": if the server was late (asleep,
     /// restarted), the phases that should already have ended are not given their time again.
@@ -208,12 +227,16 @@ public static class RoomEngine
     private static void Finish(Room room, bool guessed)
     {
         var round = room.Round!;
-        var vote = Voting.Tally(round.PlayerIds, round.Votes);
-        round.Outcome = Scoring.Decide(vote, round.Deal.SpyIds, guessed);
+        round.Outcome = round.RevealedId is { } revealed
+            ? Scoring.Revealed(revealed, guessed)
+            : Scoring.Decide(Voting.Tally(round.PlayerIds, round.Votes), round.Deal.SpyIds, guessed);
         round.Points = Scoring.Points(round.PlayerIds, round.Deal.SpyIds, round.Votes, round.Outcome).ToDictionary();
         foreach (var (id, points) in round.Points)
         {
-            if (room.Find(id) is { } player) player.Score += points;
+            if (room.Find(id) is not { } player) continue;
+            player.Score += points;
+            player.Rounds++;
+            if (round.Deal.IsSpy(id)) player.SpyRounds++;
         }
         room.Phase = Phase.Results;
         room.RoundsPlayed = round.Number;

@@ -68,6 +68,21 @@ document.addEventListener("DOMContentLoaded", function () {
     refresh();
   }
 
+  // What's new: shown once per browser, then remembered. Without storage it stays closed rather than
+  // coming back on every page.
+  var news = document.querySelector("dialog[data-news]");
+  if (news && typeof news.showModal === "function") {
+    var newsKey = "sg-news-" + news.dataset.news;
+    var seen = true;
+    try { seen = localStorage.getItem(newsKey) === "1"; } catch (e) { /* storage blocked */ }
+    if (!seen) {
+      news.addEventListener("close", function () {
+        try { localStorage.setItem(newsKey, "1"); } catch (e) { /* storage blocked */ }
+      });
+      news.showModal();
+    }
+  }
+
   // Keep what is typed in the allowed shape: nicknames in lowercase, room codes in capitals.
   // The server checks again; this only saves people from an avoidable error.
   function keepCase(input, transform) {

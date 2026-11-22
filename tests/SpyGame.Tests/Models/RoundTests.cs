@@ -2,14 +2,18 @@ using SpyGame.Web.Models.Game;
 
 namespace SpyGame.Tests.Models;
 
-/// <summary>Returns the given numbers in order, so a test knows exactly what is drawn.</summary>
+/// <summary>
+/// Returns the given numbers in order, so a test knows exactly what is drawn; after them, zeros
+/// (the draws a test does not care about, such as the shuffle of the roles).
+/// </summary>
 internal sealed class FixedRandom(params int[] values) : IRandomSource
 {
     private int _next;
 
     public int Next(int maxExclusive)
     {
-        var value = values[_next++ % values.Length];
+        var value = _next < values.Length ? values[_next] : 0;
+        _next++;
         Assert.InRange(value, 0, maxExclusive - 1);
         return value;
     }
@@ -19,16 +23,45 @@ public class WordBankTests
 {
     private static IEnumerable<Word> All => WordBank.Groups.SelectMany(g => g.Words);
 
+    // The 102 places the game had before the new dossiers; they must all stay, under the same ids.
+    private static readonly string[] Original =
+    [
+        "plane", "bank", "beach", "theatre", "casino", "cathedral", "circus-tent", "office-party", "crusader-army", "day-spa",
+        "embassy", "hospital", "hotel", "military-base", "film-studio", "ocean-liner", "passenger-train", "pirate-ship",
+        "polar-station", "police-station", "restaurant", "school", "car-repair-shop", "space-station", "submarine",
+        "supermarket", "university",
+        "amusement-park", "art-museum", "sweet-factory", "cat-show", "cemetery", "coal-mine", "building-site",
+        "gaming-convention", "petrol-station", "harbour", "ice-hockey-arena", "prison", "jazz-club", "library", "nightclub",
+        "race-track", "retirement-home", "rock-concert", "sightseeing-bus", "stadium", "underground", "united-nations",
+        "vineyard", "wedding", "zoo",
+        "swimming-pool", "gym", "ski-resort", "golf-course", "boxing-gym", "campsite", "holiday-resort", "caravan", "yacht",
+        "mountain-cabin", "tutoring-centre", "laboratory", "student-dormitory", "conference-hall", "pharmacy", "dentist",
+        "ambulance", "operating-room", "airport", "bus-terminal", "taxi-rank", "car-park", "cinema", "opera-house", "photo-studio",
+        "cafe", "botanical-garden", "patisserie", "tea-garden", "kebab-house", "fish-restaurant", "ice-cream-shop",
+        "shopping-mall", "boutique", "greengrocer", "jeweller", "bookshop", "street-market", "florist", "toy-shop", "arcade",
+        "bowling-alley", "pool-hall", "karaoke-bar", "escape-room", "paintball-field", "water-park", "playground",
+        "puppet-theatre", "dance-studio",
+    ];
+
     [Fact]
-    public void Four_numbered_groups_of_places_in_both_languages()
+    public void Eight_numbered_groups_of_places_in_both_languages()
     {
-        Assert.Equal([1, 2, 3, 4], WordBank.Groups.Select(g => g.Number));
-        Assert.Equal([27, 25, 25, 25], WordBank.Groups.Select(g => g.Words.Count));
+        Assert.Equal([1, 2, 3, 4, 5, 6, 7, 8], WordBank.Groups.Select(g => g.Number));
+        Assert.Equal([27, 25, 25, 25, 25, 25, 25, 25], WordBank.Groups.Select(g => g.Words.Count));
+        Assert.Equal(202, All.Count());
         Assert.All(All, w =>
         {
             Assert.Matches("^[a-z]+(-[a-z]+)*$", w.Id);
             Assert.False(string.IsNullOrWhiteSpace(w.Tr) || string.IsNullOrWhiteSpace(w.En));
         });
+    }
+
+    [Fact]
+    public void The_original_places_are_all_still_there_in_the_first_four_groups()
+    {
+        Assert.Equal(Original, WordBank.Groups.Take(4).SelectMany(g => g.Words).Select(w => w.Id));
+        Assert.Equal("Kumsal", WordBank.Find("beach")!.Tr);
+        Assert.Equal("Haçlı Ordusu", WordBank.Find("crusader-army")!.Tr);
     }
 
     [Fact]
@@ -42,11 +75,37 @@ public class WordBankTests
     }
 
     [Fact]
-    public void A_new_room_starts_with_the_first_two_groups()
+    public void Every_place_has_seven_different_roles_in_both_languages()
     {
-        Assert.Equal(52, WordBank.DefaultPlaceIds.Count);
+        Assert.All(All, w =>
+        {
+            var roles = WordBank.RolesOf(w.Id);
+            Assert.Equal(WordBank.RolesPerPlace, roles.Count);
+            Assert.All(roles, r => Assert.False(string.IsNullOrWhiteSpace(r.Tr) || string.IsNullOrWhiteSpace(r.En)));
+            Assert.Equal(roles.Count, roles.Select(r => r.Tr).Distinct().Count());
+            Assert.Equal(roles.Count, roles.Select(r => r.En).Distinct().Count());
+        });
+        Assert.Contains(new Role("Hemşire", "Nurse"), WordBank.RolesOf("hospital"));
+        Assert.Empty(WordBank.RolesOf("nope"));
+    }
+
+    [Fact]
+    public void Place_and_role_names_follow_the_writing_rules()
+    {
+        // No circumflex letters, brackets or quotation marks in anything a player reads.
+        var texts = All.SelectMany(w => new[] { w.Tr, w.En }.Concat(WordBank.RolesOf(w.Id).SelectMany(r => new[] { r.Tr, r.En })));
+        Assert.All(texts, text => Assert.DoesNotMatch("[âîûÂÎÛ()\\[\\]\"“”«»]", text));
+    }
+
+    [Fact]
+    public void A_new_room_starts_with_25_well_known_places_from_several_groups()
+    {
+        Assert.Equal(25, WordBank.DefaultPlaceIds.Count);
+        Assert.Equal(25, WordBank.DefaultPlaceIds.Distinct().Count());
+        Assert.All(WordBank.DefaultPlaceIds, id => Assert.True(WordBank.Exists(id)));
         Assert.Null(new RoomSettings { PlaceIds = [.. WordBank.DefaultPlaceIds] }.Problem());
-        Assert.Equal("Kumsal", WordBank.Find("beach")!.Tr);
+        var groups = WordBank.Groups.Where(g => g.Words.Any(w => WordBank.DefaultPlaceIds.Contains(w.Id))).Select(g => g.Number);
+        Assert.Equal([1, 2, 3, 4, 5], groups);
         Assert.Null(WordBank.Find("nope"));
     }
 }
@@ -109,6 +168,75 @@ public class RoundRulesTests
         for (var i = 0; i < rounds; i++) times[RoundRules.Deal(Five, TestPlaces.Ten, 1, random).SpyIds[0]]++;
         // 2000 expected each; a fair draw stays well inside +-15%.
         Assert.All(times.Values, n => Assert.InRange(n, 1700, 2300));
+    }
+
+    [Fact]
+    public void Being_the_spy_last_round_changes_nothing_about_the_next_one()
+    {
+        // Through the real room, round after round: 4 players, 1 spy. Whatever happened before, each
+        // round every player is the spy one time in four, the host and the first asker included.
+        var t0 = DateTimeOffset.UnixEpoch;
+        var room = RoomEngine.Create("ABC234", "p1", "host", new RoomSettings { PlaceIds = [.. TestPlaces.Ten] }, t0);
+        for (var i = 2; i <= 4; i++) Assert.Null(RoomEngine.Join(room, $"p{i}", $"player{i}", t0));
+        var random = new CryptoRandomSource();
+        const int rounds = 20_000;
+        int again = 0, host = 0, firstAsker = 0;
+        string? last = null;
+        var now = t0;
+        for (var i = 0; i < rounds; i++)
+        {
+            now = now.AddHours(1);
+            Assert.Null(RoomEngine.StartRound(room, room.HostId, now, random));
+            var spy = room.Round!.Deal.SpyIds[0];
+            if (spy == last) again++;
+            if (spy == room.HostId) host++;
+            if (spy == room.Round.Deal.FirstAskerId) firstAsker++;
+            last = spy;
+            RoomEngine.Tick(room, now.AddMinutes(30)); // nobody votes: the round ends by itself
+        }
+        // About 5000 expected each. One standard deviation is about 61, so these bounds are more than six away.
+        Assert.InRange(again, 4600, 5400);
+        Assert.InRange(host, 4600, 5400);
+        Assert.InRange(firstAsker, 4600, 5400);
+        Assert.Equal(rounds, room.Players.Sum(p => p.SpyRounds)); // the counters saw every round
+    }
+
+    [Fact]
+    public void Civilians_get_different_roles_of_the_dealt_place_and_spies_get_none()
+    {
+        var random = new CryptoRandomSource();
+        string[] seven = ["a", "b", "c", "d", "e", "f", "g"];
+        for (var i = 0; i < 300; i++)
+        {
+            var deal = RoundRules.Deal(seven, TestPlaces.Ten, 2, random);
+            var roles = seven.Where(p => !deal.IsSpy(p)).Select(p => deal.RoleOf(p)).ToList();
+            Assert.All(roles, r => Assert.Contains(r!, WordBank.RolesOf(deal.PlaceId)));
+            Assert.Equal(roles.Count, roles.Distinct().Count()); // seven seats, seven roles: nobody shares one
+            Assert.All(deal.SpyIds, s => Assert.Null(deal.RoleOf(s)));
+        }
+    }
+
+    [Fact]
+    public void With_more_players_than_roles_everyone_still_gets_one()
+    {
+        var twelve = Enumerable.Range(1, 12).Select(i => $"p{i}").ToArray();
+        var deal = RoundRules.Deal(twelve, TestPlaces.Ten, 1, new CryptoRandomSource());
+        Assert.All(twelve.Where(p => !deal.IsSpy(p)), p => Assert.NotNull(deal.RoleOf(p)));
+    }
+
+    [Fact]
+    public void Every_role_is_about_equally_likely()
+    {
+        var random = new CryptoRandomSource();
+        var times = new int[WordBank.RolesPerPlace];
+        const int rounds = 7_000;
+        for (var i = 0; i < rounds; i++)
+        {
+            var deal = RoundRules.Deal(Five, TestPlaces.Ten, 1, random);
+            if (deal.Roles!.TryGetValue("a", out var role)) times[role]++;
+        }
+        // "a" is a civilian four rounds in five: about 800 times each role, give or take 26.
+        Assert.All(times, n => Assert.InRange(n, 650, 950));
     }
 
     [Fact]
