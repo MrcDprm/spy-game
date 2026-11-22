@@ -53,7 +53,12 @@ public sealed class GameHub(RoomService rooms, PlayerSessionService sessions, Co
     public Task<string?> Vote(string suspectId) =>
         suspectId is { Length: > 0 and <= 40 } ? rooms.VoteAsync(PlayerId, Code, suspectId) : Task.FromResult<string?>("unknown_player");
 
-    public Task<string?> Guess(string placeId) => rooms.GuessAsync(PlayerId, Code, placeId);
+    public Task<string?> Guess(string placeId) =>
+        placeId is { Length: > 0 and <= 40 } ? rooms.GuessAsync(PlayerId, Code, placeId) : Task.FromResult<string?>("invalid_guess");
+
+    /// <summary>A spy stops the questions and names the place (see <see cref="RoomEngine.RevealGuess"/>).</summary>
+    public Task<string?> RevealGuess(string placeId) =>
+        placeId is { Length: > 0 and <= 40 } ? rooms.RevealGuessAsync(PlayerId, Code, placeId) : Task.FromResult<string?>("invalid_guess");
 
     public Task<string?> Ask(string targetId, string text) => rooms.AskAsync(PlayerId, Code, targetId, text);
 

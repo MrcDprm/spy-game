@@ -1,17 +1,24 @@
 namespace SpyGame.Web.Models.Game;
 
 // What one player is allowed to see of a room. The server builds a separate view for every
-// player and sends only that: the place goes to the civilians, and nobody learns who the spies
-// are before the round ends. The room's list of places is the same for everyone, so everyone in
-// the round gets it: it tells no one who the spy is.
+// player and sends only that: the place and their own role go to each civilian, and nobody learns
+// who the spies are before the round ends. The room's list of places is the same for everyone, so
+// everyone in the round gets it: it tells no one who the spy is.
 
-public sealed record PlayerView(string Id, string Nickname, bool Connected, int Score, bool IsHost, bool InRound, bool Ready, bool HasVoted);
+/// <summary>
+/// A player as everyone sees them. <paramref name="Rounds"/> and <paramref name="SpyRounds"/> count finished
+/// rounds only, so they never give away who is a spy in the round being played.
+/// </summary>
+public sealed record PlayerView(string Id, string Nickname, bool Connected, int Score, bool IsHost, bool InRound, bool Ready, bool HasVoted, int Rounds, int SpyRounds);
 
 /// <summary>The room's places with the struck ones marked: the same for everyone, so it gives no one away.</summary>
 public sealed record SettingsView(IReadOnlyList<Word> Places, IReadOnlyList<string> Struck, int RoundSeconds, int SpyCount, bool Remote);
 
-/// <summary>A civilian gets the place, a spy does not; both get every place of the room (no groups) and the number of spies.</summary>
-public sealed record CardView(bool IsSpy, Word? Place, IReadOnlyList<Word> Places, int SpyCount);
+/// <summary>
+/// A civilian gets the place and their own role, a spy gets neither; both get every place of the room
+/// (no groups) and the number of spies.
+/// </summary>
+public sealed record CardView(bool IsSpy, Word? Place, Role? Role, IReadOnlyList<Word> Places, int SpyCount);
 
 /// <summary>A typed question and its answer (groups playing apart).</summary>
 public sealed record QuestionView(string AskerId, string TargetId, string Question, string? Answer, bool Unanswered);
@@ -27,14 +34,19 @@ public sealed record VotingView(string? YourVote, int VotesCast, int Voters);
 /// <summary>The list of places goes only to the accused spy, who has to pick from it.</summary>
 public sealed record GuessView(string AccusedId, bool YouAreAccused, IReadOnlyList<Word>? Places);
 
-/// <summary>After the round everything is revealed.</summary>
+/// <summary>
+/// After the round everything is revealed: the spies, the place, every civilian's role, and how it ended.
+/// <paramref name="RevealedId"/> is a spy who stopped the questions to name the place; then nobody voted.
+/// </summary>
 public sealed record ResultView(
     Team Winner,
     IReadOnlyList<string> SpyIds,
     Word Place,
     string? AccusedId,
+    string? RevealedId,
     bool SpyGuessed,
     Word? Guess,
+    IReadOnlyDictionary<string, Role> Roles,
     IReadOnlyDictionary<string, string> Votes,
     IReadOnlyDictionary<string, int> Points);
 
@@ -71,7 +83,9 @@ public sealed record RoomView(
                 p.Id, p.Nickname, p.Connected, p.Score, p.Id == room.HostId,
                 InRound: active && round!.PlayerIds.Contains(p.Id),
                 Ready: room.Phase == Phase.Asking && round!.ReadyToVote.Contains(p.Id),
-                HasVoted: room.Phase == Phase.Voting && round!.Votes.ContainsKey(p.Id)))
+                HasVoted: room.Phase == Phase.Voting && round!.Votes.ContainsKey(p.Id),
+                Rounds: p.Rounds,
+                SpyRounds: p.SpyRounds))
             .ToList();
 
         var settings = new SettingsView(
@@ -85,8 +99,8 @@ public sealed record RoomView(
         if (inRound)
         {
             card = round!.Deal.IsSpy(playerId)
-                ? new CardView(true, Place: null, places, round.Deal.SpyIds.Count)
-                : new CardView(false, round.Deal.Word, places, round.Deal.SpyIds.Count);
+                ? new CardView(true, Place: null, Role: null, places, round.Deal.SpyIds.Count)
+                : new CardView(false, round.Deal.Word, round.Deal.RoleOf(playerId), places, round.Deal.SpyIds.Count);
         }
 
         VotingView? voting = room.Phase == Phase.Voting && inRound
@@ -100,13 +114,20 @@ public sealed record RoomView(
         ResultView? result = null;
         if (room.Phase == Phase.Results && round?.Outcome is { } outcome)
         {
+            var roles = new Dictionary<string, Role>();
+            foreach (var id in round.PlayerIds)
+            {
+                if (round.Deal.RoleOf(id) is { } role) roles[id] = role;
+            }
             result = new ResultView(
                 outcome.Winner,
                 round.Deal.SpyIds,
                 round.Deal.Word,
                 outcome.AccusedId,
+                outcome.RevealedId,
                 outcome.SpyGuessedWord,
                 round.GuessPlaceId is { } g ? WordBank.Find(g) : null,
+                roles,
                 round.Votes,
                 round.Points ?? []);
         }

@@ -1,6 +1,7 @@
 @model SpyGame.Web.Models.ViewModels.PlayViewModel
 @{
     ViewData["Title"] = Model.Code;
+    ViewData["NoNews"] = true;
 }
 <div class="room" data-room="@Model.Code" data-invite="@Model.InviteUrl">
     <div class="room-bar">

@@ -132,6 +132,9 @@ public sealed class RoomService(
     public Task<string?> GuessAsync(string playerId, string code, string placeId) =>
         ChangeAsync(code, room => RoomEngine.Guess(room, playerId, placeId, clock.GetUtcNow()));
 
+    public Task<string?> RevealGuessAsync(string playerId, string code, string placeId) =>
+        ChangeAsync(code, room => RoomEngine.RevealGuess(room, playerId, placeId, clock.GetUtcNow()));
+
     /// <summary>A player's connection opened or closed (a page refresh, a phone going to sleep).</summary>
     public Task<string?> SetConnectedAsync(string playerId, string code, bool connected) =>
         ChangeAsync(code, room =>

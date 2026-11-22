@@ -136,6 +136,25 @@
             <p class="footer-meta">© @DateTime.UtcNow.Year Miraç Deprem</p>
         </div>
     </footer>
+    @* What's new: site.js opens it once per browser. Not on a room page, where it would interrupt a round.
+       "!" keeps the form tag helper away: this form only closes the dialog, it is never sent. *@
+    @if (ViewData["NoNews"] is not true)
+    {
+        <dialog class="news" data-news="2026-11" aria-labelledby="news-title">
+            <!form method="dialog" class="news__body">
+                <p class="stamp stamp--small" aria-hidden="true">@T["news.stamp"]</p>
+                @* The title takes the focus when the dialog opens, so it opens at the top, not scrolled to the button. *@
+                <h2 id="news-title" tabindex="-1" autofocus>@T["news.title"]</h2>
+                <ul class="news__list">
+                    @for (var i = 1; i <= 5; i++)
+                    {
+                        <li><strong>@T[$"news.{i}.title"]</strong><p>@T[$"news.{i}.text"]</p></li>
+                    }
+                </ul>
+                <button type="submit" class="btn btn--block">@T["news.close"]</button>
+            </!form>
+        </dialog>
+    }
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

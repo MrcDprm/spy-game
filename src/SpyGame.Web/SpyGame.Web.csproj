@@ -20,4 +20,10 @@
     <PackageReference Include="StackExchange.Redis" Version="3.4.5" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- The places and their roles: built into the app, not a file next to it. -->
+    <Content Remove="Models\Game\places.json" />
+    <EmbeddedResource Include="Models\Game\places.json" LogicalName="SpyGame.Web.places.json" />
+  </ItemGroup>
+
 </Project>

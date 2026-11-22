@@ -1,12 +1,22 @@
 namespace SpyGame.Web.Models.Game;
 
-/// <summary>What the server decided for one round. Only the server ever holds all of it.</summary>
-public sealed record RoundDeal(IReadOnlyList<string> SpyIds, string PlaceId, string FirstAskerId)
+/// <summary>
+/// What the server decided for one round. Only the server ever holds all of it. <paramref name="Roles"/>
+/// maps each civilian to a role of the place (an index into <see cref="WordBank.RolesOf"/>); spies have none.
+/// Rounds saved before roles existed have no map.
+/// </summary>
+public sealed record RoundDeal(IReadOnlyList<string> SpyIds, string PlaceId, string FirstAskerId, IReadOnlyDictionary<string, int>? Roles = null)
 {
     [System.Text.Json.Serialization.JsonIgnore]
     public Word Word => WordBank.Find(PlaceId)!;
 
     public bool IsSpy(string playerId) => SpyIds.Contains(playerId);
+
+    /// <summary>This player's role at the place, or null for a spy.</summary>
+    public Role? RoleOf(string playerId) =>
+        !IsSpy(playerId) && Roles is not null && Roles.TryGetValue(playerId, out var index) && WordBank.RolesOf(PlaceId) is { } roles && index >= 0 && index < roles.Count
+            ? roles[index]
+            : null;
 }
 
 /// <summary>Who plays, how many spies, and dealing the cards.</summary>
@@ -36,9 +46,10 @@ public static class RoundRules
         Math.Clamp(requested, MinSpies, MaxSpiesFor(players));
 
     /// <summary>
-    /// Picks the spies, the place and who asks the first question. Every chosen place is equally likely,
-    /// and so is every player as a spy. The first asker is drawn from everyone except the first askers
-    /// of the last rounds (<paramref name="recentFirstAskers"/>, newest last), so nobody opens twice in a row.
+    /// Picks the spies, the place, who asks the first question and the civilians' roles. Every chosen place
+    /// is equally likely, and so is every player as a spy, whatever happened in earlier rounds: nothing
+    /// about past rounds goes into the spy draw. The first asker is drawn from everyone except the first
+    /// askers of the last rounds (<paramref name="recentFirstAskers"/>, newest last), so nobody opens twice in a row.
     /// </summary>
     public static RoundDeal Deal(IReadOnlyList<string> playerIds, IReadOnlyCollection<string> placeIds, int requestedSpies, IRandomSource random,
         IReadOnlyList<string>? recentFirstAskers = null)
@@ -66,7 +77,30 @@ public static class RoundRules
         }
 
         var firstAsker = PickFirstAsker(playerIds, recentFirstAskers ?? [], random);
-        return new RoundDeal(order[..spies], placeId, firstAsker);
+        var spyIds = order[..spies];
+        return new RoundDeal(spyIds, placeId, firstAsker, DealRoles(playerIds, spyIds, WordBank.RolesOf(placeId).Count, random));
+    }
+
+    /// <summary>
+    /// One shuffle of the place's roles; the players then take them by seat, starting again from the top
+    /// when there are more players than roles. A civilian's role depends only on their seat and the
+    /// shuffle, never on who the spies are, so it tells them nothing about the spies. Spies get none.
+    /// </summary>
+    public static Dictionary<string, int> DealRoles(IReadOnlyList<string> playerIds, IReadOnlyCollection<string> spyIds, int roleCount, IRandomSource random)
+    {
+        var roles = new Dictionary<string, int>();
+        if (roleCount == 0) return roles;
+        var shuffle = Enumerable.Range(0, roleCount).ToArray();
+        for (var i = roleCount - 1; i > 0; i--)
+        {
+            var j = random.Next(i + 1);
+            (shuffle[i], shuffle[j]) = (shuffle[j], shuffle[i]);
+        }
+        for (var seat = 0; seat < playerIds.Count; seat++)
+        {
+            if (!spyIds.Contains(playerIds[seat])) roles[playerIds[seat]] = shuffle[seat % roleCount];
+        }
+        return roles;
     }
 
     /// <summary>

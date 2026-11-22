@@ -24,6 +24,11 @@
   var state = null;     // the latest view from the server
   var clockOffset = 0;  // server time minus this device's time
   var wakeLock = null;
+  var revealing = 0;    // the round in which this player (a spy) opened the list to name the place
+  var listOpen = true;  // the possible places during the questions: open unless the player closed it
+  var suggestion = null; // { round, text }: the last question suggested to this player
+  var hideCard = null;  // closes the card that is on screen now
+  var shownPhase = null; // the phase on screen, to bring each new phase in from the top
 
   // --- helpers ---
 
@@ -49,6 +54,13 @@
   }
 
   function word(w) { return w ? (lang === "en" ? w.en : w.tr) : ""; }
+
+  // Questions that work for any place: they test the spy without giving the place away.
+  var questions = Object.keys(texts).filter(function (k) { return /^suggest\.\d+$/.test(k); }).map(function (k) { return texts[k]; });
+  function randomQuestion(not) {
+    var pool = questions.filter(function (q) { return q !== not; });
+    return pool[Math.floor(Math.random() * pool.length)] || "";
+  }
   // The room's places, alphabetical in the reader's language (the server keeps the chosen order).
   function sorted(places) {
     return places.slice().sort(function (a, b) { return word(a).localeCompare(word(b), lang); });
@@ -98,6 +110,11 @@
   function render() {
     var me = player(state.youId);
     var active = state.phase === "asking" || state.phase === "voting" || state.phase === "lastGuess";
+    if (state.phase !== "asking" || revealing !== state.round) revealing = 0;
+    hideCard = null;
+    // A new phase replaces the whole screen: start it from the top, not where the last one was scrolled.
+    if (shownPhase !== null && shownPhase !== state.phase) window.scrollTo(0, 0);
+    shownPhase = state.phase;
     roundLabel.textContent = state.round > 0 ? t("round", state.round) : "";
     invitePanel.hidden = active;
     keepAwake(active);
@@ -127,6 +144,13 @@
       if (!p.connected) tags.appendChild(el("span", { className: "tag tag--away", text: t("away") }));
       if (p.ready) tags.appendChild(el("span", { className: "tag tag--ok", text: t("ready") }));
       if (p.hasVoted) tags.appendChild(el("span", { className: "tag tag--ok", text: t("voted") }));
+      // Between rounds: how often each player has been the spy, so anyone can see the draw is fair.
+      if ((state.phase === "lobby" || state.phase === "results") && p.rounds > 0) {
+        tags.appendChild(el("span", {
+          className: "tag tag--spy", text: t("spyCount", p.spyRounds, p.rounds),
+          attrs: { title: t("spyCount.title", p.spyRounds, p.rounds), "aria-label": t("spyCount.title", p.spyRounds, p.rounds) },
+        }));
+      }
       var kick = state.youAreHost && p.id !== state.youId
         ? el("button", {
             className: "link-btn players__kick", text: t("kick"),
@@ -142,7 +166,7 @@
 
   function settingsSummary() {
     var s = state.settings;
-    return el("p", { className: "muted", text: [t(s.remote ? "lobby.remote" : "lobby.together"), t("lobby.places", s.places.length - s.struck.length), t("lobby.minutes", s.roundSeconds / 60), t("lobby.spies", s.spyCount)].join(" · ") });
+    return el("p", { className: "muted", text: [t(s.remote ? "lobby.remote" : "lobby.together"), t("lobby.places", s.places.length - s.struck.length), t("lobby.minutes", s.roundSeconds / 60), t(s.spyCount === 1 ? "lobby.spy" : "lobby.spies", s.spyCount)].join(" · ") });
   }
 
   // Between rounds: the room's places, struck ones crossed out. The host taps one to strike it out
@@ -194,18 +218,19 @@
       placesBoard()));
   }
 
-  // The card shows only while it is held down, so a neighbour cannot read it.
+  // The card shows only while it is held down, so a neighbour cannot read it. A spy's card has the same
+  // lines in the same style as a civilian's (place, role, hint), so a glance across the table at an
+  // open card does not tell the two apart.
   function holdCard() {
     var card = state.card;
-    var face = el("div", { className: "secret__face" });
-    if (card.isSpy) {
-      face.appendChild(el("p", { className: "stamp", text: t("card.spy") }));
-      face.appendChild(el("p", { className: "small", text: t("card.spyHint") }));
-      if (card.spyCount > 1) face.appendChild(el("p", { className: "small", text: t("card.spies", card.spyCount) }));
-    } else {
-      face.appendChild(el("p", { className: "secret__label", text: t("card.place") }));
-      face.appendChild(el("p", { className: "secret__place", text: word(card.place) }));
-    }
+    var role = card.isSpy ? t("card.spyRole") : card.role ? word(card.role) : t("card.civilian");
+    var face = el("div", { className: "secret__face" },
+      el("p", { className: "secret__label", text: t("card.place") }),
+      el("p", { className: "secret__place", text: card.isSpy ? t("card.unknown") : word(card.place) }),
+      el("p", { className: "secret__label", text: t("card.role") }),
+      el("p", { className: "secret__role", text: role }),
+      el("p", { className: "secret__hint small", text: t(card.isSpy ? "card.spyHint" : "card.civilianHint") }),
+      card.spyCount > 1 ? el("p", { className: "secret__hint small", text: t("card.spies", card.spyCount) }) : null);
     var cover = el("div", { className: "secret__cover" },
       el("span", { className: "secret__icon", attrs: { "aria-hidden": "true" }, text: "?" }),
       el("span", { text: t("card.hold") }));
@@ -218,8 +243,48 @@
     secret.addEventListener("contextmenu", function (e) { e.preventDefault(); });
     secret.addEventListener("keydown", function (e) { if (e.key === " " || e.key === "Enter") show(e); });
     secret.addEventListener("keyup", function (e) { if (e.key === " " || e.key === "Enter") hide(); });
-    document.addEventListener("visibilitychange", hide);
+    hideCard = hide; // one page-wide listener below closes it when the phone is switched away
     return el("div", { className: "stack" }, secret, el("p", { className: "hint center", text: t("card.holdHint") }));
+  }
+  document.addEventListener("visibilitychange", function () { if (hideCard) hideCard(); });
+
+  // Together: a question that works for any place, for whoever runs out of ideas.
+  function suggestBox() {
+    var current = suggestion && suggestion.round === state.round ? suggestion.text : null;
+    return el("div", { className: "suggest" },
+      el("button", {
+        className: "link-btn", text: t("suggest.button"), attrs: { type: "button" },
+        on: { click: function () { suggestion = { round: state.round, text: randomQuestion(current) }; render(); } },
+      }),
+      current ? el("p", { className: "suggest__text", text: current }) : null);
+  }
+
+  // The same link on every screen, so it gives no one away; only a spy's press opens the list.
+  function revealLink() {
+    return el("p", { className: "center reveal-link" }, el("button", {
+      className: "link-btn", text: t("reveal.button"), attrs: { type: "button" },
+      on: {
+        click: function () {
+          if (!state.card || !state.card.isSpy) { showToast(t("reveal.notSpy")); return; }
+          revealing = state.round;
+          render();
+          window.scrollTo(0, 0);
+        },
+      },
+    }));
+  }
+
+  // A spy naming the place during the questions: pick, confirm, and the round ends for everyone.
+  function revealPanel() {
+    return el("div", { className: "stack" },
+      el("div", { className: "card card--paper" },
+        el("h2", { text: t("reveal.title") }),
+        el("p", { className: "muted", text: t("reveal.hint") }),
+        button(t("reveal.cancel"), function () { revealing = 0; render(); }, "btn btn--ghost btn--block")),
+      placesList(state.card.places, function (w) {
+        if (!window.confirm(t("reveal.confirm", word(w)))) return;
+        invoke("RevealGuess", w.id).then(function (error) { if (error) { revealing = 0; render(); } });
+      }));
   }
 
   // Together: who asks the first question. Apart: whose turn it is now.
@@ -230,6 +295,7 @@
   }
 
   function renderAsking() {
+    if (revealing === state.round && state.card.isSpy) { stage.appendChild(revealPanel()); return; }
     var me = player(state.youId);
     var inRound = state.players.filter(function (p) { return p.inRound && p.connected; });
     var ready = inRound.filter(function (p) { return p.ready; }).length;
@@ -238,21 +304,26 @@
     stage.appendChild(el("div", { className: "stack" },
       holdCard(),
       el("p", { className: "first-asker", text: askingLine() }),
+      remote() ? null : suggestBox(), // apart, the suggestion fills the question box instead
       placesList(state.card.places),
-      el("div", { className: "card" }, readyBtn, el("p", { className: "muted small center", text: t("asking.readyCount", ready, inRound.length) }))));
+      el("div", { className: "card" }, readyBtn, el("p", { className: "muted small center", text: t("asking.readyCount", ready, inRound.length) })),
+      revealLink()));
   }
 
-  // The room's places, the same for everyone; clickable only for the spy's last guess.
+  // The room's places, the same for everyone. During the questions the list starts open on every
+  // phone, so reading it does not single out the spy; it is clickable only when a spy names the place.
   function placesList(places, onPick) {
     var list = el("ul", { className: "places" });
     sorted(places).forEach(function (w) {
       var item = onPick
-        ? button(word(w), function () { onPick(w.id); }, "place place--pick")
+        ? button(word(w), function () { onPick(w); }, "place place--pick")
         : el("span", { className: "place", text: word(w) });
       list.appendChild(el("li", {}, item));
     });
-    return el("details", { className: "card places-box", attrs: onPick ? { open: "" } : {} },
+    var box = el("details", { className: "card places-box", attrs: onPick || listOpen ? { open: "" } : {} },
       el("summary", { text: t("card.possible", places.length) }), list);
+    if (!onPick) box.addEventListener("toggle", function () { listOpen = box.open; });
+    return box;
   }
 
   function renderVoting() {
@@ -285,7 +356,7 @@
         el("div", { className: "card card--paper" },
           el("p", { className: "stamp", text: t("guess.youTitle") }),
           el("p", { text: t("guess.youHint") })),
-        placesList(g.places, function (id) { invoke("Guess", id); })));
+        placesList(g.places, function (w) { invoke("Guess", w.id); })));
     } else {
       stage.appendChild(el("div", { className: "card" },
         el("h1", { className: "stage__title", text: t("guess.othersTitle", nameOf(g.accusedId)) }),
@@ -297,19 +368,25 @@
     var r = state.result;
     var civilians = r.winner === "civilians";
     var story = [];
-    if (!r.accusedId) story.push(t("result.noAccusation"));
+    if (r.revealedId) story.push(t(r.spyGuessed ? "result.revealRight" : "result.revealWrong", nameOf(r.revealedId), word(r.guess)));
+    else if (!r.accusedId) story.push(t("result.noAccusation"));
     else if (r.spyIds.indexOf(r.accusedId) < 0) story.push(t("result.accusedCivilian", nameOf(r.accusedId)));
     else {
       story.push(t("result.caught", nameOf(r.accusedId)));
       story.push(r.spyGuessed ? t("result.guessRight", word(r.guess)) : r.guess ? t("result.guessWrong", word(r.guess)) : t("result.noGuess"));
     }
 
+    // Everyone's role, and their vote unless a spy ended the round before any voting.
     var votes = el("ul", { className: "votes" });
     Object.keys(r.points).forEach(function (id) {
       var target = r.votes[id];
+      var spy = r.spyIds.indexOf(id) >= 0;
+      var role = spy ? t("result.spyRole") : r.roles[id] ? word(r.roles[id]) : "";
       votes.appendChild(el("li", {},
-        el("span", { text: nameOf(id) }),
-        el("span", { className: "muted", text: target ? "→ " + nameOf(target) : t("result.noVote") }),
+        el("span", { className: "votes__who" },
+          el("span", { className: "votes__name", text: nameOf(id) }),
+          role ? el("span", { className: "votes__role small" + (spy ? " votes__role--spy" : ""), text: role }) : null),
+        el("span", { className: "muted", text: r.revealedId ? "" : target ? "→ " + nameOf(target) : t("result.noVote") }),
         el("span", { className: "mono", text: "+" + r.points[id] })));
     });
 
@@ -553,8 +630,14 @@
         if (!askTarget) { showToast(t("talk.pickTarget")); return; }
         invoke("Ask", askTarget, input.value).then(function (error) { if (error === null) { input.value = ""; askTarget = null; } });
       });
-      form.querySelector("input").value = draft;
-      questionBox.append(el("p", { className: "talk__label", text: t("talk.pickTarget") }), targets, form);
+      var input = form.querySelector("input");
+      input.value = draft;
+      // Fills the box with a question that works for any place; it can still be edited before sending.
+      var suggest = el("button", {
+        className: "link-btn talk__suggest", text: t("suggest.button"), attrs: { type: "button" },
+        on: { click: function () { input.value = randomQuestion(input.value); input.focus(); } },
+      });
+      questionBox.append(el("p", { className: "talk__label", text: t("talk.pickTarget") }), targets, form, suggest);
     }
 
     if (a.kind === "answer") {

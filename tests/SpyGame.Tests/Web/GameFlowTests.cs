@@ -80,6 +80,54 @@ public class GameFlowTests : IClassFixture<GameFactory>
     }
 
     [Fact]
+    public async Task Civilians_get_roles_and_a_spy_can_name_the_place_during_the_questions()
+    {
+        var (_, channels) = await TableAsync(4);
+        Assert.Null(await channels[0].InvokeAsync("StartRound"));
+        var views = new List<RoomView>();
+        foreach (var channel in channels) views.Add(await channel.WaitForAsync(v => v.Phase == Phase.Asking));
+        var spyIndex = views.FindIndex(v => v.Card!.IsSpy);
+        var spy = channels[spyIndex];
+        var civilians = views.Where(v => !v.Card!.IsSpy).ToList();
+        var place = civilians[0].Card!.Place!;
+
+        // Every civilian has a role of the place, all different; the spy's connection never got one.
+        Assert.All(civilians, v => Assert.Contains(v.Card!.Role!, WordBank.RolesOf(place.Id)));
+        Assert.Equal(3, civilians.Select(v => v.Card!.Role).Distinct().Count());
+        Assert.All(spy.Raw, raw => Assert.DoesNotContain("\"role\":{", raw));
+
+        // A civilian cannot use the spy's way out; the spy can, once.
+        Assert.Equal("not_a_spy", await channels[(spyIndex + 1) % 4].InvokeAsync("RevealGuess", place.Id));
+        Assert.Equal("invalid_guess", await spy.InvokeAsync("RevealGuess", new string('x', 100)));
+        Assert.Null(await spy.InvokeAsync("RevealGuess", place.Id));
+        foreach (var channel in channels)
+        {
+            var result = (await channel.WaitForAsync(v => v.Phase == Phase.Results)).Result!;
+            Assert.Equal(Team.Spies, result.Winner);
+            Assert.Equal(views[spyIndex].YouId, result.RevealedId);
+            Assert.Equal(civilians.Select(v => v.YouId).Order(), result.Roles.Keys.Order());
+        }
+        var counts = channels[0].Latest!.Players.ToDictionary(p => p.Id);
+        Assert.Equal((1, 1), (counts[views[spyIndex].YouId].Rounds, counts[views[spyIndex].YouId].SpyRounds));
+        foreach (var channel in channels) await channel.DisposeAsync();
+    }
+
+    [Fact]
+    public async Task The_news_dialog_is_on_the_start_page_but_never_over_a_room()
+    {
+        var host = _factory.NewBrowser(NewIp());
+        var home = await (await host.GetAsync("/")).Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        Assert.Contains("<dialog class=\"news\" data-news=", home);
+        Assert.Contains("<form method=\"dialog\" class=\"news__body\">", home); // only closes the dialog: no action, no token
+        Assert.Contains("yeni neler var?", home);
+
+        var code = await host.CreateRoomAsync(NewName("host"));
+        var room = await (await host.GetAsync($"/r/{code}")).Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
+        Assert.Contains("data-room=", room);
+        Assert.DoesNotContain("data-news", room);
+    }
+
+    [Fact]
     public async Task Nobody_can_act_for_another_player_or_out_of_turn()
     {
         var (_, channels) = await TableAsync(3);

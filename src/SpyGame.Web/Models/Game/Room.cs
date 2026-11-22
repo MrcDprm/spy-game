@@ -8,7 +8,7 @@ public enum Phase
     Lobby,     // waiting for players
     Asking,    // the round's questions, against the clock
     Voting,    // everyone names a suspect
-    LastGuess, // a caught spy tries to name the place
+    LastGuess, // a caught spy tries to name the place (a spy who names it during the questions skips straight to the results)
     Results,   // the round is over; the host can start the next one
 }
 
@@ -54,6 +54,11 @@ public sealed class RoomPlayer
     public bool Connected { get; set; } = true;
     public bool Left { get; set; } // left during a round; removed when the round ends
     public int Score { get; set; }
+
+    // Finished rounds this player was in, and how many of them as a spy. Counted only when a round
+    // ends, so during a round nobody can see whose spy count is about to go up.
+    public int Rounds { get; set; }
+    public int SpyRounds { get; set; }
     public DateTimeOffset JoinedAt { get; set; }
 }
 
@@ -69,6 +74,7 @@ public sealed class RoundState
     public DateTimeOffset? VotingEndsAt { get; set; }
     public Dictionary<string, string> Votes { get; set; } = [];
     public string? AccusedId { get; set; }
+    public string? RevealedId { get; set; } // a spy who stopped the questions to name the place
     public DateTimeOffset? GuessEndsAt { get; set; }
     public string? GuessPlaceId { get; set; }
     public RoundOutcome? Outcome { get; set; }

@@ -226,6 +226,9 @@ input.code-input { font-family: "JetBrains Mono", monospace; font-size: 1.35rem;
 .card--paper .segmented label + label span { border-color: var(--paper-line); }
 .card--paper .segmented input:checked + span { color: var(--on-accent); }
 .card--paper .link-btn { color: var(--paper-ink-2); }
+/* The paper stays light in the dark theme too: a ghost button on it needs the paper's ink. */
+.card--paper .btn--ghost { color: var(--paper-ink); border-color: var(--paper-line); }
+.card--paper .btn--ghost:hover { background: color-mix(in srgb, var(--paper-ink) 8%, transparent); color: var(--paper-ink); border-color: var(--paper-ink-2); }
 .card--paper .alert { color: var(--paper-ink); }
 
 .stamp {
@@ -283,6 +286,7 @@ input.code-input { font-family: "JetBrains Mono", monospace; font-size: 1.35rem;
 .tag--host { border-color: var(--gold); color: var(--gold); }
 .tag--away { border-style: dashed; }
 .tag--ok { border-color: var(--ok); color: var(--ok); }
+.tag--spy { border-style: dashed; color: var(--ink-3); font-variant-numeric: tabular-nums; white-space: nowrap; }
 
 /* The secret card: covered until held down. */
 .secret {
@@ -297,8 +301,17 @@ input.code-input { font-family: "JetBrains Mono", monospace; font-size: 1.35rem;
 .secret--open .secret__cover { display: none; }
 .secret--open .secret__face { display: block; }
 .secret__label { margin: 0 0 0.25rem; font: 700 0.75rem "JetBrains Mono", monospace; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); }
-.secret__place { margin: 0 0 1rem; font-size: clamp(1.8rem, 7vw, 2.6rem); font-weight: 800; line-height: 1.1; }
+.secret__place { margin: 0 0 1rem; font-size: clamp(1.8rem, 7vw, 2.6rem); font-weight: 800; line-height: 1.1; overflow-wrap: anywhere; }
+/* A spy's card uses these same lines, so an open card looks alike from across the table. */
+.secret__role { margin: 0 0 1rem; font-size: clamp(1.2rem, 5vw, 1.55rem); font-weight: 750; line-height: 1.2; overflow-wrap: anywhere; }
+.secret__hint { max-width: 22rem; margin: 0 auto 0.35rem; color: var(--paper-ink-2); }
 .first-asker { margin: 0; text-align: center; font-weight: 650; }
+
+/* Suggested questions (together) and the spy's way to name the place, the same on every phone. */
+.suggest { display: grid; justify-items: center; gap: 0.5rem; }
+.suggest__text { max-width: 32rem; margin: 0; padding: 0.75rem 1rem; border: 1.5px dashed var(--line); border-radius: 12px; text-align: center; font-weight: 650; overflow-wrap: anywhere; }
+.reveal-link { margin: 0; }
+.talk__suggest { justify-self: start; }
 
 .places-box summary { cursor: pointer; font-weight: 700; }
 .places { list-style: none; margin: 0.75rem 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr)); gap: 0.4rem; }
@@ -316,7 +329,24 @@ input.code-input { font-family: "JetBrains Mono", monospace; font-size: 1.35rem;
 .result .stamp { font-size: 1.15rem; }
 .result .secret__place { margin-bottom: 0.75rem; }
 .votes { list-style: none; margin: 0.5rem 0 0; padding: 0; display: grid; gap: 0.3rem; }
-.votes li { display: grid; grid-template-columns: 1fr 1fr auto; gap: 0.5rem; padding: 0.4rem 0; border-bottom: 1px dashed var(--line); }
+.votes li { display: grid; grid-template-columns: 1fr 1fr auto; align-items: center; gap: 0.5rem; padding: 0.4rem 0; border-bottom: 1px dashed var(--line); }
+.votes li > * { min-width: 0; overflow-wrap: anywhere; }
+.votes__who { display: grid; }
+.votes__name { font-weight: 650; }
+.votes__role { color: var(--ink-2); }
+.votes__role--spy { color: var(--accent-strong); font-weight: 700; }
+
+/* What's new: shown once per browser, on every page except a room in play. */
+.news { width: min(30rem, 100% - 2rem); max-height: min(90dvh, 46rem); padding: 0; overflow-y: auto; overscroll-behavior: contain; border: 1px solid var(--paper-line); border-radius: 18px; background: var(--paper); color: var(--paper-ink); box-shadow: var(--shadow); }
+.news::backdrop { background: rgb(0 0 0 / 0.6); }
+.news__body { position: relative; display: grid; gap: 1rem; margin: 0; padding: 1.5rem; }
+.news h2 { margin: 0; padding-right: 4rem; }
+.news h2:focus { outline: none; } /* focused only so the dialog opens at the top; it is not a control */
+.news__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.8rem; }
+.news__list li { padding-left: 0.85rem; border-left: 3px solid var(--accent); }
+.news__list strong { display: block; margin-bottom: 0.1rem; }
+.news__list p { margin: 0; color: var(--paper-ink-2); font-size: 0.92rem; }
+.news .stamp--small { top: 1.35rem; }
 
 /* Questions and chat (groups playing apart): a sheet at the bottom on phones, a card in the side column on wide screens. */
 .talk { position: fixed; left: 0; right: 0; bottom: var(--kb, 0px); z-index: 15; background: var(--surface); border-top: 1px solid var(--line); border-radius: 18px 18px 0 0; box-shadow: 0 -12px 32px rgb(0 0 0 / 0.28); }
